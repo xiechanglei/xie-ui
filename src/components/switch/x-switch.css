@@ -1,0 +1,83 @@
+/* x-switch 样式。轨道/滑块尺寸走公开令牌（--xie-switch-width/--xie-switch-height），
+   checked 驱动滑块位移与配色；on/off 图标插槽随状态显隐。 */
+:host {
+  display: inline-block;
+  box-sizing: border-box;
+  line-height: 0;
+  vertical-align: middle;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.base {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  width: var(--xie-switch-width, 44px);
+  height: var(--xie-switch-height, 24px);
+  cursor: pointer;
+}
+:host([disabled]) .base {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--xie-radius-full);
+  background: var(--xie-color-surface);
+  border: 1px solid var(--xie-color-border);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+:host([checked]) .track {
+  background: var(--xie-color-primary);
+  border-color: var(--xie-color-primary);
+}
+
+.thumb {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--xie-switch-height, 24px) - 6px);
+  height: calc(var(--xie-switch-height, 24px) - 6px);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--xie-color-muted);
+  box-shadow: var(--xie-shadow-1);
+  transition: left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+:host([checked]) .thumb {
+  left: calc(100% - (var(--xie-switch-height, 24px) - 6px) - 2px);
+}
+.thumb ::slotted(svg),
+.thumb ::slotted(x-icon) {
+  width: calc(var(--xie-switch-height, 24px) - 12px);
+  height: calc(var(--xie-switch-height, 24px) - 12px);
+}
+
+/* 图标随状态显隐（无插槽内容时为普通圆点，不受影响） */
+.thumb ::slotted([slot="on"]) {
+  display: none;
+}
+.thumb ::slotted([slot="off"]) {
+  display: inline-flex;
+}
+:host([checked]) .thumb ::slotted([slot="on"]) {
+  display: inline-flex;
+}
+:host([checked]) .thumb ::slotted([slot="off"]) {
+  display: none;
+}
+
+.base:focus-visible .track {
+  outline: 2px solid var(--xie-color-primary);
+  outline-offset: 2px;
+}

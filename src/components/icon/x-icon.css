@@ -1,0 +1,22 @@
+/* x-icon 样式。宿主按 size 定尺寸，内部 svg 撑满并继承 currentColor。 */
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--_icon-size, 1em);
+  height: var(--_icon-size, 1em);
+  line-height: 0;
+  color: inherit;
+  vertical-align: middle;
+  flex: 0 0 auto;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

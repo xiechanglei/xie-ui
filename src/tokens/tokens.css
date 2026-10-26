@@ -1,0 +1,146 @@
+/* 设计令牌：primitive（调色板/间距）→ knob（旋钮）→ derived（派生）。
+   构建时经 Vite CSS 管线压缩；源码保留可读缩进与注释。 */
+
+/* ===== 全局基础 =====
+   页面画布跟随主题：消费者只要 import 本库，切换 data-xie-theme 时整页背景/文字
+   即自动联动，无需各自再写 body 规则。
+   color-scheme 让浏览器原生件（滚动条、表单控件、默认画布）同步深浅色。 */
+:root {
+  color-scheme: light;
+  background-color: var(--xie-color-bg);
+  color: var(--xie-color-fg);
+}
+
+/* ===== primitive ===== */
+:root {
+  --xie-gray-0: #ffffff;
+  --xie-gray-100: #f4f4f5;
+  --xie-gray-300: #d4d4d8;
+  --xie-gray-500: #71717a;
+  --xie-gray-700: #3f3f46;
+  --xie-gray-900: #18181b;
+  --xie-blue-500: #3b82f6;
+  --xie-blue-600: #2563eb;
+
+  --xie-space-1: 4px;
+  --xie-space-2: 8px;
+  --xie-space-3: 12px;
+  --xie-space-4: 16px;
+}
+
+/* ===== knob + derived ===== */
+:root {
+  /* 旋钮 · 强调色（主题面板改这些） */
+  --xie-primary: var(--xie-blue-600);
+  --xie-secondary: #475569;
+  --xie-success: #16a34a;
+  --xie-warning: #d97706;
+  --xie-danger: #dc2626;
+  --xie-info: #0891b2;
+  /* soft 淡色混合方向：浅色往白提亮、深色往黑压暗，单一开关随主题翻转 */
+  --xie-soft-mix: white 88%;
+
+  /* 旋钮 · 布局 */
+  --xie-radius: 6px;
+  --xie-control-height: 36px;
+  --xie-font-size: 14px;
+  --xie-shadow-strength: 1;
+
+  /* 派生 · 圆角 */
+  --xie-radius-none: 0;
+  --xie-radius-sm: calc(var(--xie-radius) * 0.66);
+  --xie-radius-md: var(--xie-radius);
+  --xie-radius-lg: calc(var(--xie-radius) * 1.6);
+  --xie-radius-full: 9999px;
+
+  /* 派生 · 控件尺寸 */
+  --xie-size-sm: calc(var(--xie-control-height) * 0.78);
+  --xie-size-md: var(--xie-control-height);
+  --xie-size-lg: calc(var(--xie-control-height) * 1.22);
+
+  /* 派生 · 字号 */
+  --xie-font-size-sm: calc(var(--xie-font-size) - 2px);
+  --xie-font-size-md: var(--xie-font-size);
+  --xie-font-size-lg: calc(var(--xie-font-size) + 2px);
+
+  /* 派生 · 强调色族（6 角色，各含 本体/hover/active/soft/fg） */
+  --xie-color-primary: var(--xie-primary);
+  --xie-color-primary-hover: color-mix(in oklab, var(--xie-primary), black 12%);
+  --xie-color-primary-active: color-mix(in oklab, var(--xie-primary), black 22%);
+  --xie-color-primary-soft: color-mix(in oklab, var(--xie-primary), var(--xie-soft-mix));
+  --xie-color-primary-fg: #ffffff;
+
+  --xie-color-secondary: var(--xie-secondary);
+  --xie-color-secondary-hover: color-mix(in oklab, var(--xie-secondary), black 12%);
+  --xie-color-secondary-active: color-mix(in oklab, var(--xie-secondary), black 22%);
+  --xie-color-secondary-soft: color-mix(in oklab, var(--xie-secondary), var(--xie-soft-mix));
+  --xie-color-secondary-fg: #ffffff;
+
+  --xie-color-success: var(--xie-success);
+  --xie-color-success-hover: color-mix(in oklab, var(--xie-success), black 12%);
+  --xie-color-success-active: color-mix(in oklab, var(--xie-success), black 22%);
+  --xie-color-success-soft: color-mix(in oklab, var(--xie-success), var(--xie-soft-mix));
+  --xie-color-success-fg: #ffffff;
+
+  --xie-color-warning: var(--xie-warning);
+  --xie-color-warning-hover: color-mix(in oklab, var(--xie-warning), black 12%);
+  --xie-color-warning-active: color-mix(in oklab, var(--xie-warning), black 22%);
+  --xie-color-warning-soft: color-mix(in oklab, var(--xie-warning), var(--xie-soft-mix));
+  --xie-color-warning-fg: #ffffff;
+
+  --xie-color-danger: var(--xie-danger);
+  --xie-color-danger-hover: color-mix(in oklab, var(--xie-danger), black 12%);
+  --xie-color-danger-active: color-mix(in oklab, var(--xie-danger), black 22%);
+  --xie-color-danger-soft: color-mix(in oklab, var(--xie-danger), var(--xie-soft-mix));
+  --xie-color-danger-fg: #ffffff;
+
+  --xie-color-info: var(--xie-info);
+  --xie-color-info-hover: color-mix(in oklab, var(--xie-info), black 12%);
+  --xie-color-info-active: color-mix(in oklab, var(--xie-info), black 22%);
+  --xie-color-info-soft: color-mix(in oklab, var(--xie-info), var(--xie-soft-mix));
+  --xie-color-info-fg: #ffffff;
+
+  /* 中性语义（浅色基准） */
+  --xie-color-bg: var(--xie-gray-0);
+  --xie-color-fg: var(--xie-gray-900);
+  --xie-color-border: var(--xie-gray-300);
+  --xie-color-muted: var(--xie-gray-500);
+  --xie-color-surface: var(--xie-gray-100);
+
+  /* 派生 · 阴影 */
+  --xie-shadow-1: 0 1px 2px rgb(0 0 0 / calc(8% * var(--xie-shadow-strength)));
+  --xie-shadow-2: 0 4px 12px rgb(0 0 0 / calc(14% * var(--xie-shadow-strength)));
+  --xie-shadow-3: 0 10px 28px rgb(0 0 0 / calc(18% * var(--xie-shadow-strength)));
+}
+
+/* ===== 预设档位：各维度正交覆盖对应旋钮 ===== */
+:root[data-xie-radius="sm"] { --xie-radius: 4px; }
+:root[data-xie-radius="none"] { --xie-radius: 0; }
+:root[data-xie-radius="lg"] { --xie-radius: 10px; }
+:root[data-xie-radius="full"] { --xie-radius: 9999px; }
+
+:root[data-xie-size="compact"] { --xie-control-height: 30px; --xie-font-size: 13px; }
+:root[data-xie-size="comfortable"] { --xie-control-height: 42px; --xie-font-size: 15px; }
+
+:root[data-xie-shadow="none"] { --xie-shadow-strength: 0; }
+:root[data-xie-shadow="strong"] { --xie-shadow-strength: 2; }
+
+/* 深色主题 */
+:root[data-xie-theme="dark"] {
+  color-scheme: dark;
+  /* 强调色在深色下提亮一档（未定制时；danger 保持原红） */
+  --xie-primary: var(--xie-blue-500);
+  --xie-secondary: #94a3b8;
+  --xie-success: #22c55e;
+  --xie-warning: #f59e0b;
+  --xie-info: #22d3ee;
+  /* soft 改为往黑压暗，得到深色下合适的淡色底 */
+  --xie-soft-mix: black 55%;
+
+  --xie-color-bg: var(--xie-gray-900);
+  --xie-color-fg: var(--xie-gray-100);
+  --xie-color-border: var(--xie-gray-700);
+  --xie-color-muted: var(--xie-gray-500);
+  --xie-color-surface: var(--xie-gray-700);
+  --xie-shadow-strength: 1.6;
+}

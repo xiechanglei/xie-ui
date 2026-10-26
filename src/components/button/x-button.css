@@ -1,0 +1,104 @@
+/* x-button 样式。宿主 shadow DOM 封装，尺寸/变体通过 :host([attr]) 驱动，颜色消费全局语义令牌。 */
+:host {
+  display: inline-block;
+  box-sizing: border-box;
+  font-family: inherit;
+  vertical-align: middle;
+  /* 默认 md 尺寸兜底：size 缺省时不反射成宿主属性，:host([size="md"]) 不生效，故给基准高度 */
+  width: auto;
+  height: var(--xie-size-md);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.base {
+  /* 颜色轴（默认 primary）：只描述“这一支语义色” */
+  --_accent: var(--xie-color-primary);
+  --_accent-hover: var(--xie-color-primary-hover);
+  --_accent-fg: var(--xie-color-primary-fg);
+  --_accent-soft: var(--xie-color-primary-soft);
+
+  /* 形态轴（默认 solid）：决定如何消费 accent */
+  --_bg: var(--_accent);
+  --_fg: var(--_accent-fg);
+  --_border: transparent;
+  --_shadow: var(--xie-shadow-1);
+
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--xie-space-1);
+  width: 100%;
+  height: 100%;
+  padding: 0 var(--xie-space-3);
+  border-radius: var(--xie-radius-md);
+  font-size: var(--xie-font-size-md);
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  background: var(--_bg);
+  color: var(--_fg);
+  border: 1px solid var(--_border);
+  box-shadow: var(--_shadow);
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, opacity .15s ease, color .15s ease;
+}
+
+/* 颜色轴：覆盖 accent（与形态正交，任意 color×variant 组合自动成立） */
+:host([color="secondary"]) .base { --_accent: var(--xie-color-secondary); --_accent-hover: var(--xie-color-secondary-hover); --_accent-fg: var(--xie-color-secondary-fg); --_accent-soft: var(--xie-color-secondary-soft); }
+:host([color="success"]) .base { --_accent: var(--xie-color-success); --_accent-hover: var(--xie-color-success-hover); --_accent-fg: var(--xie-color-success-fg); --_accent-soft: var(--xie-color-success-soft); }
+:host([color="warning"]) .base { --_accent: var(--xie-color-warning); --_accent-hover: var(--xie-color-warning-hover); --_accent-fg: var(--xie-color-warning-fg); --_accent-soft: var(--xie-color-warning-soft); }
+:host([color="danger"]) .base { --_accent: var(--xie-color-danger); --_accent-hover: var(--xie-color-danger-hover); --_accent-fg: var(--xie-color-danger-fg); --_accent-soft: var(--xie-color-danger-soft); }
+:host([color="info"]) .base { --_accent: var(--xie-color-info); --_accent-hover: var(--xie-color-info-hover); --_accent-fg: var(--xie-color-info-fg); --_accent-soft: var(--xie-color-info-soft); }
+
+/* 形态轴：决定如何用 accent（solid 为 .base 默认） */
+:host([variant="outline"]) .base { --_bg: transparent; --_fg: var(--_accent); --_border: var(--_accent); --_shadow: none; }
+:host([variant="ghost"]) .base { --_bg: transparent; --_fg: var(--_accent); --_border: transparent; --_shadow: none; }
+:host([variant="soft"]) .base { --_bg: var(--_accent-soft); --_fg: var(--_accent); --_border: transparent; --_shadow: none; }
+
+/* hover：按形态消费 accent-hover（form 规则特异性高于裸 .base:hover，能覆盖） */
+.base:hover { --_bg: var(--_accent-hover); }
+:host([variant="outline"]) .base:hover { --_bg: var(--_accent-soft); }
+:host([variant="ghost"]) .base:hover { --_bg: var(--xie-color-surface); }
+:host([variant="soft"]) .base:hover { --_bg: var(--_accent-soft); --_fg: var(--_accent-hover); }
+
+.base:focus-visible {
+  outline: 2px solid var(--_accent);
+  outline-offset: 2px;
+}
+
+/* size */
+:host([size="sm"]) { width: auto; height: var(--xie-size-sm); }
+:host([size="md"]) { width: auto; height: var(--xie-size-md); }
+:host([size="lg"]) { width: auto; height: var(--xie-size-lg); }
+:host([size="sm"]) .base { font-size: var(--xie-font-size-sm); padding: 0 var(--xie-space-2); }
+:host([size="lg"]) .base { font-size: var(--xie-font-size-lg); padding: 0 var(--xie-space-4); }
+
+/* disabled / loading */
+:host([disabled]) .base,
+:host([loading]) .base {
+  opacity: .55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: x-button-spin .6s linear infinite;
+}
+
+@keyframes x-button-spin {
+  to { transform: rotate(360deg); }
+}

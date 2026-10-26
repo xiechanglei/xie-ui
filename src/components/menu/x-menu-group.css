@@ -1,0 +1,93 @@
+/* x-menu-group 样式。头部为分类标签（可折叠时是可点击按钮），内容用 grid 0fr↔1fr 做高度自适应折叠动画。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  margin-bottom: 6px;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.header {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 16px 6px;
+  font-family: inherit;
+  font-size: var(--xie-font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--xie-color-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.header:hover {
+  color: var(--xie-color-fg);
+}
+.header:focus-visible {
+  outline: 2px solid var(--xie-color-primary);
+  outline-offset: -2px;
+}
+.h-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* 折叠指示箭头：展开时朝下，折叠时朝右 */
+.chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  color: currentColor;
+  transition: transform 0.2s ease;
+}
+.chevron x-icon {
+  width: 12px;
+  height: 12px;
+}
+:host(:not([collapsed])) .chevron {
+  transform: rotate(90deg);
+}
+/* 不可折叠：隐藏箭头、去掉手型（collapsible 默认 false，属性存在才代表可折叠） */
+:host(:not([collapsible])) .chevron {
+  display: none;
+}
+:host(:not([collapsible])) .header {
+  cursor: default;
+}
+
+/* 图标仅在提供时占位 */
+.header ::slotted([slot="icon"]) {
+  display: inline-flex;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  margin-right: var(--xie-space-2);
+}
+
+/* 内容折叠动画 */
+.content {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.25s ease;
+}
+:host([collapsed]) .content {
+  grid-template-rows: 0fr;
+}
+.content-inner {
+  overflow: hidden;
+  min-height: 0;
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  visibility: visible;
+  transition: visibility 0s;
+}
+:host([collapsed]) .content-inner {
+  visibility: hidden;
+  transition: visibility 0s 0.25s;
+}

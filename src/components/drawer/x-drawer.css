@@ -1,0 +1,57 @@
+/* x-drawer —— 从边缘滑入的浮动抽屉。遮罩 + 面板均为 position:fixed（视口层级），
+   故 :host 用 display:contents 不占布局；open 反射属性驱动 CSS 过渡。 */
+:host {
+  display: contents;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgb(0 0 0 / 45%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.28s ease, visibility 0.28s ease;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  width: var(--_drawer-width, 440px);
+  max-width: 92vw;
+  background: var(--xie-color-bg);
+  color: var(--xie-color-fg);
+  box-shadow: var(--xie-shadow-3);
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.22, 0.61, 0.36, 1);
+  overflow: hidden;
+}
+
+:host([placement="left"]) .panel {
+  right: auto;
+  left: 0;
+  transform: translateX(-100%);
+}
+
+:host([open]) .scrim {
+  opacity: 1;
+  visibility: visible;
+}
+:host([open]) .panel {
+  transform: translateX(0);
+}
+:host(:not([open])) .panel {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrim,
+  .panel {
+    transition: none;
+  }
+}

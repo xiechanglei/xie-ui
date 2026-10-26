@@ -1,0 +1,5 @@
+- 尺寸要可以拖动调整
+- x-theme-panel 抽离组件
+- 现在docs左侧的菜单我觉得挺好的，这里是不是可以抽离出来至少两个组件，一个layout，logo 也👨好看的是否需要封装成logo组件，三个属性，logo，title，subtitle
+- icon 组件库，单独抽离成一个打包入口文件，全部用svg实现
+- drawer组件头部的title和footer的slot，是否可以抽离出来，作为一个单独的组件,还是封装一个通用的header和footer

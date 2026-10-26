@@ -1,0 +1,13 @@
+/* x-menu 样式。纵向排布分组与菜单项，视觉细节由 x-menu-group / x-menu-item 各自承担。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+}

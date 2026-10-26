@@ -8,5 +8,7 @@
  */
 import '../../tokens/index.js';
 import '../../components/switch/index.js';
+import '../../components/slider/index.js';
 
 export type { XSwitch } from '../../components/switch/x-switch.js';
+export type { XSlider } from '../../components/slider/x-slider.js';

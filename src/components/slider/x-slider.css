@@ -1,0 +1,101 @@
+/* x-slider —— 离散选项滑块。刻度点/标签由组件内部命令式生成，此处只提供轨道/手柄/标签的视觉与布局。
+   颜色/圆角全部消费全局令牌，随明暗与主色实时联动。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  --_thumb: 16px;
+  --_track-h: 6px;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.base {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* 轨道：左右留出半个手柄的空间，使首/末档位手柄不被裁切 */
+.track {
+  position: relative;
+  height: var(--_track-h);
+  margin-inline: calc(var(--_thumb) / 2);
+  background: var(--xie-color-surface);
+  border: 1px solid var(--xie-color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: none;
+}
+:host([disabled]) .track {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--xie-color-primary);
+  border-radius: 999px;
+}
+
+.stops {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.stops i {
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--xie-color-muted);
+  opacity: 0.5;
+  transform: translate(-50%, -50%);
+}
+
+.thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--_thumb);
+  height: var(--_thumb);
+  border-radius: 50%;
+  background: var(--xie-color-bg);
+  border: 2px solid var(--xie-color-primary);
+  box-shadow: var(--xie-shadow-1);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+}
+.thumb:active {
+  cursor: grabbing;
+}
+.thumb:focus-visible {
+  outline: 2px solid var(--xie-color-primary);
+  outline-offset: 2px;
+}
+
+/* 档位标签：绝对定位到各刻度下方，居中于手柄坐标 */
+.labels {
+  position: relative;
+  height: 1.2em;
+  margin-inline: calc(var(--_thumb) / 2);
+  font-size: var(--xie-font-size-xs, 12px);
+  color: var(--xie-color-muted);
+}
+.label {
+  position: absolute;
+  left: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.label[data-active] {
+  color: var(--xie-color-primary);
+  font-weight: 600;
+}

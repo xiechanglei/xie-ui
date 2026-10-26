@@ -150,6 +150,7 @@ template: {
 |---|---|---|
 | Button | `<x-button>` | 🚧 开发中（M0） |
 | Switch | `<x-switch>` | 🚧 开发中（M0） |
+| Slider | `<x-slider>` | 🚧 开发中（M0，离散选项滑块，档位吸附拖动；已用于主题面板圆角/尺寸/阴影） |
 | Menu | `<x-menu>` / `<x-menu-group>` / `<x-menu-item>` | 🚧 开发中（M0，导航菜单三件套） |
 | Drawer | `<x-drawer>` | 🚧 开发中（M0） |
 | ThemePanel | `<x-theme-panel>` | 🚧 开发中（M0，基于抽屉的右侧设置面板） |

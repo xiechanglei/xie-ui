@@ -10,5 +10,15 @@
 <body>
 
 <x-icon name="sun" style="color:var(--xie-color-primary)"></x-icon>
+
+<div style="margin-top:16px;display:flex;flex-direction:column;gap:24px;max-width:320px">
+  <x-slider id="s1" options="直角,小,中,大,圆" value="2" label="圆角"></x-slider>
+  <x-slider options="紧凑,标准,宽松" value="1" label="尺寸"></x-slider>
+  <x-slider options="无,柔和,强烈" value="1" label="阴影" disabled></x-slider>
+</div>
+<script>
+  s1.addEventListener('x-input', (e) => console.log('slider input ->', e.detail.index, e.detail.value));
+  s1.addEventListener('x-change', (e) => console.log('slider change ->', e.detail.index, e.detail.value));
+</script>
 </body>
 </html>

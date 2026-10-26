@@ -16,6 +16,8 @@ import '../../components/drawer/x-drawer.js';
 import '../../components/switch/x-switch.js';
 // 依赖图标组件（副作用注册 x-icon）：关闭 / 太阳 / 月亮统一取自内置图标注册表
 import '../../components/icon/x-icon.js';
+// 依赖离散选项滑块（副作用注册 x-slider），用于圆角/尺寸/阴影三行
+import '../../components/slider/x-slider.js';
 import themePanelStyles from './x-theme-panel.css?inline';
 import {
   ACCENT_DEFAULT,
@@ -48,6 +50,20 @@ const ROLE_META: { key: AccentKey; label: string; presets: string[] }[] = [
   { key: 'danger', label: '危险', presets: ['#dc2626', '#e11d48', '#b91c1c', '#9f1239'] },
   { key: 'info', label: '信息', presets: ['#0891b2', '#0284c7', '#0ea5e9', '#6366f1'] },
 ];
+
+/** 离散档位维度 → 预设值数组（滑块下标映射回 data-xie-* 预设名） */
+const DIM_OPTS: Record<string, string[]> = {
+  radius: ['none', 'sm', 'md', 'lg', 'full'],
+  size: ['compact', 'default', 'comfortable'],
+  shadow: ['none', 'soft', 'strong'],
+};
+
+/** 离散档位维度 → 滑块展示标签（逗号分隔，与 DIM_OPTS 同序） */
+const DIM_LABELS: Record<string, string> = {
+  radius: '直角,小,中,大,圆',
+  size: '紧凑,标准,宽松',
+  shadow: '无,柔和,强烈',
+};
 
 class XThemePanel extends XBaseElement {
   static tag = 'x-theme-panel';
@@ -130,31 +146,17 @@ class XThemePanel extends XBaseElement {
 
           <section class="sec">
             <div class="sec__title">圆角</div>
-            <div class="seg">
-              <button class="seg__btn" data-key="radius" data-val="none">直角</button>
-              <button class="seg__btn" data-key="radius" data-val="sm">小</button>
-              <button class="seg__btn" data-key="radius" data-val="md">中</button>
-              <button class="seg__btn" data-key="radius" data-val="lg">大</button>
-              <button class="seg__btn" data-key="radius" data-val="full">圆</button>
-            </div>
+            <x-slider data-key="radius" label="圆角" options=${DIM_LABELS.radius} value=${this.derive(() => DIM_OPTS.radius.indexOf(this.radius))}></x-slider>
           </section>
 
           <section class="sec">
             <div class="sec__title">控件尺寸</div>
-            <div class="seg">
-              <button class="seg__btn" data-key="size" data-val="compact">紧凑</button>
-              <button class="seg__btn" data-key="size" data-val="default">标准</button>
-              <button class="seg__btn" data-key="size" data-val="comfortable">宽松</button>
-            </div>
+            <x-slider data-key="size" label="控件尺寸" options=${DIM_LABELS.size} value=${this.derive(() => DIM_OPTS.size.indexOf(this.size))}></x-slider>
           </section>
 
           <section class="sec">
             <div class="sec__title">阴影</div>
-            <div class="seg">
-              <button class="seg__btn" data-key="shadow" data-val="none">无</button>
-              <button class="seg__btn" data-key="shadow" data-val="soft">柔和</button>
-              <button class="seg__btn" data-key="shadow" data-val="strong">强烈</button>
-            </div>
+            <x-slider data-key="shadow" label="阴影" options=${DIM_LABELS.shadow} value=${this.derive(() => DIM_OPTS.shadow.indexOf(this.shadow))}></x-slider>
           </section>
 
           <div class="actions">
@@ -179,6 +181,9 @@ class XThemePanel extends XBaseElement {
     this.__buildRoles(sr);
     sr.addEventListener('click', this.__onClick);
     sr.addEventListener('input', this.__onInput);
+    // 离散滑块：拖动实时应用（x-input）、松手/换档持久化（x-change）
+    sr.addEventListener('x-input', this.__onDimInput);
+    sr.addEventListener('x-change', this.__onDimChange);
     this.__apply();
   }
 
@@ -192,6 +197,8 @@ class XThemePanel extends XBaseElement {
     if (sr) {
       sr.removeEventListener('click', this.__onClick);
       sr.removeEventListener('input', this.__onInput);
+      sr.removeEventListener('x-input', this.__onDimInput);
+      sr.removeEventListener('x-change', this.__onDimChange);
     }
     super.disconnectedCallback();
   }
@@ -273,6 +280,23 @@ class XThemePanel extends XBaseElement {
       this.__save();
     }
   };
+
+  /** 离散滑块换档：下标 → 预设名；save=false 仅实时预览，true 才落盘 */
+  private __setDim = (event: Event, save: boolean): void => {
+    const t = event.target as HTMLElement;
+    const key = t?.dataset?.key;
+    if (!key) return;
+    const arr = DIM_OPTS[key];
+    if (!arr) return; // 非维度滑块（如外观模式 switch 的 x-change）忽略
+    const detail = (event as CustomEvent<{ index?: number }>).detail;
+    const index = detail?.index;
+    if (typeof index !== 'number') return;
+    const preset = arr[index];
+    if (preset != null) (this as unknown as Record<string, string>)[key] = preset;
+    if (save) this.__save();
+  };
+  private __onDimInput = (event: Event): void => this.__setDim(event, false);
+  private __onDimChange = (event: Event): void => this.__setDim(event, true);
 
   /** 变更即存：把当前配置快照写入 localStorage */
   private __save(): void {

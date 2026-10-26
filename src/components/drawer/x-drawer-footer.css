@@ -1,0 +1,11 @@
+/* x-drawer-footer —— 抽屉底部：内容右对齐、贴底，不设顶部分隔线。作为 x-drawer 直接子元素固定底部。 */
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  padding: var(--xie-space-4);
+  color: var(--xie-color-fg);
+}

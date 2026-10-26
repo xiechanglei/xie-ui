@@ -4,60 +4,29 @@
   display: contents;
 }
 
-.body {
+/* 标题块（放入 drawer 的 slot="title"）：主标题 + 说明副标题 */
+.title-block {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  font-size: var(--xie-font-size-md);
-  color: var(--xie-color-fg);
-}
-
-/* 头部 */
-.hd {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: var(--xie-space-4);
-  border-bottom: 1px solid var(--xie-color-border);
+  gap: 2px;
 }
 .hd__title {
   font-size: calc(var(--xie-font-size-md) + 2px);
   font-weight: 600;
 }
 .hd__desc {
-  display: block;
-  margin-top: 2px;
   font-size: var(--xie-font-size-sm);
+  font-weight: 400;
   color: var(--xie-color-muted);
-}
-.hd__close {
-  all: unset;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--xie-radius-md);
-  color: var(--xie-color-muted);
-}
-.hd__close:hover {
-  background: var(--xie-color-surface);
-  color: var(--xie-color-fg);
-}
-.hd__close:focus-visible {
-  outline: 2px solid var(--xie-color-primary);
-  outline-offset: 2px;
 }
 
-/* 主体 */
+/* 主体：外层滚动与内边距、底部分隔线均由 drawer 的 .body/.footer 承担，这里只管各区块间距 */
 .bd {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--xie-space-4);
   display: flex;
   flex-direction: column;
   gap: var(--xie-space-4);
+  font-size: var(--xie-font-size-md);
+  color: var(--xie-color-fg);
 }
 .sec {
   display: flex;
@@ -152,11 +121,7 @@
   flex-wrap: wrap;
 }
 
-/* 底部操作 */
-.actions {
-  padding-top: var(--xie-space-2);
-  border-top: 1px solid var(--xie-color-border);
-}
+/* 底部操作（恢复默认按钮放入 drawer 的 slot="footer"，贴底由 drawer 负责） */
 .btn-reset {
   all: unset;
   cursor: pointer;

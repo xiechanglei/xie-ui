@@ -1,11 +1,13 @@
-/* x-slider —— 离散选项滑块。刻度点/标签由组件内部命令式生成，此处只提供轨道/手柄/标签的视觉与布局。
-   颜色/圆角全部消费全局令牌，随明暗与主色实时联动。 */
+/* x-slider —— 离散选项滑块。刻度点/标签/气泡由组件内部生成，此处提供轨道/手柄/标签/气泡的精致视觉。
+   颜色、圆角全部消费全局令牌，随明暗与主色实时联动。 */
 :host {
   display: block;
   box-sizing: border-box;
   width: 100%;
-  --_thumb: 16px;
-  --_track-h: 6px;
+  --_thumb: 20px;
+  --_track-h: 10px;
+  --_halo: color-mix(in oklab, var(--xie-color-primary), transparent 84%);
+  --_halo-strong: color-mix(in oklab, var(--xie-color-primary), transparent 68%);
 }
 :host([hidden]) {
   display: none;
@@ -14,7 +16,7 @@
 .base {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -23,26 +25,27 @@
   position: relative;
   height: var(--_track-h);
   margin-inline: calc(var(--_thumb) / 2);
-  background: var(--xie-color-surface);
-  border: 1px solid var(--xie-color-border);
+  background: color-mix(in oklab, var(--xie-color-surface), var(--xie-color-fg) 6%);
   border-radius: 999px;
   cursor: pointer;
   touch-action: none;
 }
 :host([disabled]) .track {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
+/* 已填充段：主色微渐变，末端更亮 */
 .fill {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  background: var(--xie-color-primary);
   border-radius: 999px;
+  background: linear-gradient(90deg, var(--xie-color-primary), var(--xie-color-primary-hover));
 }
 
+/* 刻度点：未过档淡、已过档转亮（落在主色填充上清晰可辨） */
 .stops {
   position: absolute;
   inset: 0;
@@ -51,14 +54,19 @@
 .stops i {
   position: absolute;
   top: 50%;
-  width: 3px;
-  height: 3px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: var(--xie-color-muted);
-  opacity: 0.5;
+  background: var(--xie-color-border);
   transform: translate(-50%, -50%);
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+.stops i[data-passed] {
+  background: var(--xie-color-primary-fg);
+  opacity: 0.75;
 }
 
+/* 手柄：白底主色描边 + 柔和阴影；hover/拖拽加光环并轻微放大 */
 .thumb {
   position: absolute;
   top: 50%;
@@ -72,16 +80,60 @@
   transform: translate(-50%, -50%);
   cursor: grab;
   touch-action: none;
+  transition: box-shadow 0.15s ease, transform 0.12s ease;
 }
-.thumb:active {
+:host(:not([disabled])) .track:hover .thumb {
+  box-shadow: var(--xie-shadow-1), 0 0 0 6px var(--_halo);
+}
+.thumb:active,
+:host([data-dragging]) .thumb {
   cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.14);
+  box-shadow: var(--xie-shadow-2), 0 0 0 8px var(--_halo-strong);
 }
 .thumb:focus-visible {
-  outline: 2px solid var(--xie-color-primary);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--xie-shadow-1), 0 0 0 6px var(--_halo-strong);
+}
+:host([disabled]) .thumb {
+  cursor: not-allowed;
 }
 
-/* 档位标签：绝对定位到各刻度下方，居中于手柄坐标 */
+/* 数值气泡：跟随手柄，hover/拖拽/聚焦时浮现 */
+.bubble {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, -6px);
+  padding: 2px 8px;
+  border-radius: var(--xie-radius-sm, 6px);
+  background: var(--xie-color-fg);
+  color: var(--xie-color-bg);
+  font-size: var(--xie-font-size-xs, 11px);
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+.bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--xie-color-fg);
+}
+.track:hover .bubble,
+:host([data-dragging]) .bubble,
+.thumb:focus-visible .bubble {
+  opacity: 1;
+  transform: translate(-50%, -9px);
+}
+
+/* 档位标签：绝对定位到各刻度下方，居中于手柄坐标，当前档高亮 */
 .labels {
   position: relative;
   height: 1.2em;
@@ -94,6 +146,7 @@
   left: 0;
   transform: translateX(-50%);
   white-space: nowrap;
+  transition: color 0.15s ease;
 }
 .label[data-active] {
   color: var(--xie-color-primary);

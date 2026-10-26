@@ -2,8 +2,10 @@
  * x-drawer —— 通用抽屉浮层（反馈与浮层分类）。
  *
  * 从视口边缘（默认右）滑入的面板 + 遮罩，用于承载设置面板、详情、表单等浮层内容。
- * 通过 `open` 属性（反射）驱动显隐；点遮罩 / 按 Esc 触发可取消的 `x-close`，默认自带关闭。
- * 内容通过默认插槽传入；面板视觉（背景/阴影/宽度）由全局令牌驱动，随主题实时联动。
+ * 通过 `open` 属性（反射）驱动显隐；点遮罩 / 按 Esc 触发可取消的 `x-close`。
+ * 面板为纵向 flex 容器，直接子元素排布：`<x-drawer-header>` / `<x-drawer-footer>` 固定顶/底，
+ * 其余内容占据中部并自动滚动、内衬留白（见组件 CSS 的 ::slotted 规则）。
+ * 面板视觉（背景/阴影/宽度）由全局令牌驱动，随主题实时联动。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';

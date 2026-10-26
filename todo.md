@@ -1,4 +1,4 @@
-- 现在docs左侧的菜单我觉得挺好的，这里是不是可以抽离出来至少两个组件，一个layout，logo 也👨好看的是否需要封装成logo组件，三个属性，logo，title，subtitle
-- drawer组件头部的title和footer的slot，是否可以抽离出来，header可以选择是否显示关闭按钮，foot默认居于底部，
 - 菜单的最小化与logo的最小化，是否可以抽离出来，logo最小化时，title和subtitle隐藏，菜单最小化时，文字隐藏，只显示图标（没有图标显示什么）
-- slider的样式一般般，能不能做的更好看一点
+- 内置一些动画，比如旋转，
+- docs网页里面的logo好看的，可以封装成logo组件，三个属性，logo文字，title，subtitle 
+- layout组件与Typography组件

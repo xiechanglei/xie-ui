@@ -10,3 +10,5 @@ import '../../tokens/index.js';
 import '../../components/drawer/index.js';
 
 export type { XDrawer, DrawerPlacement } from '../../components/drawer/x-drawer.js';
+export type { XDrawerHeader } from '../../components/drawer/x-drawer-header.js';
+export type { XDrawerFooter } from '../../components/drawer/x-drawer-footer.js';

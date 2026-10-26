@@ -152,7 +152,7 @@ template: {
 | Switch | `<x-switch>` | 🚧 开发中（M0） |
 | Slider | `<x-slider>` | 🚧 开发中（M0，离散选项滑块，档位吸附拖动；已用于主题面板圆角/尺寸/阴影） |
 | Menu | `<x-menu>` / `<x-menu-group>` / `<x-menu-item>` | 🚧 开发中（M0，导航菜单三件套） |
-| Drawer | `<x-drawer>` | 🚧 开发中（M0） |
+| Drawer | `<x-drawer>` + `<x-drawer-header>` / `<x-drawer-footer>` | 🚧 开发中（M0；header 用 `show-close` 控制关闭按钮，footer 自动贴底；与内容无分隔线） |
 | ThemePanel | `<x-theme-panel>` | 🚧 开发中（M0，基于抽屉的右侧设置面板） |
 | Icon | `<x-icon>` | 🚧 开发中（M0，仅收录本库内部组件实际使用的图标，不派生更多） |
 | Input | `<x-input>` | 📋 规划中（M1） |

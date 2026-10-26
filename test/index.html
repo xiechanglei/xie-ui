@@ -8,17 +8,31 @@
     <script type="module" src="/dist/index.js"></script>
 </head>
 <body>
-
-<x-icon name="sun" style="color:var(--xie-color-primary)"></x-icon>
-
-<div style="margin-top:16px;display:flex;flex-direction:column;gap:24px;max-width:320px">
-  <x-slider id="s1" options="直角,小,中,大,圆" value="2" label="圆角"></x-slider>
-  <x-slider options="紧凑,标准,宽松" value="1" label="尺寸"></x-slider>
-  <x-slider options="无,柔和,强烈" value="1" label="阴影" disabled></x-slider>
+<div style="margin-top:16px">
+  <button id="openDrawer">打开抽屉</button>
 </div>
+<x-drawer id="dr1" label="右侧抽屉">
+  <x-drawer-header show-close>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <span style="font-weight:600">通知设置</span>
+      <span style="font-size:12px;color:var(--xie-color-muted)">副标题说明</span>
+    </div>
+  </x-drawer-header>
+  <div>
+    <p style="margin:0;color:var(--xie-color-muted);line-height:1.7">header/footer 为独立子组件，与内容之间无分隔线；中部内容自动滚动。右上为 header 的 show-close 关闭按钮。</p>
+  </div>
+  <x-drawer-footer>
+    <x-button id="dcancel">取消</x-button>
+    <x-button variant="solid">确定</x-button>
+  </x-drawer-footer>
+</x-drawer>
+<x-drawer id="dr2" label="左侧抽屉" placement="left" width="300px">
+  <x-drawer-header>左侧抽屉（无关闭按钮）</x-drawer-header>
+  <div><p style="margin:0;color:var(--xie-color-muted)">header 未加 show-close → 无关闭按钮；无 footer。</p></div>
+</x-drawer>
 <script>
-  s1.addEventListener('x-input', (e) => console.log('slider input ->', e.detail.index, e.detail.value));
-  s1.addEventListener('x-change', (e) => console.log('slider change ->', e.detail.index, e.detail.value));
+  openDrawer.addEventListener('click', () => dr1.show());
+  dcancel.addEventListener('click', () => dr1.hide());
 </script>
 </body>
 </html>

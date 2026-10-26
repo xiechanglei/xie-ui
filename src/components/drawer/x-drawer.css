@@ -49,6 +49,23 @@
   pointer-events: none;
 }
 
+/* 面板为纵向 flex：header/footer 固定顶/底，其余内容占中部并滚动。
+   子元素均为 light DOM，用 ::slotted 定位；header/footer 自身已在组件 :host 中设 flex:0 0 auto，
+   此处再声明同值以避免 ::slotted 与 :host 的优先级冲突。header/footer 与内容之间不设分隔线。 */
+::slotted(x-drawer-header) {
+  flex: 0 0 auto;
+}
+::slotted(x-drawer-footer) {
+  flex: 0 0 auto;
+}
+::slotted(:not(x-drawer-header):not(x-drawer-footer)) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: var(--xie-space-4);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .scrim,
   .panel {

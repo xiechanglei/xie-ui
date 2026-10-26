@@ -73,7 +73,7 @@ class XSlider extends XBaseElement {
           aria-valuenow=${this.derive(() => String(this.__index()))}
           aria-valuetext=${this.derive(() => this.__opts()[this.__index()] ?? '')}
           aria-disabled=${this.derive(() => (this.disabled ? 'true' : undefined))}
-        ></div>
+        ><div class="bubble" part="bubble">${this.derive(() => this.__opts()[this.__index()] ?? '')}</div></div>
       </div>
       <div class="labels" part="labels"></div>
     </div>`;
@@ -98,7 +98,7 @@ class XSlider extends XBaseElement {
       this.__built = c;
       this.__buildStops();
     } else {
-      this.__syncLabels();
+      this.__syncActive();
     }
   }
 
@@ -128,9 +128,13 @@ class XSlider extends XBaseElement {
     labels.textContent = '';
     for (let i = 0; i < opts.length; i++) {
       const pct = this.__pct(i);
-      const dot = document.createElement('i');
-      dot.style.left = pct + '%';
-      stops.appendChild(dot);
+      // 参照 minimal：首/末档不画刻度点（中间档保留），标签仍全显
+      if (i !== 0 && i !== opts.length - 1) {
+        const dot = document.createElement('i');
+        dot.dataset.i = String(i);
+        dot.style.left = pct + '%';
+        stops.appendChild(dot);
+      }
       const lb = document.createElement('span');
       lb.className = 'label';
       lb.dataset.i = String(i);
@@ -138,14 +142,18 @@ class XSlider extends XBaseElement {
       lb.textContent = opts[i];
       labels.appendChild(lb);
     }
-    this.__syncLabels();
+    this.__syncActive();
   }
 
-  /** 高亮当前档位标签 */
-  private __syncLabels(): void {
+  /** 高亮当前档位标签 + 点亮已过档刻度点 */
+  private __syncActive(): void {
     const cur = this.__index();
-    this.shadowRoot!.querySelectorAll<HTMLElement>('.labels .label').forEach((el) => {
+    const sr = this.shadowRoot!;
+    sr.querySelectorAll<HTMLElement>('.labels .label').forEach((el) => {
       el.toggleAttribute('data-active', Number(el.dataset.i) === cur);
+    });
+    sr.querySelectorAll<HTMLElement>('.stops i').forEach((el) => {
+      el.toggleAttribute('data-passed', Number(el.dataset.i) <= cur);
     });
   }
 
@@ -186,6 +194,7 @@ class XSlider extends XBaseElement {
     if (this.disabled) return;
     event.preventDefault();
     this.__dragging = true;
+    this.setAttribute('data-dragging', '');
     (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
     const before = this.__index();
     this.__goto(this.__indexFromX(event.clientX));
@@ -202,6 +211,7 @@ class XSlider extends XBaseElement {
   private __onPointerUp = (event: PointerEvent): void => {
     if (!this.__dragging) return;
     this.__dragging = false;
+    this.removeAttribute('data-dragging');
     const track = event.currentTarget as HTMLElement;
     if (track.hasPointerCapture?.(event.pointerId)) track.releasePointerCapture(event.pointerId);
     this.__emit('x-change');

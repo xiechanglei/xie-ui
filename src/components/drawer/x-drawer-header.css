@@ -1,0 +1,44 @@
+/* x-drawer-header —— 抽屉头部：标题 + 可选关闭按钮。作为 x-drawer 的直接子元素，固定顶部不参与滚动。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  padding: var(--xie-space-4);
+  color: var(--xie-color-fg);
+  font-size: calc(var(--xie-font-size-md) + 1px);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.title {
+  min-width: 0;
+  font-weight: 600;
+}
+.close {
+  all: unset;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--xie-radius-md);
+  color: var(--xie-color-muted);
+}
+.close:hover {
+  background: var(--xie-color-surface);
+  color: var(--xie-color-fg);
+}
+.close:focus-visible {
+  outline: 2px solid var(--xie-color-primary);
+  outline-offset: 2px;
+}
+.close[hidden] {
+  display: none !important;
+}

@@ -10,8 +10,8 @@
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
 import '../../tokens/index.js';
-// 依赖通用抽屉（副作用注册 x-drawer）
-import '../../components/drawer/x-drawer.js';
+// 依赖通用抽屉系列（副作用注册 x-drawer / x-drawer-header / x-drawer-footer）
+import '../../components/drawer/index.js';
 // 依赖通用开关（副作用注册 x-switch），用于「外观模式」行
 import '../../components/switch/x-switch.js';
 // 依赖图标组件（副作用注册 x-icon）：关闭 / 太阳 / 月亮统一取自内置图标注册表
@@ -116,18 +116,14 @@ class XThemePanel extends XBaseElement {
 
   protected render(): TemplateResult {
     return html`<x-drawer part="drawer" label="主题设置" width="380px">
-      <div class="body">
-        <header class="hd">
-          <div class="hd__text">
-            <span class="hd__title">主题设置</span>
-            <span class="hd__desc">调整即全局实时生效</span>
-          </div>
-          <button class="hd__close" data-action="close" aria-label="关闭">
-            <x-icon name="close" size="18px"></x-icon>
-          </button>
-        </header>
+      <x-drawer-header show-close>
+        <div class="title-block">
+          <span class="hd__title">主题设置</span>
+          <span class="hd__desc">调整即全局实时生效</span>
+        </div>
+      </x-drawer-header>
 
-        <div class="bd">
+      <div class="bd">
           <section class="sec">
             <div class="sec__title">外观模式</div>
             <div class="mode">
@@ -159,11 +155,11 @@ class XThemePanel extends XBaseElement {
             <x-slider data-key="shadow" label="阴影" options=${DIM_LABELS.shadow} value=${this.derive(() => DIM_OPTS.shadow.indexOf(this.shadow))}></x-slider>
           </section>
 
-          <div class="actions">
-            <button class="btn-reset" data-action="reset">恢复默认</button>
-          </div>
         </div>
-      </div>
+
+      <x-drawer-footer>
+        <button class="btn-reset" data-action="reset">恢复默认</button>
+      </x-drawer-footer>
     </x-drawer>`;
   }
 

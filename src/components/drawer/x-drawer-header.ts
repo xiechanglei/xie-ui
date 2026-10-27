@@ -56,13 +56,26 @@ class XDrawerHeader extends XBaseElement {
 
   /** 关闭：优先关闭所属 x-drawer（借其可取消的 x-close 逻辑），否则自身派发 x-close */
   private __onClose = (): void => {
-    const drawer = this.closest('x-drawer') as { hide?: () => void } | null;
+    const drawer = this.__findDrawer() as { hide?: () => void } | null;
     if (drawer && typeof drawer.hide === 'function') {
       drawer.hide();
       return;
     }
     this.dispatchEvent(new CustomEvent('x-close', { bubbles: true, composed: true, cancelable: true }));
   };
+
+  /** 跨 shadow 上溯找宿主 x-drawer。
+   *  不能用 closest('x-drawer')：本元素可能建在其他组件的 shadow 树内
+   *  （x-drawer 自动生成的头部即是），parentElement 链在 shadow root 处断开、够不到宿主，
+   *  故需沿 parentNode 上溯、遇 ShadowRoot 时改取 .host 继续向上。 */
+  private __findDrawer(): Element | null {
+    let node: Node | null = this;
+    while (node) {
+      if (node instanceof Element && node.tagName === 'X-DRAWER') return node;
+      node = node.parentNode ?? (node instanceof ShadowRoot ? node.host : null);
+    }
+    return null;
+  }
 }
 
 declare global {

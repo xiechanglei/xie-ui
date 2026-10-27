@@ -13,7 +13,7 @@
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
 import '../../tokens/index.js';
-// 自动头部依赖 x-drawer-header（副作用注册）：其关闭按钮靠 closest('x-drawer') 回关宿主
+// 自动头部依赖 x-drawer-header（副作用注册）：其关闭按钮跳 shadow 上溯找到宿主 drawer 后 hide()
 import './x-drawer-header.js';
 import drawerStyles from './x-drawer.css?inline';
 

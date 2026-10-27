@@ -250,9 +250,21 @@ export abstract class XBaseElement extends HTMLElement {
   protected readonly __computed = computed;
   protected readonly __signal = signal;
 
+  /** 升级前被写入的声明属性快照（expando 迁移用） */
+  private __preValues?: Record<string, unknown>;
+
   constructor() {
     super();
     const ctor = this.constructor as typeof XBaseElement;
+    // 升级前属性迁移：消费方在元素 upgrade 前写 `el.value='x'`（如内联普通 script 早于
+    // module 入口执行）会落成实例自有属性，下面的 defineProperty 访问器会被它遮蔽/覆盖且丢值，
+    // 故先捕获并删除，首次 connectedCallback 再经访问器写回（构造期不能 setAttribute，反射属性需延后）。
+    for (const prop of Object.keys(ctor.properties)) {
+      if (Object.hasOwn(this, prop)) {
+        (this.__preValues ??= {})[prop] = (this as unknown as Record<string, unknown>)[prop];
+        delete (this as unknown as Record<string, unknown>)[prop];
+      }
+    }
     // 建立属性信号与访问器
     for (const [prop, opts] of Object.entries(ctor.properties)) {
       const type = opts.type ?? 'String';
@@ -393,6 +405,14 @@ export abstract class XBaseElement extends HTMLElement {
   connectedCallback(): void {
     if (this.__connected) return;
     this.__connected = true;
+    // 升级前快照经访问器回放（此时已可安全反射 attribute）
+    if (this.__preValues) {
+      const pre = this.__preValues;
+      this.__preValues = undefined;
+      for (const [prop, value] of Object.entries(pre)) {
+        (this as unknown as Record<string, unknown>)[prop] = value;
+      }
+    }
     // 先渲染结构，再注入样式：兼容 fallback 下 <style> 作为子节点被 textContent 清空的问题
     this.__initialRender();
     this.__adoptStyles();

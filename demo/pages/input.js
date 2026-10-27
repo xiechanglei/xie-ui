@@ -129,13 +129,15 @@ export function render(el) {
 
     demoCard({
       title: '类型 type',
-      desc: '原生 type 透传：password / email / number / tel / url / search（number 的自绘箭头已关掉）',
+      desc: '原生 type 透传：password / email / number / tel / url / search；show-password 显出眼睛钮切换明文/掩码（不抓焦点）',
       build: (c) => {
         c.append(inp({ type: 'password', value: 'secret', style: 'width:160px' }));
+        c.append(inp({ type: 'password', 'show-password': '', value: 'abc12345', placeholder: '密码', style: 'width:200px' }));
         c.append(inp({ type: 'number', placeholder: '数量', style: 'width:120px' }));
         c.append(inp({ type: 'email', placeholder: 'name@example.com', style: 'width:220px' }));
       },
       code: `<x-input type="password" value="secret"></x-input>
+<x-input type="password" show-password value="abc12345"></x-input>
 <x-input type="number" placeholder="数量"></x-input>
 <x-input type="email" placeholder="name@example.com"></x-input>`,
     }),
@@ -182,6 +184,7 @@ input.addEventListener('x-change', (e) => {
         ['readonly', '只读（仍可聚焦、选中复制）', 'boolean', 'false'],
         ['required', '必填标记（透传原生 + aria-required）', 'boolean', 'false'],
         ['clearable', '有内容时显出清空按钮（禁用/只读时不显）', 'boolean', 'false'],
+        ['show-password', '密码可见切换钮（仅 type=password 且非禁用时显；明文态为内部状态不外露）', 'boolean', 'false'],
         ['maxlength', '最大长度（透传原生；配合 show-count 显示 n/max）', 'number', 'undefined'],
         ['show-count', '显示字数计数', 'boolean', 'false'],
         ['label', '无障碍名称（aria-label）', 'string', "''"],
@@ -208,7 +211,7 @@ input.addEventListener('x-change', (e) => {
     h('h3', null, 'CSS 部分 Part'),
     apiTable(
       ['part', '说明'],
-      [['field', '外框（描边/圆角/背景都在这层）'], ['input', '内部原生 input'], ['clear', '清空按钮'], ['count', '字数计数']],
+      [['field', '外框（描边/圆角/背景都在这层）'], ['input', '内部原生 input'], ['reveal', '密码显隐按钮'], ['clear', '清空按钮'], ['count', '字数计数']],
     ),
     h('h3', null, '消费的 CSS 变量'),
     apiTable(
@@ -222,7 +225,7 @@ input.addEventListener('x-change', (e) => {
       ],
     ),
     h('h2', null, '设计约定'),
-    h('p', null, 'shadow 内的原生 input 不参与外部 <form> 提交：取值走 value 属性 / x-input / x-change，需要 form 集成时在外层监听事件即可。password 的「显示密码」按钮与 number 的步进箭头由浏览器自绘、与本库观感不符，已在 CSS 中关闭。'),
+    h('p', null, 'shadow 内的原生 input 不参与外部 <form> 提交：取值走 value 属性 / x-input / x-change，需要 form 集成时在外层监听事件即可。number 步进箭头与 Edge 自绘的显示密码钮与本库观感不符，已在 CSS 中关闭；密码显隐由 show-password 自绘（眼睛图标切换 type=password/text，切换态不对外暴露、不抢输入焦点）。'),
   );
 }
 

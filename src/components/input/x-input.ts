@@ -14,8 +14,9 @@
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
+import type { Signal } from '../../core/signals.js';
 import '../../tokens/index.js';
-// 依赖图标组件（副作用注册 x-icon）：清空按钮取自内置图标注册表
+// 依赖图标组件（副作用注册 x-icon）：清空/显密按钮取自内置图标注册表
 import '../icon/x-icon.js';
 import inputStyles from './x-input.css?inline';
 
@@ -42,6 +43,7 @@ class XInput extends XBaseElement {
     readonly: { type: 'Boolean', reflect: true, default: false },
     required: { type: 'Boolean', reflect: true, default: false },
     clearable: { type: 'Boolean', reflect: true, default: false },
+    showPassword: { type: 'Boolean', reflect: true, default: false },
     maxlength: { type: 'Number', default: undefined },
     showCount: { type: 'Boolean', reflect: true, default: false },
     label: { type: 'String', default: '' },
@@ -59,6 +61,8 @@ class XInput extends XBaseElement {
   declare readonly: boolean;
   declare required: boolean;
   declare clearable: boolean;
+  /** 密码可见切换（仅 type=password 时生效，反射 show-password） */
+  declare showPassword: boolean;
   /** 最大长度（透传给原生 maxlength，配合 show-count 显示 n/max） */
   declare maxlength?: number;
   declare showCount: boolean;
@@ -66,10 +70,13 @@ class XInput extends XBaseElement {
 
   /** 上一次「提交」的值，作为 x-change 的 previousValue 与取消时的回退目标 */
   private __committed = '';
+  /** 密码是否明文展示（内部态，不反射不改 type 属性本身） */
+  private __revealed!: Signal<boolean>;
 
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this.__revealed = this.__signal(false);
   }
 
   protected render(): TemplateResult {
@@ -78,7 +85,7 @@ class XInput extends XBaseElement {
       <input
         class="input"
         part="input"
-        type=${this.derive(() => this.type)}
+        type=${this.derive(() => (this.type === 'password' && this.__revealed.value ? 'text' : this.type))}
         placeholder=${this.derive(() => this.placeholder || undefined)}
         disabled=${this.derive(() => this.disabled)}
         readonly=${this.derive(() => this.readonly)}
@@ -88,6 +95,15 @@ class XInput extends XBaseElement {
         aria-required=${this.derive(() => (this.required ? 'true' : undefined))}
       />
       <slot name="suffix"></slot>
+      <button
+        class="reveal"
+        part="reveal"
+        type="button"
+        aria-label=${this.derive(() => (this.__revealed.value ? '隐藏密码' : '显示密码'))}
+        hidden=${this.derive(() => (this.__revealVisible ? undefined : ''))}
+      >
+        <x-icon name=${this.derive(() => (this.__revealed.value ? 'eye-off' : 'eye'))} size="16px"></x-icon>
+      </button>
       <button class="clear" part="clear" type="button" aria-label="清空" hidden=${this.derive(() => (this.__clearVisible ? undefined : ''))}>
         <x-icon name="close" size="12px"></x-icon>
       </button>
@@ -102,16 +118,22 @@ class XInput extends XBaseElement {
     input.addEventListener('input', this.__onInput);
     input.addEventListener('change', this.__onChange);
     this.shadowRoot!.querySelector<HTMLButtonElement>('.clear')!.addEventListener('click', this.__onClear);
-    // 点外框空白处/前后缀也聚焦输入（点清空钮除外）
+    const reveal = this.shadowRoot!.querySelector<HTMLButtonElement>('.reveal')!;
+    // mousedown 拦在焦点转移前：切换显隐不抢焦点、不打断光标/输入法
+    reveal.addEventListener('mousedown', (event) => event.preventDefault());
+    reveal.addEventListener('click', this.__onReveal);
+    // 点外框空白处/前后缀也聚焦输入（点清空/显密钮除外）
     this.shadowRoot!.querySelector('.field')!.addEventListener('click', (event) => {
       const target = event.target as Element;
-      if (target.tagName !== 'INPUT' && !target.closest('.clear')) input.focus();
+      if (target.tagName !== 'INPUT' && !target.closest('.clear') && !target.closest('.reveal')) input.focus();
     });
     this.__committed = this.value ?? '';
     this.__writeValue();
   }
 
   protected override updated(): void {
+    // 离开密码态时收起明文，避免切回 type=password 后直接漏显
+    if (this.type !== 'password' && this.__revealed.value) this.__revealed.value = false;
     // 信号 → 原生 input 单向回写（同值不写，避免打断用户光标）
     this.__writeValue();
   }
@@ -139,6 +161,16 @@ class XInput extends XBaseElement {
   private get __clearVisible(): boolean {
     return this.clearable && !this.disabled && !this.readonly && !!(this.value ?? '');
   }
+
+  /** 显密钮只在「开启 + 密码型 + 非禁用」时出现（readonly 下允许查看） */
+  private get __revealVisible(): boolean {
+    return this.showPassword && this.type === 'password' && !this.disabled;
+  }
+
+  private __onReveal = (): void => {
+    if (!this.__revealVisible) return;
+    this.__revealed.value = !this.__revealed.value;
+  };
 
   private __inputEl(): HTMLInputElement {
     return this.shadowRoot!.querySelector<HTMLInputElement>('.input')!;

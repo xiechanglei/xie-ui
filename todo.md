@@ -1,7 +1,6 @@
 - 内置一些动画，比如旋转，
-- x-container 对外提供一个方法，loadMenuMode（menudata，pageloader），用于自动生成左侧菜单，右侧页面的页面。menudata给一些约定
+- x-container 对外提供一个方法，loadMenuMode（menudata，pageloader），用于自动生成左侧菜单，右侧页面的页面。menudata给一些约定。还是说放在menu组件上
 - 然后给我的docs页面的菜单全部安排上icon，这些icon属于应用级别的icon而不是框架级别的icon不需要放在库里面，放在docs下面的代码中就可以了
-- checkbox
-- radio 
 - table组件，如何设计
-- 高级别的容器组件，form以及form-item，form-item有label属性，form组件可以选择排列方式，水平或者垂直，form-item可以选择占据的列数，form组件可以选择是否显示边框，还需要好好想想与设计才能去使常用的使用场景下的易用性
+- docs文档页面我需要方便的去调整主题，给我在页面的右上角fixed一个切换主题的图标按钮，点击之后可以切换主题，类似于minimal网站上的效果那样
+- 现在我们来规划一下form以及form-item组件的设计，你看其他的框架里面，是可以去约定一些布局的，比如label与input是上下布局还是左右布局（比如上下排列或者左右排列，左右排列的时候label是左还是对其右对齐，还是居中对齐），输入项之间是如何排列这些（比如横向排列，超出换行还是纵向排列），还有一般表单还有按钮区域，是不是需要单独的一个form-footer来放置按钮，然后量来指定按钮的居中方式之类的，你先设计我们讨论之后再开发

@@ -1,4 +1,4 @@
-/** x-select 选择器文档：包原生 select（弹层/键盘白送），options 数组或 light DOM option 两种来源 */
+/** x-select 选择器文档：自绘弹层 listbox（主题令牌驱动），options 数组或 light DOM option 两种来源 */
 import { h, demoCard, apiTable } from '/demo/render.js';
 
 function mkSelect(attrs = {}) {
@@ -17,7 +17,7 @@ function opt(value, label, selected) {
 export function render(el) {
   el.append(
     h('h1', null, 'Select 选择器'),
-    h('p', { class: 'lead' }, '包一个原生 select：展开弹层、方向键导航、移动端滚轮、无障碍全部由浏览器白送，本库只绘制外框与 chevron。选项来源二选一（数组优先）——light DOM 里写原生 <option>，或 JS 设 options 数组。未选中时显示 placeholder；支持 form 关联（FCCE）。'),
+    h('p', { class: 'lead' }, '自绘下拉：触发件是无边框 button，弹层是吃全局令牌的 listbox（圆角/阴影/语义色/暗色随主题实时联动，选中项高亮打勾，空间不足自动向上翻转）。键盘完整：↑↓ 开合与移动、Home/End、Enter 选中、Esc 关闭，点击外部自动收起。选项来源二选一（数组优先）：light DOM 里写原生 <option>，或 JS 设 options 数组。未选中时显示 placeholder；支持 form 关联（FCCE）。'),
 
     h('h2', null, '引入'),
     codeInline(`import '@xie-work/xie-ui';`),
@@ -82,6 +82,26 @@ select.addEventListener('x-change', (e) => {
     }),
 
     demoCard({
+      title: '多选 multiple',
+      desc: '选中不关弹层、可连点多项；用 values 数组读写，展示文本用「、」拼接',
+      build: (c) => {
+        const out = h('p', { class: 'demo-card__title' }, 'x-change：—');
+        const s = mkSelect({ multiple: '', placeholder: '选框架（可多选）', style: 'width:240px' });
+        s.options = ['Vue', 'React', 'Svelte', { value: 'jquery', label: 'jQuery（禁用）', disabled: true }];
+        s.values = ['Vue'];
+        s.addEventListener('x-change', (e) => (out.textContent = 'x-change：' + JSON.stringify(e.detail.value)));
+        c.append(s, out);
+      },
+      code: `<x-select multiple placeholder="选框架（可多选）">
+  <option value="vue">Vue</option>
+  <option value="react">React</option>
+</x-select>
+select.values;            // ['vue', 'react']
+select.values = ['vue'];  // 程序化设置（不派发事件）
+// 多选时 x-change 的 detail.value 为字符串数组；form 提交以同名多项进 FormData`,
+    }),
+
+    demoCard({
       title: '形态 variant & 尺寸 size',
       build: (c) => {
         const row = h('div', { style: 'display:flex;gap:12px;flex-wrap:wrap;align-items:center' });
@@ -124,7 +144,8 @@ select.addEventListener('x-change', (e) => {
       [
         ['value', '选中值（反射无关；程序化赋值回显，不派发事件）', 'string', "''"],
         ['options', '选项数组（JS 设置；优先于 light DOM option）', '({value,label,disabled}|string)[]', 'undefined'],
-        ['placeholder', '未选占位（渲染为 disabled+hidden 空值项）', 'string', "''"],
+        ['placeholder', '未选占位（muted 色展示，不进弹层列表）', 'string', "''"],
+        ['multiple', '多选模式（反射；选中不关弹层）', 'boolean', 'false'],
         ['name', '表单名（反射，FormData 键）', 'string', "''"],
         ['variant', '形态（反射）', "'outline' | 'filled' | 'flush'", "'outline'"],
         ['color', '语义色（反射，聚焦描边）', "'primary' | … | 'info'", "'primary'"],
@@ -136,8 +157,9 @@ select.addEventListener('x-change', (e) => {
     apiTable(
       ['名称', '说明'],
       [
-        ['focus()', '委托内部原生 select'],
-        ['x-change', '选择变化派发，detail:{ value, previousValue }，可取消回退'],
+        ['focus()', '聚焦触发件（弹层可用键盘操作）'],
+        ['values（读写）', '多选选中值数组（JS 访问；程序化设置不派发事件）'],
+        ['x-change', '选择变化派发，单选 detail:{ value, previousValue }（string）；多选为 string[]；可取消回退'],
       ],
     ),
     h('h3', null, '选项来源'),

@@ -15,6 +15,7 @@ import '../../components/checkbox/index.js';
 import '../../components/radio/index.js';
 import '../../components/switch/index.js';
 import '../../components/slider/index.js';
+import '../../components/filter/index.js';
 
 export type {
   XInput,
@@ -62,3 +63,4 @@ export type {
 } from '../../components/radio/index.js';
 export type { XSwitch } from '../../components/switch/x-switch.js';
 export type { XSlider } from '../../components/slider/x-slider.js';
+export type { XFilter, XFilterItem } from '../../components/filter/index.js';

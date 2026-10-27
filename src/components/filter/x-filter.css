@@ -1,0 +1,32 @@
+/* x-filter —— 筛选器容器：chip 行排布 + 重置钮。
+   chip 与重置钮的观感全部复用 x-button（子项 soft/solid、重置 solid），本文件只管横排与入场。
+   间距不放容器 gap（否则 0 宽折叠项仍占一个 gap），改由子项 margin 承担、折叠时随宽一并收 0（见 x-filter-item.css）。 */
+:host {
+  display: inline-block;
+}
+:host([hidden]) {
+  display: none;
+}
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* 行间距走容器 row-gap（只作用于换行、不影响单行 align-items:center 的垂直对齐）；列间距由子项 margin-right 承担 */
+  row-gap: var(--_grp-gap, var(--xie-space-2));
+}
+
+/* 重置钮（内嵌 x-button）：出现时轻微弹入（display none→flex 会重播 animation） */
+.reset {
+  animation: x-filter-pop 0.22s ease;
+}
+
+@keyframes x-filter-pop {
+  from {
+    opacity: 0;
+    scale: 0.5;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}

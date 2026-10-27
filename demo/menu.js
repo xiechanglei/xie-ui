@@ -45,6 +45,7 @@ export const MENU = [
       { id: 'radio', label: 'Radio 单选', tag: 'x-radio', status: 'done' },
       { id: 'select', label: 'Select 选择器', tag: 'x-select', status: 'done' },
       { id: 'file', label: 'FileUpload 上传', tag: 'x-file-input', status: 'done' },
+      { id: 'filter', label: 'Filter 筛选器', tag: 'x-filter', status: 'done' },
     ],
   },
   {

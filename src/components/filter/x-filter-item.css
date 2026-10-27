@@ -1,0 +1,32 @@
+/* x-filter-item —— 只负责「折叠动画 + 间距」，chip 观感（soft/solid/圆角/描边/hover/focus）全部复用内嵌 x-button。
+   折叠 = 让位 + 不换行，两件事分开处理：
+   - 让位：宿主 grid 单轨 1fr→0fr（尺寸动画，纯 transform 做不到——transform 元素保留原盒、兄弟项不会靠拢）；
+   - 不换行：chip min-width:0 随轨道压缩 + white-space:nowrap（经插槽继承到文本）+ overflow:hidden 裁切，
+     文字被「擦除」而非挤压换行；opacity 淡出收尾。
+   ⚠ 勿给 .chip 加 justify-self:start / 固定自然宽度，否则宿主 max-content 撑住宽度、轨道 0fr 也让不出位置。 */
+:host {
+  display: grid;
+  grid-template-columns: 1fr;
+  white-space: nowrap;
+  /* 列间距由子项 margin-right 承担（而非容器 gap），折叠时随宽一并收 0 → 真正不占位；行间距交给容器 row-gap */
+  margin-right: var(--_grp-gap, var(--xie-space-2));
+  transition: grid-template-columns 0.28s ease, margin-right 0.28s ease;
+}
+:host([hidden]) {
+  display: none;
+}
+:host([collapsed]) {
+  grid-template-columns: 0fr;
+  margin-right: 0;
+}
+
+/* 内嵌 x-button：min-width:0 让它能随轨道压到 0 宽（让位），overflow 裁切 + nowrap 使文字擦除而非换行 */
+.chip {
+  min-width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+:host([collapsed]) .chip {
+  opacity: 0;
+  pointer-events: none;
+}

@@ -129,7 +129,8 @@ input::-ms-clear {
   color: var(--xie-color-muted);
 }
 
-.clear {
+.clear,
+.reveal {
   all: unset;
   box-sizing: border-box;
   flex: 0 0 auto;
@@ -142,16 +143,19 @@ input::-ms-clear {
   color: var(--xie-color-muted);
   cursor: pointer;
 }
-.clear:hover {
+.clear:hover,
+.reveal:hover {
   background: var(--xie-color-surface);
   color: var(--xie-color-fg);
 }
-.clear:focus-visible {
+.clear:focus-visible,
+.reveal:focus-visible {
   outline: 2px solid var(--_accent);
   outline-offset: 1px;
 }
 /* 作者样式的 display 会覆盖 UA 的 [hidden]{display:none}（author origin 优先），必须显式补回 */
-.clear[hidden] {
+.clear[hidden],
+.reveal[hidden] {
   display: none;
 }
 

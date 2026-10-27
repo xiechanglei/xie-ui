@@ -1,5 +1,8 @@
-/* x-select —— 下拉选择。外框双轴沿用输入类约定；原生 select 关自绘铺满，右侧自绘 chevron。 */
+/* x-select —— 下拉选择。外框双轴沿用输入类约定；触发件为无边框 button，弹层为 fixed 自绘 listbox。
+   注意：初始默认值不反射，缺省态(outline/primary/md)写在基座，属性选择器只做覆盖。 */
 :host {
+  /* 颜色轴锚点：写在 :host 上，外框与同级 fixed 弹层都能继承到 --_accent */
+  --_accent: var(--xie-color-primary);
   display: inline-block;
   box-sizing: border-box;
   width: 200px;
@@ -18,14 +21,12 @@
 }
 
 .field {
-  --_accent: var(--xie-color-primary);
   position: relative;
   display: flex;
   align-items: center;
   box-sizing: border-box;
   width: 100%;
   height: var(--xie-size-md);
-  padding: 0 var(--xie-space-3);
   background: var(--xie-color-bg);
   border: 1px solid var(--xie-color-border);
   border-radius: var(--xie-radius-md);
@@ -35,30 +36,43 @@
   border-color: var(--_accent);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--_accent) 18%, transparent);
 }
+:host(.popup-open) .field {
+  border-color: var(--_accent);
+}
 
-/* 原生 select 铺满并透明化外观，仅保留行为 */
-select {
+/* 触发件：铺满整个外框（含左右内边距），保证任意位置点击都能开合；右侧给 chevron 留位 */
+.trigger {
   appearance: none;
   -webkit-appearance: none;
-  box-sizing: border-box;
   flex: 1 1 auto;
+  align-self: stretch;
   min-width: 0;
-  width: 100%;
-  height: 100%;
+  display: flex;
+  align-items: center;
   margin: 0;
-  padding: 0;
+  padding: 0 calc(var(--xie-space-3) + 24px) 0 var(--xie-space-3);
   border: 0;
   outline: 0;
+  border-radius: inherit;
   background: none;
   color: inherit;
   font: inherit;
   cursor: inherit;
+  text-align: start;
 }
-select:invalid {
+
+.value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.value[data-ph] {
   color: var(--xie-color-muted);
 }
 
-/* 右侧展开指示 */
+/* 右侧展开指示：弹层打开时翻转 */
 .chevron {
   position: absolute;
   right: var(--xie-space-2);
@@ -66,11 +80,97 @@ select:invalid {
   transform: translateY(-50%);
   color: var(--xie-color-muted);
   pointer-events: none;
+  transition: transform 0.18s ease;
+}
+:host(.popup-open) .chevron {
+  transform: translateY(-50%) rotate(180deg);
 }
 
 /* light DOM 里的原始 <option> 源：仅用于读取，不展示 */
 .src {
   display: none;
+}
+
+/* ------------------------------ 自绘弹层 ------------------------------ */
+.popup {
+  position: fixed;
+  z-index: 1000;
+  display: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 264px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--xie-color-bg);
+  border: 1px solid var(--xie-color-border);
+  border-radius: var(--xie-radius-lg);
+  box-shadow: var(--xie-shadow-3);
+  color: var(--xie-color-fg);
+  font-size: inherit;
+}
+:host(.popup-open) .popup {
+  display: block;
+  animation: x-select-pop 0.14s ease;
+}
+.popup.up {
+  transform-origin: bottom;
+}
+@keyframes x-select-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.popup::-webkit-scrollbar {
+  width: 8px;
+}
+.popup::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--xie-color-muted) 35%, transparent);
+  border-radius: 9999px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--xie-space-2);
+  height: 32px;
+  padding: 0 var(--xie-space-3);
+  border-radius: var(--xie-radius-sm);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.option:hover:not([data-disabled]),
+.option[data-active] {
+  background: var(--xie-color-surface);
+}
+.opt-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.opt-check {
+  flex: 0 0 auto;
+  opacity: 0;
+  color: var(--_accent);
+}
+.option[data-selected] {
+  color: var(--_accent);
+  font-weight: 600;
+}
+.option[data-selected] .opt-check {
+  opacity: 1;
+}
+.option[data-disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* 尺寸轴 */
@@ -87,11 +187,12 @@ select:invalid {
   border-bottom: 1px solid var(--xie-color-border);
   border-radius: 0;
 }
+:host([variant='flush']) .trigger { padding-left: 0; }
 :host([variant='flush']) .field:focus-within { border-bottom-color: var(--_accent); box-shadow: none; }
 
 /* 颜色轴 */
-:host([color='secondary']) .field { --_accent: var(--xie-color-secondary); }
-:host([color='success']) .field { --_accent: var(--xie-color-success); }
-:host([color='warning']) .field { --_accent: var(--xie-color-warning); }
-:host([color='danger']) .field { --_accent: var(--xie-color-danger); }
-:host([color='info']) .field { --_accent: var(--xie-color-info); }
+:host([color='secondary']) { --_accent: var(--xie-color-secondary); }
+:host([color='success']) { --_accent: var(--xie-color-success); }
+:host([color='warning']) { --_accent: var(--xie-color-warning); }
+:host([color='danger']) { --_accent: var(--xie-color-danger); }
+:host([color='info']) { --_accent: var(--xie-color-info); }

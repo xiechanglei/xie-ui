@@ -2,5 +2,9 @@
 - x-container 对外提供一个方法，loadMenuMode（menudata，pageloader），用于自动生成左侧菜单，右侧页面的页面。menudata给一些约定。还是说放在menu组件上
 - 然后给我的docs页面的菜单全部安排上icon，这些icon属于应用级别的icon而不是框架级别的icon不需要放在库里面，放在docs下面的代码中就可以了
 - table组件，如何设计
-- docs文档页面我需要方便的去调整主题，给我在页面的右上角fixed一个切换主题的图标按钮，点击之后可以切换主题，类似于minimal网站上的效果那样
 - 日期选择组件,inpu组件里面type=date已经实现，是需要重新实现还是权衡框架的大小
+- from的校验规则只有required吗
+- form为什么form-item也有name，这个跟下面的input不是重复设置了吗，是不是只需要input有就可以了
+- form是不是少了submit和reset组件，这样省的写一堆代码了
+- 在test页面中写测试demo，我来执行，第一对于所有的输入组件，不依赖form的情况下独立存在，依然可以通过js获取以及设置value,第二，所有的输入组件放在form下，通过form也可以设置以及获取values
+- x-radio-item组件

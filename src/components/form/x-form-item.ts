@@ -8,8 +8,8 @@
  *  - label 列宽：`--form-label-width`（让各行控件左边缘对齐）
  * 本 item 的 `label-position`/`label-align`/`label-width` 若显式设置则覆盖 form 默认（逐字段微调）。
  *
- * 值/校验：控件仍是数据的权威来源（各控件自带 FCCE，值经原生 FormData 计入外层 form）。
- * item 只做「读取 + 展示」：`validate()` 调控件的原生 checkValidity，把错误信息渲染到下方；
+ * 值/校验：控件仍是数据的权威来源（各控件自带 FCCE，被页面原生 `<form>` 直接包裹时能自动计入；x-form 因 shadow 隔离收不到，改手动聚合）。
+ * item 只做「读取 + 展示」：`validate()` 调控件的原生 checkValidity（与 form 归属无关），把错误信息渲染到下方；
  * 用户显式写过 `required` 会下沉给控件、并显示必填星号；`label` 会推进控件的 aria-label 做无障碍关联。
  */
 

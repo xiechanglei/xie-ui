@@ -98,6 +98,11 @@ class XRadioGroup extends XBaseElement {
       }
       this.__granted.set(el, granted);
     }
+    // 回填初始选中：子项自带 checked 时不发 x-change，组 value 永远空——在 slotchange（子项已升级）时聚合一次
+    if (!this.value) {
+      const sel = this.selectedValue;
+      if (sel) this.value = sel;
+    }
   }
 
   /** group.value → 命中子项选中；子项变化 → 回读 selectedValue 更新 group.value */

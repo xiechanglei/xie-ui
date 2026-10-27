@@ -6,12 +6,14 @@
  *     - `layout` 预设一键设好「label 位置 + item 流向」：vertical(top+stack) / horizontal(left+stack) / inline(left+row)；
  *     - 细调 `label-position`/`label-align`/`label-width`（轴1：label 与控件）、`flow`（轴2：item 之间 stack/row 换行）、`gap`。
  *     显式细调优先于预设。
- *  2. 数据收集：shadow 内放一个真正的 `<form>` + `<fieldset>` + `<slot>`；各控件自带 FCCE，
- *     经扁平树归属到这个内部 form，`new FormData()` 直接聚合出 `values`（重复键自动收数组）。
- *  3. 校验/提交：`validate()` 遍历 x-form-item 走控件原生 checkValidity；`submit()` 触发内部 form 的
+ *  2. 数据收集：各控件自带 FCCE，但**表单归属是「节点树」概念**——放在 shadow 内的 `<form>`
+ *     关联不到 light DOM 里经 slot 投影进来的控件（浏览器实测：连原生 input 被 slot 进 shadow form 也不计入），
+ *     故收集由 x-form **手动遍历「最外层」控件**、按公开值面（value/checked/files/values）聚合出 `values`/`formData()`
+ *     （重复键自动收数组；禁用项/未勾选不计入，与原生 FormData 语义一致）。shadow 内仍保留真 `<form>` 作结构载体与提交派发。
+ *  3. 校验/提交：`validate()` 遍历 x-form-item 走控件原生 checkValidity（与 form 归属无关，照常可用）；`submit()` 触发内部 form 的
  *     requestSubmit → 拦截为可取消的 `x-submit`（默认不导航）。`reset()` 按初始快照还原各控件并清错误态。
  *
- * `disabled` 交给 `<fieldset disabled>` 的原生语义：自动禁用其中所有 FCCE 控件（各自 formDisabledCallback 生效）。
+ * `disabled`：同样因跨树而无法靠 `<fieldset disabled>` 原生下发，改由 x-form 显式置各控件 disabled（用 WeakSet 记录强制态，释放时不误清用户自设的禁用）。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
@@ -43,6 +45,11 @@ type ControlLike = HTMLElement & {
   value?: unknown;
   checked?: boolean;
   name?: string;
+  disabled?: boolean;
+  files?: File[];
+  values?: string[];
+  multiple?: boolean;
+  reset?: () => void;
 };
 
 class XForm extends XBaseElement {
@@ -71,6 +78,8 @@ class XForm extends XBaseElement {
   /** 初始值快照（reset 用）：控件元素 → value/checked */
   private readonly __initial = new Map<ControlLike, unknown>();
   private __snapshotTaken = false;
+  /** form 级 disabled 强制下发的控件集合（释放时只清「确实是 form 逼禁的」那些） */
+  private readonly __forceDisabled = new WeakSet<ControlLike>();
 
   constructor() {
     super();
@@ -90,14 +99,17 @@ class XForm extends XBaseElement {
     const slot = this.shadowRoot!.querySelector('slot')!;
     slot.addEventListener('slotchange', () => {
       this.__ensureSnapshot();
+      this.__syncDisabled();
       this.__emitChange();
     });
     this.__syncLayout();
+    this.__syncDisabled();
     this.__ensureSnapshot();
   }
 
   protected override updated(): void {
     this.__syncLayout();
+    this.__syncDisabled();
     const fs = this.shadowRoot!.querySelector<HTMLFieldSetElement>('fieldset');
     if (fs) fs.disabled = this.disabled;
   }
@@ -111,9 +123,10 @@ class XForm extends XBaseElement {
     return Array.from(this.querySelectorAll<XFormItem>('x-form-item'));
   }
 
-  /** 所有受控控件（含嵌套；用于收集/快照/还原） */
+  /** 所有「最外层」受控控件：排除嵌套在另一控件内的子项（如 x-radio-group 里的 x-radio、x-checkbox-group 里的 x-checkbox），避免重复计入。 */
   private __controls(): ControlLike[] {
-    return Array.from(this.querySelectorAll<ControlLike>(FORM_CONTROL_SELECTOR));
+    const all = Array.from(this.querySelectorAll<ControlLike>(FORM_CONTROL_SELECTOR));
+    return all.filter((el) => { const p = el.parentElement; return !p || !p.closest(FORM_CONTROL_SELECTOR); });
   }
 
   /* ------------------------------- 布局下发 ------------------------------- */
@@ -136,9 +149,60 @@ class XForm extends XBaseElement {
 
   /* ------------------------------- 数据收集 ------------------------------- */
 
-  /** 原始 FormData（含 File 条目） */
+  /** disabled 下发：跨树无法靠 fieldset 原生禁用，显式置各控件 disabled；仅释放“确实是 form 逼禁的”那些 */
+  private __syncDisabled(): void {
+    for (const c of this.__controls()) {
+      if (this.disabled) {
+        if (!c.disabled) {
+          c.disabled = true;
+          this.__forceDisabled.add(c);
+        }
+      } else if (this.__forceDisabled.has(c)) {
+        c.disabled = false;
+        this.__forceDisabled.delete(c);
+      }
+    }
+  }
+
+  /** 原始 FormData（含 File 条目）：手动遍历最外层控件聚合（shadow form 关联不到 slot 控件） */
   formData(): FormData {
-    return new FormData(this.__formEl());
+    const fd = new FormData();
+    for (const c of this.__controls()) {
+      const name = c.name;
+      if (!name || c.disabled) continue;
+      for (const v of this.__entriesFor(c)) fd.append(name, v instanceof File ? v : String(v));
+    }
+    return fd;
+  }
+
+  /**
+   * 单个控件对 FormData 的贡献值数组（镜像各控件内部 setFormValue 的语义）：
+   *  - file：逐个 File；select-multiple / checkbox-group：逐个字符串；
+   *  - checkbox / radio / switch：仅 checked 才计入（值取 value，缺省 'on'）；
+   *  - 其余标量（input/textarea/slider/select/radio-group）：String(value)，空串仅对文本类保留（select/radio-group 空值跳过）。
+   */
+  private __entriesFor(c: ControlLike): (string | File)[] {
+    const tag = c.tagName;
+    if (tag === 'X-FILE-INPUT') return Array.isArray(c.files) ? [...c.files] : [];
+    if (tag === 'X-SELECT' && c.multiple) return Array.isArray(c.values) ? c.values.filter((v) => v !== '') : [];
+    if (tag === 'X-CHECKBOX-GROUP') return Array.isArray(c.value) ? (c.value as string[]).filter((v) => v !== '') : [];
+    if (tag === 'X-CHECKBOX' || tag === 'X-RADIO' || tag === 'X-SWITCH') return c.checked ? [String(c.value ?? 'on')] : [];
+    if (tag === 'X-RADIO-GROUP') {
+      const sel = (c as unknown as { selectedValue?: string }).selectedValue ?? (c.value == null ? '' : String(c.value));
+      return sel ? [sel] : [];
+    }
+    if (tag === 'X-SLIDER') {
+      // 档位滑块：value 是下标，镜像其 setFormValue 语义——计入档位标签（无标签则下标）
+      const sl = c as unknown as { options?: string; value?: number };
+      const opts = sl.options ? sl.options.split(',') : [];
+      const i = Math.min(Math.max(Math.round(Number(sl.value) || 0), 0), Math.max(opts.length - 1, 0));
+      return [opts[i] ?? String(i)];
+    }
+    const v = c.value;
+    if (v == null) return [];
+    const s = String(v);
+    if (s === '' && tag === 'X-SELECT') return [];
+    return [s];
   }
 
   /** 聚合值对象：重复键（多选/复选组/多文件）自动收成数组 */
@@ -154,27 +218,56 @@ class XForm extends XBaseElement {
     return out;
   }
 
-  /** 批量写入控件值（按 name 匹配；checked 走布尔、其余走 value；程序化不派发事件） */
+  /** 批量写入控件值（按 name 匹配；容器控件直达子项；程序化不派发事件） */
   setValues(obj: Record<string, unknown>): void {
     for (const el of this.__controls()) {
       const name = el.name;
       if (!name || !(name in obj)) continue;
-      const v = obj[name];
-      if (typeof v === 'boolean' && typeof el.checked === 'boolean') el.checked = v;
-      else if ('value' in el) el.value = v;
+      this.__applyTo(el, obj[name]);
     }
     this.__snapshotTaken = false;
     this.__ensureSnapshot();
+  }
+
+  /** 读取控件的「可还原快照值」（容器取聚合态；file 用哨兵；开关/复选取 checked） */
+  private __snapshotOf(el: ControlLike): unknown {
+    const tag = el.tagName;
+    if (tag === 'X-FILE-INPUT') return '__file__';
+    if (tag === 'X-SELECT' && el.multiple) return Array.isArray(el.values) ? [...el.values] : [];
+    if (tag === 'X-RADIO-GROUP') return (el as unknown as { selectedValue?: string }).selectedValue ?? el.value ?? '';
+    if (tag === 'X-CHECKBOX-GROUP') return Array.isArray(el.value) ? [...(el.value as string[])] : [];
+    if (typeof el.checked === 'boolean') return el.checked;
+    return 'value' in el ? el.value : undefined;
+  }
+
+  /** 将快照/用户值写回控件：容器直接操作子项 checked（不依赖 group setter，不写只读 getter） */
+  private __applyTo(el: ControlLike, v: unknown): void {
+    const tag = el.tagName;
+    if (tag === 'X-FILE-INPUT') return; // 文件不可程序化写入
+    if (tag === 'X-SELECT' && el.multiple) {
+      // 多选选中集在内部 values 轨道上，写单轨 value 不生效
+      el.values = Array.isArray(v) ? v.map(String) : v == null || v === '' ? [] : [String(v)];
+      return;
+    }
+    if (tag === 'X-RADIO-GROUP') {
+      for (const r of Array.from(el.querySelectorAll<ControlLike>('x-radio, x-radio-item'))) r.checked = String(r.value) === String(v);
+      el.value = v == null ? '' : String(v); // 回写 group.value，保证收集（读 group.value）与子项一致
+      return;
+    }
+    if (tag === 'X-CHECKBOX-GROUP') {
+      const set = new Set(Array.isArray(v) ? v.map(String) : []);
+      for (const c of Array.from(el.querySelectorAll<ControlLike>('x-checkbox, x-checkbox-item'))) c.checked = set.has(String(c.value));
+      return;
+    }
+    if (typeof v === 'boolean' && typeof el.checked === 'boolean') el.checked = v;
+    else if ('value' in el) el.value = v;
   }
 
   private __ensureSnapshot(): void {
     if (this.__snapshotTaken) return;
     this.__snapshotTaken = true;
     this.__initial.clear();
-    for (const el of this.__controls()) {
-      if (typeof el.checked === 'boolean' && el.value === undefined) this.__initial.set(el, el.checked);
-      else if ('value' in el) this.__initial.set(el, el.value);
-    }
+    for (const el of this.__controls()) this.__initial.set(el, this.__snapshotOf(el));
   }
 
   /* ------------------------------- 校验/提交 ------------------------------- */
@@ -209,8 +302,8 @@ class XForm extends XBaseElement {
   /** 重置：还原各控件到初始值 + 清除错误态 */
   reset(): void {
     for (const [el, v] of this.__initial) {
-      if (typeof v === 'boolean' && typeof el.checked === 'boolean') el.checked = v;
-      else if ('value' in el) el.value = v;
+      if (v === '__file__') el.reset?.();
+      else this.__applyTo(el, v);
     }
     this.clearValidate();
     this.__emitChange();

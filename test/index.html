@@ -5,30 +5,107 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script type="module" src="/dist/index.js"></script>
+    <script src="/dist/index.js"></script>
 </head>
 <body>
-<x-input type="date"></x-input>
 
-<h3>x-form 校验/提交（horizontal + footer label-offset）</h3>
-<x-form id="t" layout="horizontal" label-width="90px" label-align="end">
-  <x-form-item label="账号" name="acc" required><x-input name="acc"></x-input></x-form-item>
-  <x-form-item label="邮箱" name="mail" required help="需合法邮箱"><x-input name="mail" type="email"></x-input></x-form-item>
-  <x-form-item label="城市" name="city"><x-select name="city" options="北京,上海,广州"></x-select></x-form-item>
-  <x-form-item label="订阅" name="sub"><x-switch name="sub"></x-switch></x-form-item>
-  <x-form-footer label-offset align="end">
-    <x-button id="submit">提交</x-button>
-    <x-button id="reset" variant="outline">重置</x-button>
-  </x-form-footer>
+<x-form layout="vertical" label-position="left">
+    <x-form-item label="姓名" name="name" required>
+        <x-input name="name" placeholder="请输入姓名"></x-input>
+    </x-form-item>
+
+    <x-form-item label="邮箱" name="email" help="不会公开显示">
+        <x-input name="email" type="email" placeholder="you@example.com"></x-input>
+    </x-form-item>
+
+    <x-form-item label="密码" name="pwd">
+        <x-input name="pwd" type="password" show-password></x-input>
+    </x-form-item>
+
+    <x-form-item label="简介" name="bio">
+        <x-textarea name="bio" placeholder="多行文本" autosize maxlength="200" show-count></x-textarea>
+    </x-form-item>
+
+    <x-form-item label="城市" name="city">
+        <x-select name="city" placeholder="选择一个">
+            <option value="bj">北京</option>
+            <option value="sh">上海</option>
+            <option value="gz">广州</option>
+            <option value="sz">深圳</option>
+        </x-select>
+    </x-form-item>
+
+    <x-form-item label="爱好" name="hobbies" help="可多选">
+        <x-select name="hobbies" multiple placeholder="选择多个">
+            <option value="code">编程</option>
+            <option value="music">音乐</option>
+            <option value="read">阅读</option>
+            <option value="run">跑步</option>
+        </x-select>
+    </x-form-item>
+
+    <x-form-item label="性别" name="sex">
+        <x-radio-group name="sex" direction="row">
+            <x-radio-item value="male" label="男"></x-radio-item>
+            <x-radio-item value="female">女</x-radio-item>
+            <x-radio-item value="secret">保密</x-radio-item>
+        </x-radio-group>
+    </x-form-item>
+
+
+    <x-form-item label="订阅" name="sub">
+        <x-switch name="sub"></x-switch>
+    </x-form-item>
+
+    <x-form-item label="音量" name="level" help="档位滑块，value 为下标">
+        <x-slider name="level" options="静音,低,中,高"></x-slider>
+    </x-form-item>
+
+    <x-form-item label="附件" name="file">
+        <x-file-input name="file" multiple></x-file-input>
+    </x-form-item>
+
+    <x-form-footer align="start">
+        <x-button id="submit">提交</x-button>
+        <x-button id="reset" variant="outline">重置</x-button>
+        <x-button id="disable" variant="ghost">切换禁用</x-button>
+    </x-form-footer>
 </x-form>
 <pre id="out"></pre>
-<script type="module">
-  const f = document.getElementById('t');
-  const out = document.getElementById('out');
-  document.getElementById('submit').addEventListener('click', () => f.submit());
-  document.getElementById('reset').addEventListener('click', () => f.reset());
-  f.addEventListener('x-submit', (e) => (out.textContent = 'submit: ' + JSON.stringify(e.detail.values)));
-  f.addEventListener('x-invalid', () => (out.textContent = 'invalid'));
+<script>
+    const form = document.querySelector('x-form');
+    const out = document.getElementById('out');
+
+    // 字段级校验失败（required/type/pattern）会在对应 x-form-item 下方显示错误；
+    // 提交/重置/禁用用命令式按钮驱动，values 实时打印在下方
+    document.getElementById('submit').addEventListener('click', () => {
+        out.innerText = form.validate()
+            ? '校验通过 ✓\n' + JSON.stringify(form.values, null, 2)
+            : '存在未通过校验的字段，见红色提示';
+    });
+    document.getElementById('reset').addEventListener('click', () => {
+        form.reset();
+        out.innerText = '已重置\n' + JSON.stringify(form.values, null, 2);
+    });
+    document.getElementById('disable').addEventListener('click', () => {
+        form.disabled = !form.disabled;
+    });
+
+    form.addEventListener('x-change', (e) => {
+        out.innerText = JSON.stringify(form.values, null, 2);
+    });
+
+    // set init values
+    form.setValues({
+        name: '张三',
+        city: 'sh',
+        hobbies: ['code', 'music'],
+        sex: 'female',
+        tags: ['a', 'c'],
+        agree: true,
+        sub: true,
+        level: 2,
+    });
 </script>
 </body>
 </html>

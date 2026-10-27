@@ -18,6 +18,12 @@ function ctl(tag, attrs = {}) {
   for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
   return el;
 }
+/** x-select 的 options 是 JS 数组属性（非 attribute），且优先于 light DOM <option>；演示里统一用属性赋值 */
+function sel(name, items) {
+  const el = ctl('x-select', { name });
+  el.options = items;
+  return el;
+}
 function btn(label, attrs = {}) {
   const b = document.createElement('x-button');
   for (const [k, v] of Object.entries(attrs)) b.setAttribute(k, String(v));
@@ -37,7 +43,7 @@ export function render(el) {
     h(
       'p',
       { class: 'lead' },
-      'x-form 是布局编排 + 数据收集 + 校验调度的容器，x-form-item 把「label + 控件 + 错误/帮助文本」组成可统一排布的单元，x-form-footer 放操作按钮。布局拆成三条正交轴：label 与控件的关系（上下 / 左右 + 左右时 label 对齐与列宽）、item 之间的流向（纵向堆叠 / 横向换行）、按钮区对齐。数据收集依赖各控件自带的 FCCE 能力——x-form 内部放一个真正的 <form>，new FormData() 直接聚合出 values；校验走控件原生约束（required / type / pattern），错误信息渲染到字段下方。',
+      'x-form 是布局编排 + 数据收集 + 校验调度的容器，x-form-item 把「label + 控件 + 错误/帮助文本」组成可统一排布的单元，x-form-footer 放操作按钮。布局拆成三条正交轴：label 与控件的关系（上下 / 左右 + 左右时 label 对齐与列宽）、item 之间的流向（纵向堆叠 / 横向换行）、按钮区对齐。数据收集由 x-form 统一遍历内部控件、按各自公开的值面聚合出 values（重复键自动收数组）；校验走控件原生约束（required / type / pattern），错误信息渲染到字段下方。',
     ),
 
     h('h2', null, '引入'),
@@ -88,7 +94,7 @@ export function render(el) {
         f.append(
           fi('用户名', { name: 'u1', required: '' }, ctl('x-input', { name: 'u1' })),
           fi('密码', { name: 'p1' }, ctl('x-input', { name: 'p1', type: 'password', 'show-password': '' })),
-          fi('城市', { name: 'c1' }, ctl('x-select', { name: 'c1', options: '北京,上海,广州,深圳' })),
+          fi('城市', { name: 'c1' }, sel('c1', ['北京', '上海', '广州', '深圳'])),
           footer({ 'label-offset': '', align: 'end' }, btn('登录')),
         );
         c.append(f);
@@ -125,17 +131,22 @@ export function render(el) {
         const f = form({ layout: 'inline' });
         f.append(
           fi('关键词', { name: 'kw' }, ctl('x-input', { name: 'kw', placeholder: '搜索' })),
-          fi('类型', { name: 'tp' }, ctl('x-select', { name: 'tp', options: '全部,文章,问答' })),
-          fi('状态', { name: 'st' }, ctl('x-select', { name: 'st', options: '全部,已发布,草稿' })),
+          fi('类型', { name: 'tp' }, sel('tp', ['全部', '文章', '问答'])),
+          fi('状态', { name: 'st' }, sel('st', ['全部', '已发布', '草稿'])),
           footer({}, btn('查询', { color: 'primary' }), btn('重置', { variant: 'ghost' })),
         );
         c.append(f);
       },
       code: `<x-form layout="inline">
   <x-form-item label="关键词" name="kw"><x-input name="kw"></x-input></x-form-item>
-  <x-form-item label="类型" name="tp"><x-select name="tp" options="全部,文章,问答"></x-select></x-form-item>
+  <x-form-item label="类型" name="tp">
+    <x-select name="tp">
+      <option>全部</option><option>文章</option><option>问答</option>
+    </x-select>
+  </x-form-item>
   <x-form-footer><x-button>查询</x-button></x-form-footer>
-</x-form>`,
+</x-form>
+<!-- 选项二选一：light DOM <option>（如上）或 JS 赋数组 s.options = ['全部','文章','问答'] -->`,
     }),
 
     demoCard({
@@ -168,7 +179,7 @@ form.reset();        // 还原到初始快照 + 清错误态`,
 
     h('h2', null, '设计要点'),
     rich('三条布局轴正交：轴1 label↔控件（<code>label-position</code> top/left、<code>label-align</code> start/end/center、<code>label-width</code>）；轴2 item↔item（<code>flow</code> stack/row 换行、<code>gap</code>）；轴3 按钮区（<code>x-form-footer</code> 的 <code>align</code> + <code>label-offset</code>）。<code>layout</code> 预设一次性设好轴1+轴2，细调属性显式写出即覆盖。'),
-    rich('数据收集不重复造轮子：x-form 内部是一个真正的 <code>&lt;form&gt;&lt;fieldset&gt;&lt;slot&gt;</code>，各控件自带 FCCE（Form-Associated Custom Element），经扁平树归属到它，<code>new FormData()</code> 直接聚合。因此 <code>x-input / x-switch / x-slider</code> 本轮也补齐了 FCCE + <code>name</code>；<code>disabled</code> 交给 <code>&lt;fieldset disabled&gt;</code> 的原生语义自动禁用全部控件。'),
+    rich('数据收集：x-form 统一遍历「最外层」控件，按各控件公开的值面（<code>value</code>/<code>checked</code>/<code>files</code>/<code>values</code>）聚合出 <code>values</code> / <code>formData()</code>，重复键自动收数组、禁用项与未勾选不计入。为何不靠 <code>new FormData()</code>：表单归属是「节点树」概念，x-form shadow 内的 <code>&lt;form&gt;</code> 关联不到被 slot 投影进来的控件（实测连原生 <code>&lt;input&gt;</code> 也不行）；而控件自带的 FCCE 仍在——你把它们直接放进页面原生 <code>&lt;form&gt;</code> 时仍能自动计入。<code>disabled</code> 同样因跨树无法靠 <code>&lt;fieldset&gt;</code> 原生下发，改由 x-form 显式置各控件。'),
     rich('校验以控件原生约束为权威：item 的 <code>required</code> 会下沉给控件，<code>validate()</code> 调控件 <code>checkValidity()</code> 并把 <code>validationMessage</code> 渲染到字段下方；手动 <code>error</code> 属性可强制显示自定义错误。'),
 
     h('h2', null, 'API · x-form'),

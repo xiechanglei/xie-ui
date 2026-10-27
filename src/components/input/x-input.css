@@ -5,6 +5,9 @@
   box-sizing: border-box;
   width: 240px;
   vertical-align: middle;
+  /* 字体族吃令牌；宿主页把 --xie-font-family 置为 inherit 即跟随页面排版。
+     不显式声明时内部原生 input 会退化到 UA 默认字体，与组件其余文字（继承链）不一致 */
+  font-family: var(--xie-font-family, inherit);
   font-size: var(--xie-font-size-md);
   color: var(--xie-color-fg);
   cursor: text;

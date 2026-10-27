@@ -214,6 +214,7 @@ input.addEventListener('x-change', (e) => {
     apiTable(
       ['变量', '用途'],
       [
+        ['--xie-font-family', '字体族（置为 inherit 即跟随宿主页排版）'],
         ['--xie-size-sm / md / lg', '高度档位（= --xie-control-height 派生）'],
         ['--xie-radius-md', '外框圆角（随主题圆角滑杆）'],
         ['--xie-color-border / bg / surface / fg / muted', '描边、底色、文字、占位'],

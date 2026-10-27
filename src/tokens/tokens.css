@@ -46,6 +46,9 @@
   --xie-font-size: 14px;
   --xie-shadow-strength: 1;
 
+  /* 旋钮 · 字体族：组件的文字默认吃它；宿主页若自带字体排版，可把此令牌置为 inherit 让组件跟随页面 */
+  --xie-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+
   /* 派生 · 圆角 */
   --xie-radius-none: 0;
   --xie-radius-sm: calc(var(--xie-radius) * 0.66);

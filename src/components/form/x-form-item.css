@@ -1,0 +1,72 @@
+/* x-form-item —— 字段单元排版。三轴布局由 --_dir/--_la/--_lw（JS 从继承的 --form-* 解析后写入）驱动：
+   column = label 在上（上下堆叠）；row = label 在左（左右并排，label 列宽 --_lw、文本对齐 --_la）。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family, inherit);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: var(--_dir, column);
+  gap: 6px;
+}
+
+/* label 区：行内 flex，justify 走 --_la 决定左右/居中；必填星号紧随其后 */
+.label {
+  display: flex;
+  align-items: center;
+  justify-content: var(--_la, flex-start);
+  gap: 2px;
+  flex: 0 0 auto;
+  font-size: var(--xie-font-size-md, 14px);
+  color: var(--xie-color-fg, #18181b);
+  line-height: 1.4;
+}
+.label-text {
+  min-width: 0;
+}
+.req {
+  color: var(--xie-color-danger, #dc2626);
+  font-weight: 600;
+}
+
+/* 控件区：纵向堆叠控件与消息；横向布局下占满剩余宽度，min-width:0 允许收缩 */
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* 消息：错误用 danger、帮助用 muted */
+.msg {
+  font-size: var(--xie-font-size-sm, 12px);
+  line-height: 1.4;
+  min-height: 0;
+}
+.msg[data-tone='error'] {
+  color: var(--xie-color-danger, #dc2626);
+}
+.msg[data-tone='help'] {
+  color: var(--xie-color-muted, #71717a);
+}
+.msg[hidden] {
+  display: none;
+}
+
+/* 左右并排：label 固定列宽、与控件首行（单行输入）垂直对齐 */
+:host([data-horizontal]) .item {
+  align-items: flex-start;
+  gap: 12px;
+}
+:host([data-horizontal]) .label {
+  width: var(--_lw, auto);
+  min-height: var(--xie-control-height-md, 34px);
+}
+:host([data-horizontal]) .control {
+  flex: 1 1 auto;
+}

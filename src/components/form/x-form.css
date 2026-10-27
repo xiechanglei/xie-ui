@@ -1,0 +1,30 @@
+/* x-form —— 外壳。内部真正的 <form> + <fieldset> 承载 FCCE 收集与 disabled 语义；
+   item 之间的流向（轴2）由 --form-items-dir/--form-items-wrap 驱动，间距走 --form-gap。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family, inherit);
+}
+:host([hidden]) {
+  display: none;
+}
+
+/* 原生 form / fieldset 复位：去掉浏览器默认的边框、内边距、margin 与字段集留白 */
+.native {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.items {
+  display: flex;
+  flex-direction: var(--form-items-dir, column);
+  flex-wrap: var(--form-items-wrap, nowrap);
+  gap: var(--form-gap, var(--xie-space-4));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  align-items: stretch;
+}

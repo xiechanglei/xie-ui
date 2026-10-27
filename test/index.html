@@ -8,16 +8,27 @@
     <script type="module" src="/dist/index.js"></script>
 </head>
 <body>
-<h3>x-select</h3>
+<x-input type="date"></x-input>
 
-<x-select placeholder="请选择" id="select">
-</x-select>
-<script>
-    select.options = [
-        { value: 'vue', label: 'Vue' },
-        { value: 'react', label: 'React' },
-        "1"
-    ];
+<h3>x-form 校验/提交（horizontal + footer label-offset）</h3>
+<x-form id="t" layout="horizontal" label-width="90px" label-align="end">
+  <x-form-item label="账号" name="acc" required><x-input name="acc"></x-input></x-form-item>
+  <x-form-item label="邮箱" name="mail" required help="需合法邮箱"><x-input name="mail" type="email"></x-input></x-form-item>
+  <x-form-item label="城市" name="city"><x-select name="city" options="北京,上海,广州"></x-select></x-form-item>
+  <x-form-item label="订阅" name="sub"><x-switch name="sub"></x-switch></x-form-item>
+  <x-form-footer label-offset align="end">
+    <x-button id="submit">提交</x-button>
+    <x-button id="reset" variant="outline">重置</x-button>
+  </x-form-footer>
+</x-form>
+<pre id="out"></pre>
+<script type="module">
+  const f = document.getElementById('t');
+  const out = document.getElementById('out');
+  document.getElementById('submit').addEventListener('click', () => f.submit());
+  document.getElementById('reset').addEventListener('click', () => f.reset());
+  f.addEventListener('x-submit', (e) => (out.textContent = 'submit: ' + JSON.stringify(e.detail.values)));
+  f.addEventListener('x-invalid', () => (out.textContent = 'invalid'));
 </script>
 </body>
 </html>

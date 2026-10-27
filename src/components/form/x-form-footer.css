@@ -1,0 +1,17 @@
+/* x-form-footer —— 按钮行：justify 走 --_jc（align），左缩进走 --_fo（label-offset）。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family, inherit);
+}
+:host([hidden]) {
+  display: none;
+}
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--xie-space-2, 8px);
+  justify-content: var(--_jc, flex-start);
+  padding-left: var(--_fo, 0);
+}

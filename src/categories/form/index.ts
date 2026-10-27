@@ -16,6 +16,7 @@ import '../../components/radio/index.js';
 import '../../components/switch/index.js';
 import '../../components/slider/index.js';
 import '../../components/filter/index.js';
+import '../../components/form/index.js';
 
 export type {
   XInput,
@@ -64,3 +65,13 @@ export type {
 export type { XSwitch } from '../../components/switch/x-switch.js';
 export type { XSlider } from '../../components/slider/x-slider.js';
 export type { XFilter, XFilterItem } from '../../components/filter/index.js';
+export type {
+  XForm,
+  XFormItem,
+  XFormFooter,
+  FormLayout,
+  FormFlow,
+  FormLabelPosition,
+  FormLabelAlign,
+  FormFooterAlign,
+} from '../../components/form/index.js';

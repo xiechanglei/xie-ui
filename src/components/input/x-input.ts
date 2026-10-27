@@ -9,8 +9,9 @@
  * `x-change`（detail:{ value, previousValue }），被 preventDefault 则回退到提交前的值（受控写法）。
  * 程序化设 `value` 不派发任何事件，只把新值同步进原生 input。
  *
- * 约定：shadow 内的原生 input 不参与外部 `<form>` 提交（无 form 关联），
- * 取值/受控请走 `value` 属性与 x-input / x-change 事件。
+ * 约定：shadow 内的原生 input 不直接参与外部 `<form>` 提交；宿主为 FCCE（Form-Associated
+ * Custom Element）——`name` + `internals.setFormValue` 把值计入外层 form，required/type/maxlength
+ * 等约束镜像自内层原生 input 的 validity。取值/受控请走 `value` 属性与 x-input / x-change 事件。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
@@ -31,6 +32,8 @@ export type InputSize = 'sm' | 'md' | 'lg';
 
 class XInput extends XBaseElement {
   static tag = 'x-input';
+  /** 开启 form 关联（FCCE）：值经 internals 计入外层 <form> 的 FormData，约束校验走原生 */
+  static formAssociated = true;
 
   static properties: Record<string, PropertyOptions> = {
     value: { type: 'String', default: '' },
@@ -47,6 +50,8 @@ class XInput extends XBaseElement {
     maxlength: { type: 'Number', default: undefined },
     showCount: { type: 'Boolean', reflect: true, default: false },
     label: { type: 'String', default: '' },
+    // name 反射：FCCE 的 FormData 键取自宿主 name attribute
+    name: { type: 'String', reflect: true, default: '' },
   };
 
   static styles = [inputStyles];
@@ -67,6 +72,10 @@ class XInput extends XBaseElement {
   declare maxlength?: number;
   declare showCount: boolean;
   declare label: string;
+  declare name: string;
+
+  /** FCCE 内部句柄 */
+  protected internals!: ElementInternals;
 
   /** 上一次「提交」的值，作为 x-change 的 previousValue 与取消时的回退目标 */
   private __committed = '';
@@ -76,7 +85,34 @@ class XInput extends XBaseElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this.internals = this.attachInternals();
     this.__revealed = this.__signal(false);
+  }
+
+  /** 所属 form（FCCE 提供） */
+  get form(): HTMLFormElement | null {
+    return this.internals.form;
+  }
+  /** 校验态镜像自内层原生 input（required/type/pattern/maxlength 等） */
+  get validity(): ValidityState {
+    return this.internals.validity;
+  }
+  get validationMessage(): string {
+    return this.internals.validationMessage;
+  }
+  get willValidate(): boolean {
+    return this.internals.willValidate;
+  }
+  checkValidity(): boolean {
+    return this.internals.checkValidity();
+  }
+  reportValidity(): boolean {
+    return this.internals.reportValidity();
+  }
+
+  /** FCCE：随 fieldset / form disabled 一起禁用 */
+  formDisabledCallback(disabled: boolean): void {
+    this.disabled = disabled;
   }
 
   protected render(): TemplateResult {
@@ -129,6 +165,7 @@ class XInput extends XBaseElement {
     });
     this.__committed = this.value ?? '';
     this.__writeValue();
+    this.__syncForm();
   }
 
   protected override updated(): void {
@@ -136,6 +173,16 @@ class XInput extends XBaseElement {
     if (this.type !== 'password' && this.__revealed.value) this.__revealed.value = false;
     // 信号 → 原生 input 单向回写（同值不写，避免打断用户光标）
     this.__writeValue();
+    this.__syncForm();
+  }
+
+  /** 把当前值与内层原生 input 的约束校验态同步到宿主（FCCE：FormData + validity） */
+  private __syncForm(): void {
+    this.internals.setFormValue(this.value ?? '');
+    const input = this.__inputEl();
+    if (!input) return;
+    if (input.validity.valid) this.internals.setValidity({});
+    else this.internals.setValidity(input.validity, input.validationMessage, input);
   }
 
   override disconnectedCallback(): void {

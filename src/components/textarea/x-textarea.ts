@@ -112,6 +112,23 @@ class XTextarea extends XBaseElement {
     return this.internals.form;
   }
 
+  /** 校验态只读接口（供 x-form / x-form-item 读取渲染错误） */
+  get validity(): ValidityState {
+    return this.internals.validity;
+  }
+  get validationMessage(): string {
+    return this.internals.validationMessage;
+  }
+  get willValidate(): boolean {
+    return this.internals.willValidate;
+  }
+  checkValidity(): boolean {
+    return this.internals.checkValidity();
+  }
+  reportValidity(): boolean {
+    return this.internals.reportValidity();
+  }
+
   formDisabledCallback(disabled: boolean): void {
     this.disabled = disabled;
   }

@@ -15,6 +15,14 @@
       <article id="page" class="docs-page">加载中…</article>
     </x-container>
 
+    <!-- 全局主题配置面板（右侧滑入抽屉）：由右上角固定按钮唤出，全站唯一实例 -->
+    <x-theme-panel id="theme-panel"></x-theme-panel>
+
+    <!-- 右上角固定按钮：点击打开主题配置器 -->
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="主题设置" title="主题设置">
+      <x-icon name="settings" size="20px"></x-icon>
+    </button>
+
     <script type="module" src="/demo/app.js"></script>
   </body>
 </html>

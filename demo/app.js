@@ -90,3 +90,18 @@ window.addEventListener('hashchange', route);
 buildMenu();
 if (!location.hash) location.hash = '#/' + DEFAULT_ROUTE;
 route();
+
+/* --------------------- 右上角固定按钮 → 打开全局主题配置器 --------------------- */
+// 面板是 index.html 里的全站唯一 <x-theme-panel>（右侧滑入抽屉），
+// 主题读写/持久化全部由面板自己管（localStorage xie-theme-config + :root 令牌），这里只负责唤出。
+const themeBtn = document.getElementById('theme-toggle');
+const themePanel = document.getElementById('theme-panel');
+if (themeBtn && themePanel) {
+  themeBtn.addEventListener('click', () => {
+    themePanel.toggle();
+    // 齿轮反馈：点一下转一圈（重放动画）
+    themeBtn.classList.remove('is-spinning');
+    void themeBtn.offsetWidth; // 强制重排以重置 CSS 动画
+    themeBtn.classList.add('is-spinning');
+  });
+}

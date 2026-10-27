@@ -46,6 +46,7 @@ export const MENU = [
       { id: 'select', label: 'Select 选择器', tag: 'x-select', status: 'done' },
       { id: 'file', label: 'FileUpload 上传', tag: 'x-file-input', status: 'done' },
       { id: 'filter', label: 'Filter 筛选器', tag: 'x-filter', status: 'done' },
+      { id: 'form', label: 'Form 表单', tag: 'x-form', status: 'done' },
     ],
   },
   {

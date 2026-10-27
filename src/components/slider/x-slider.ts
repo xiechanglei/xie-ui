@@ -7,6 +7,8 @@
  *
  * 交互：手柄聚焦后方向键微调（±1 档），轨道可点按/拖动定位。拖动过程实时派发 `x-input`，
  * 松手/键盘换档时派发 `x-change`（detail:{ index, value }）。程序化设置 value 不触发事件，可作受控组件。
+ *
+ * form 关联（FCCE）：`name` + `internals.setFormValue` 把当前档位标签（无标签则下标）计入外层 `<form>`。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
@@ -15,12 +17,16 @@ import sliderStyles from './x-slider.css?inline';
 
 class XSlider extends XBaseElement {
   static tag = 'x-slider';
+  /** 开启 form 关联（FCCE） */
+  static formAssociated = true;
 
   static properties: Record<string, PropertyOptions> = {
     value: { type: 'Number', reflect: true, default: 0 },
     options: { type: 'String', reflect: true, default: '' },
     disabled: { type: 'Boolean', reflect: true, default: false },
     label: { type: 'String', default: '' },
+    // name 反射：FCCE 的 FormData 键取自宿主 name attribute
+    name: { type: 'String', reflect: true, default: '' },
   };
 
   static styles = [sliderStyles];
@@ -29,6 +35,10 @@ class XSlider extends XBaseElement {
   declare options: string;
   declare disabled: boolean;
   declare label: string;
+  declare name: string;
+
+  /** FCCE 内部句柄 */
+  protected internals!: ElementInternals;
 
   private __dragging = false;
   private __built = -1;
@@ -36,6 +46,17 @@ class XSlider extends XBaseElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this.internals = this.attachInternals();
+  }
+
+  /** 所属 form（FCCE） */
+  get form(): HTMLFormElement | null {
+    return this.internals.form;
+  }
+
+  /** FCCE：随 fieldset / form disabled 一起禁用 */
+  formDisabledCallback(disabled: boolean): void {
+    this.disabled = disabled;
   }
 
   /** 档位标签数组（options 逗号切分） */
@@ -82,6 +103,7 @@ class XSlider extends XBaseElement {
   protected firstUpdated(): void {
     this.__built = this.__opts().length;
     this.__buildStops();
+    this.__sync();
 
     const track = this.shadowRoot!.querySelector<HTMLElement>('.track')!;
     const thumb = this.shadowRoot!.querySelector<HTMLElement>('.thumb')!;
@@ -100,6 +122,13 @@ class XSlider extends XBaseElement {
     } else {
       this.__syncActive();
     }
+    this.__sync();
+  }
+
+  /** 把当前档位（标签优先，无则下标）同步到 FormData（FCCE） */
+  private __sync(): void {
+    const label = this.__opts()[this.__index()] ?? '';
+    this.internals.setFormValue(label !== '' ? label : String(this.__index()));
   }
 
   override disconnectedCallback(): void {

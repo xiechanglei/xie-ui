@@ -138,6 +138,55 @@ body {
   font: 12px/1.5 ui-monospace, monospace;
 }
 
+/* 右上角固定主题配置按钮（齿轮）：点击唤出全局 x-theme-panel 抽屉；吃全局令牌随主题自动换肤 */
+.theme-toggle {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--xie-color-border, #e4e4e7);
+  background: var(--xie-color-surface, #fff);
+  color: var(--xie-color-fg, #18181b);
+  cursor: pointer;
+  box-shadow: var(--xie-shadow-1, 0 1px 2px rgba(0, 0, 0, 0.08));
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.theme-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--xie-shadow-2, 0 4px 12px rgba(0, 0, 0, 0.12));
+  border-color: var(--xie-color-primary, #2563eb);
+  color: var(--xie-color-primary, #2563eb);
+}
+.theme-toggle:active {
+  transform: translateY(0) scale(0.94);
+}
+.theme-toggle x-icon {
+  pointer-events: none;
+  transition: transform 0.35s ease;
+}
+.theme-toggle:hover x-icon {
+  transform: rotate(60deg);
+}
+/* 点击反馈：齿轮转一圈（JS 每次 click 重放 is-spinning） */
+.theme-toggle.is-spinning x-icon {
+  animation: theme-toggle-spin 0.5s ease;
+}
+@keyframes theme-toggle-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+
 /* 图标画廊（x-icon 文档页）：名称用 span 而非 code，避免吃文档站 inline-code 灰底 */
 .icon-gallery {
   display: grid;

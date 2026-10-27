@@ -7,8 +7,16 @@
  * 新增表单组件时：在此 import 其注册模块，并 `export type` 其公开类型。
  */
 import '../../tokens/index.js';
+import '../../components/input/index.js';
 import '../../components/switch/index.js';
 import '../../components/slider/index.js';
 
+export type {
+  XInput,
+  InputType,
+  InputVariant,
+  InputColor,
+  InputSize,
+} from '../../components/input/x-input.js';
 export type { XSwitch } from '../../components/switch/x-switch.js';
 export type { XSlider } from '../../components/slider/x-slider.js';

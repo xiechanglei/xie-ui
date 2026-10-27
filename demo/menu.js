@@ -39,7 +39,7 @@ export const MENU = [
     items: [
       { id: 'switch', label: 'Switch 开关', tag: 'x-switch', status: 'done' },
       { id: 'slider', label: 'Slider 滑块', tag: 'x-slider', status: 'done' },
-      { id: 'input', label: 'Input 输入框', tag: 'x-input', status: 'planned' },
+      { id: 'input', label: 'Input 输入框', tag: 'x-input', status: 'done' },
       { id: 'checkbox', label: 'Checkbox 复选', tag: 'x-checkbox', status: 'planned' },
       { id: 'select', label: 'Select 选择器', tag: 'x-select', status: 'planned' },
     ],

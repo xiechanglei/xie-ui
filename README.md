@@ -160,7 +160,7 @@ template: {
 | Flex | `<x-flex>` | 🚧 开发中（M0，弹性布局原子：`direction`/`align`/`justify`/`wrap`/`inline`/`gap`（令牌别名） |
 | Container | `<x-container>` | 🚧 开发中（M0，应用外壳：header/sidebar/main/footer + 侧栏折叠为窄栏 `rail`，rail 单源下沉给 logo/menu） |
 | Logo | `<x-logo>` | 🚧 开发中（M0，品牌标识：mark 复用 x-avatar，`mark`/`src`/`title`/`subtitle`，rail 窄栏只显首字母） |
-| Input | `<x-input>` | 📋 规划中（M1） |
+| Input | `<x-input>` | 🚧 开发中（M0，单行输入：内包原生 input；`variant`(outline/filled/flush) × `color`(6 角色) 双轴 + `size`，`clearable`/`show-count`/前后缀插槽；逐字符 `x-input`、提交 `x-change`（可取消回退）） |
 | Checkbox | `<x-checkbox>` | 📋 规划中（M1） |
 | Radio | `<x-radio>` | 📋 规划中（M1） |
 | Select | `<x-select>` | 📋 规划中（M2） |

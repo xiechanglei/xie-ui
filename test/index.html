@@ -8,15 +8,39 @@
     <script type="module" src="/dist/index.js"></script>
 </head>
 <body>
-<button id="openDrawer">打开抽屉</button>
+<x-button id="openDrawer">打开抽屉</x-button>
 <x-drawer id="dr1" title="通知设置" subtitle="副标题说明">
     <x-text variant="muted">
         快捷用法：未写 &lt;x-drawer-header&gt;，抽屉自动生成带 show-close 的头部；副标题走 x-text caption。中部内容自动滚动留白。
     </x-text>
 </x-drawer>
+
+<h3>x-input</h3>
+<p style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+    <x-input placeholder="outline 默认"></x-input>
+    <x-input variant="filled" value="filled"></x-input>
+    <x-input variant="flush" value="flush"></x-input>
+    <x-input size="sm" value="sm"></x-input>
+    <x-input size="lg" value="lg"></x-input>
+    <x-input color="success" value="success"></x-input>
+    <x-input color="danger" value="danger"></x-input>
+    <x-input clearable value="点 × 清除"></x-input>
+    <x-input show-count maxlength="12" placeholder="计数 0/12"></x-input>
+    <x-input disabled value="禁用"></x-input>
+    <x-input readonly value="只读"></x-input>
+    <x-input type="password" value="secret"></x-input>
+    <x-input type="number" placeholder="数字（无步进箭头）"></x-input>
+    <x-input id="ev" clearable placeholder="前后缀 + 事件">
+        <x-icon slot="prefix" name="user" size="16px"></x-icon>
+        <x-text slot="suffix" variant="caption">元</x-text>
+    </x-input>
+</p>
+<p id="out">x-input：— ／ x-change：—</p>
 <script>
     openDrawer.addEventListener('click', () => dr1.show());
     dr1.addEventListener('x-close', () => console.log('x-close 已触发'));
+    ev.addEventListener('x-input', (e) => (out.textContent = 'x-input：' + e.detail.value));
+    ev.addEventListener('x-change', (e) => (out.textContent = `x-change：${e.detail.value}（前值 ${e.detail.previousValue}）`));
 </script>
 </body>
 </html>

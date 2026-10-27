@@ -1,0 +1,160 @@
+/* x-input —— 单行输入框。形态(variant) × 语义色(color) 双轴正交，配色只消费全局令牌，随主题实时联动。
+   注意：初始默认值不会反射成宿主 attribute，故「缺省态」样式一律写在基座，属性选择器只用于覆盖。 */
+:host {
+  display: inline-flex;
+  box-sizing: border-box;
+  width: 240px;
+  vertical-align: middle;
+  font-size: var(--xie-font-size-md);
+  color: var(--xie-color-fg);
+  cursor: text;
+}
+:host([hidden]) {
+  display: none;
+}
+:host([disabled]) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* 外框：颜色轴只定义 --_accent（分层变量，同 x-button），聚焦态统一消费它 */
+.field {
+  --_accent: var(--xie-color-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--xie-space-2);
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--xie-size-md);
+  padding: 0 var(--xie-space-3);
+  background: var(--xie-color-bg);
+  border: 1px solid var(--xie-color-border);
+  border-radius: var(--xie-radius-md);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.field:focus-within {
+  border-color: var(--_accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--_accent) 18%, transparent);
+}
+
+/* 尺寸轴：吃 --xie-size-* 档位（随主题「尺寸」滑杆联动） */
+:host([size='sm']) .field {
+  height: var(--xie-size-sm);
+  padding: 0 var(--xie-space-2);
+  font-size: var(--xie-font-size-sm);
+}
+:host([size='lg']) .field {
+  height: var(--xie-size-lg);
+  font-size: var(--xie-font-size-lg);
+}
+
+/* 形态轴：outline 为缺省（基座即是）；filled 灰底、聚焦才显描边；flush 只留下划线 */
+:host([variant='filled']) .field {
+  background: var(--xie-color-surface);
+  border-color: transparent;
+}
+:host([variant='filled']) .field:focus-within {
+  border-color: var(--_accent);
+}
+:host([variant='flush']) .field {
+  padding-inline: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--xie-color-border);
+  border-radius: 0;
+}
+:host([variant='flush']) .field:focus-within {
+  border-bottom-color: var(--_accent);
+  box-shadow: none;
+}
+
+/* 颜色轴：6 个强调角色，覆盖 accent 即可与任意形态组合 */
+:host([color='secondary']) .field { --_accent: var(--xie-color-secondary); }
+:host([color='success']) .field { --_accent: var(--xie-color-success); }
+:host([color='warning']) .field { --_accent: var(--xie-color-warning); }
+:host([color='danger']) .field { --_accent: var(--xie-color-danger); }
+:host([color='info']) .field { --_accent: var(--xie-color-info); }
+
+/* 状态：只读用灰底提示（描边保留，仍可复制选中） */
+:host([readonly]) .field {
+  background: var(--xie-color-surface);
+}
+
+/* 原生 input：去掉浏览器自绘外观，全部表现交给 .field */
+input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  caret-color: var(--_accent);
+}
+:host([disabled]) input {
+  cursor: not-allowed;
+}
+input::placeholder {
+  color: var(--xie-color-muted);
+  opacity: 1;
+}
+/* number 的自绘步进箭头、Edge 的显示密码按钮都与本库观感不符 → 关掉 */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+/* 前后缀插槽内容（图标/单位）统一弱化色 */
+.field ::slotted([slot='prefix']),
+.field ::slotted([slot='suffix']) {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  color: var(--xie-color-muted);
+}
+
+.clear {
+  all: unset;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--xie-radius-full);
+  color: var(--xie-color-muted);
+  cursor: pointer;
+}
+.clear:hover {
+  background: var(--xie-color-surface);
+  color: var(--xie-color-fg);
+}
+.clear:focus-visible {
+  outline: 2px solid var(--_accent);
+  outline-offset: 1px;
+}
+/* 作者样式的 display 会覆盖 UA 的 [hidden]{display:none}（author origin 优先），必须显式补回 */
+.clear[hidden] {
+  display: none;
+}
+
+.count {
+  flex: 0 0 auto;
+  color: var(--xie-color-muted);
+  font-size: var(--xie-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}

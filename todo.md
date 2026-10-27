@@ -1,3 +1,6 @@
 - 内置一些动画，比如旋转，
 - x-container 对外提供一个方法，loadMenuMode（menudata，pageloader），用于自动生成左侧菜单，右侧页面的页面。menudata给一些约定
 - 然后给我的docs页面的菜单全部安排上icon，这些icon属于应用级别的icon而不是框架级别的icon不需要放在库里面，放在docs下面的代码中就可以了
+- input
+- check box, 这个我们应该怎么设计比较合理，考虑到用户的易用性，比如<x-checkbox> 是一个单独的选择组件，<x-checkbox-item> 带文字显示(指定name，title，value)， <x-checkbox-group> 作为一个容器（指定name或者其他共同的属性以及样式属性，这样下面的item就可以不用写name了），里面放多个<x-checkbox-item>,这是我的想法，你看看有没有什么建议或者补充
+- radio 

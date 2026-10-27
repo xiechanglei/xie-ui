@@ -18,6 +18,8 @@ import '../../components/switch/x-switch.js';
 import '../../components/icon/x-icon.js';
 // 依赖离散选项滑块（副作用注册 x-slider），用于圆角/尺寸/阴影三行
 import '../../components/slider/x-slider.js';
+// 依赖排版原子组件（副作用注册 x-text）：抽屉头部的标题/副标题统一吃令牌
+import '../../components/text/x-text.js';
 import themePanelStyles from './x-theme-panel.css?inline';
 import {
   ACCENT_DEFAULT,
@@ -118,8 +120,8 @@ class XThemePanel extends XBaseElement {
     return html`<x-drawer part="drawer" label="主题设置" width="380px">
       <x-drawer-header show-close>
         <div class="title-block">
-          <span class="hd__title">主题设置</span>
-          <span class="hd__desc">调整即全局实时生效</span>
+          <x-text variant="title">主题设置</x-text>
+          <x-text variant="caption">调整即全局实时生效</x-text>
         </div>
       </x-drawer-header>
 
@@ -209,10 +211,12 @@ class XThemePanel extends XBaseElement {
     this.open = !this.open;
   }
 
-  /** 外观模式开关：交互切换时回写 theme（单一数据源，程序化回写不重触发） */
+  /** 外观模式开关：交互切换时回写 theme（单一数据源，程序化回写不重触发），并即刻落盘 */
   private __onModeChange = (event: Event): void => {
     const checked = (event as CustomEvent<{ checked: boolean }>).detail.checked;
     this.theme = checked ? 'dark' : 'light';
+    // 交互变更必须落盘：仅靠 updated→__apply 只改 :root 不写存储，刷新后档位会丢
+    this.__save();
   };
 
   /** 命令式构建「强调色」区：每角色一行（色卡 + 取色器）。模板引擎不支持列表，故用 DOM 生成 */

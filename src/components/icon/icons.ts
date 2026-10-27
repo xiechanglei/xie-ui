@@ -10,6 +10,10 @@
 export const ICONS: Record<string, string> = {
   // 右向尖角（菜单分组折叠指示器等）
   'chevron-right': '<path d="M9 6l6 6-6 6" />',
+  // 双右向尖角（» 侧栏折叠按钮等）
+  'chevrons-right': '<path d="m13 17 5-5-5-5" /><path d="m6 17 5-5-5-5" />',
+  // 用户（头像无图/无文字时的占位）
+  'user': '<circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" />',
   // 关闭（×）
   'close': '<path d="M6 6l12 12M18 6L6 18" />',
   // 太阳（浅色）

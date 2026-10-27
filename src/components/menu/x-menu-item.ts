@@ -19,6 +19,7 @@ class XMenuItem extends XBaseElement {
     note: { type: 'String', default: '' },
     disabled: { type: 'Boolean', reflect: true, default: false },
     active: { type: 'Boolean', reflect: true, default: false },
+    rail: { type: 'Boolean', reflect: true, default: false },
   };
 
   static styles = [menuItemStyles];
@@ -27,6 +28,7 @@ class XMenuItem extends XBaseElement {
   declare note: string;
   declare disabled: boolean;
   declare active: boolean;
+  declare rail: boolean;
 
   constructor() {
     super();
@@ -41,11 +43,16 @@ class XMenuItem extends XBaseElement {
       role="menuitem"
       disabled=${this.derive(() => this.disabled)}
       aria-current=${this.derive(() => (this.active ? 'page' : undefined))}
-    ><slot name="icon"></slot><span class="label" part="label"><slot></slot></span><span class="note" part="note">${this.derive(() => this.note)}<slot name="note"></slot></span></button>`;
+    ><slot name="icon"></slot><span class="mini" part="mini" aria-hidden="true"></span><span class="label" part="label"><slot></slot></span><span class="note" part="note">${this.derive(() => this.note)}<slot name="note"></slot></span></button>`;
   }
 
   protected firstUpdated(): void {
     this.shadowRoot!.querySelector('.base')!.addEventListener('click', this.__onClick);
+    this.__syncRail();
+  }
+
+  protected override updated(): void {
+    this.__syncRail();
   }
 
   override disconnectedCallback(): void {
@@ -61,6 +68,23 @@ class XMenuItem extends XBaseElement {
       new CustomEvent('x-menu-item-activate', { bubbles: true, detail: { value: this.value } }),
     );
   };
+
+  /**
+   * rail 窄栏态：有 icon 则显图标（data-has-icon），否则显标签首字兼底（.mini）。
+   * 首字取默认插槽文本（即标签）的第一个可视字符。
+   */
+  private __syncRail(): void {
+    const sr = this.shadowRoot!;
+    const mini = sr.querySelector('.mini');
+    if (!mini) return;
+    const hasIcon = !!this.querySelector('[slot="icon"]');
+    this.toggleAttribute('data-has-icon', hasIcon);
+    if (this.rail && !hasIcon) {
+      mini.textContent = (this.textContent || '').trim().charAt(0).toUpperCase();
+    } else {
+      mini.textContent = '';
+    }
+  }
 }
 
 declare global {

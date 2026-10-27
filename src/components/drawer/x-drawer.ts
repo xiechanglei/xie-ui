@@ -6,10 +6,15 @@
  * 面板为纵向 flex 容器，直接子元素排布：`<x-drawer-header>` / `<x-drawer-footer>` 固定顶/底，
  * 其余内容占据中部并自动滚动、内衬留白（见组件 CSS 的 ::slotted 规则）。
  * 面板视觉（背景/阴影/宽度）由全局令牌驱动，随主题实时联动。
+ *
+ * 快捷用法：只写 `title` / `subtitle`（不放 header 子元素）时，抽屉自动生成一个带关闭按钮的
+ * `<x-drawer-header>`；一旦 light DOM 里出现了显式 `<x-drawer-header>`，自动头部让位（hidden）。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
 import '../../tokens/index.js';
+// 自动头部依赖 x-drawer-header（副作用注册）：其关闭按钮靠 closest('x-drawer') 回关宿主
+import './x-drawer-header.js';
 import drawerStyles from './x-drawer.css?inline';
 
 export type DrawerPlacement = 'left' | 'right';
@@ -35,6 +40,8 @@ class XDrawer extends XBaseElement {
     width: { type: 'String', default: '440px' },
     lockScroll: { type: 'Boolean', default: true },
     label: { type: 'String', default: '' },
+    title: { type: 'String', default: '' },
+    subtitle: { type: 'String', default: '' },
   };
 
   static styles = [drawerStyles];
@@ -44,8 +51,15 @@ class XDrawer extends XBaseElement {
   declare width: string;
   declare lockScroll: boolean;
   declare label: string;
+  /** 快捷头部标题（也可通过 property 赋值） */
+  declare title: string;
+  /** 快捷头部副标题 */
+  declare subtitle: string;
 
   private __locked = false;
+
+  /** light DOM 里是否已有显式 <x-drawer-header>（有则自动头部让位） */
+  private __hasSlottedHeader = this.__signal<boolean>(false);
 
   constructor() {
     super();
@@ -54,14 +68,48 @@ class XDrawer extends XBaseElement {
 
   protected render(): TemplateResult {
     return html`<div class="scrim" part="scrim"></div>
-      <div class="panel" part="panel" role="dialog" aria-modal="true" aria-label=${this.derive(() => this.label || undefined)}>
+      <div
+        class="panel"
+        part="panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label=${this.derive(() => this.label || this.title || undefined)}
+      >
+        <x-drawer-header
+          class="auto-header"
+          part="header"
+          show-close
+          subtitle=${this.derive(() => this.subtitle)}
+          hidden=${this.derive(
+            () => (this.__hasSlottedHeader.value || !(this.title || this.subtitle) ? '' : undefined),
+          )}
+          >${this.derive(() => this.title)}</x-drawer-header
+        >
         <slot></slot>
       </div>`;
+  }
+
+  /** title 与原生全局属性同名：把值搬进 property 后立刻移除宿主 attribute，
+      否则浏览器会把抽屉标题当 tooltip 浮在内容上（无障碍命名走 panel 的 aria-label）。
+      因此 attribute 置 null 的回写不能进基类，否则会把刚拿到的值清掉。 */
+  override attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
+    if (name === 'title') {
+      if (value !== null) {
+        this.title = value;
+        this.removeAttribute('title');
+      }
+      return;
+    }
+    super.attributeChangedCallback(name, _old, value);
   }
 
   protected firstUpdated(): void {
     this.shadowRoot!.querySelector('.scrim')!.addEventListener('click', () => this.hide());
     document.addEventListener('keydown', this.__onKey);
+    // 监听默认插槽：显式 header 可能是后续动态插入的
+    const slot = this.shadowRoot!.querySelector('slot')!;
+    slot.addEventListener('slotchange', () => this.__syncHeader());
+    this.__syncHeader();
     this.__sync();
   }
 
@@ -97,6 +145,14 @@ class XDrawer extends XBaseElement {
   private __onKey = (event: KeyboardEvent): void => {
     if (event.key === 'Escape' && this.open) this.hide();
   };
+
+  /** 登记 light DOM 里是否存在显式 header（信号驱动自动头部 hidden） */
+  private __syncHeader(): void {
+    const slot = this.shadowRoot!.querySelector('slot')!;
+    this.__hasSlottedHeader.value = slot
+      .assignedElements()
+      .some((el) => el.tagName === 'X-DRAWER-HEADER');
+  }
 
   /** 依据 open / width 同步内联宽度变量与滚动锁 */
   private __sync(): void {

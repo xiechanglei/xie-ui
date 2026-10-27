@@ -9,8 +9,8 @@ import buttonStyles from './x-button.css?inline';
 
 /** 形态（外观/填充）轴 */
 export type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'soft';
-/** 语义色（颜色）轴 */
-export type ButtonColor = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
+/** 语义色（颜色）轴：default 为中性缺省态（次要/取消类按钮，非强调角色），其余为 6 个强调角色 */
+export type ButtonColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 class XButton extends XBaseElement {

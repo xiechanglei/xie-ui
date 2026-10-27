@@ -100,7 +100,7 @@ s.addEventListener('x-change', (e) => {
       [
         ['checked', '是否选中（反射，驱动滑块与配色）', 'boolean', 'false'],
         ['disabled', '是否禁用', 'boolean', 'false'],
-        ['label', '无障碍名称（aria-label）', 'string', "''"],
+        ['label', '无障碍名称（aria-label：屏幕阅读器朗读，无视觉表现）', 'string', "''"],
         ['value', '随事件回传的自定义值', 'string', "'on'"],
       ],
     ),

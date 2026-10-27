@@ -1,5 +1,7 @@
 /** x-icon 内置图标文档：注册表约定 + 组件用法 + API */
 import { h, demoCard, apiTable } from '/demo/render.js';
+// 直接读内部注册表源文件：画廊与 icons.ts 永远同步（仅文档站自用，不改变“非公开 API”定位）
+import { ICONS } from '/src/components/icon/icons.ts';
 
 export function render(el) {
   el.append(
@@ -13,19 +15,24 @@ export function render(el) {
 
     demoCard({
       title: '全部内置图标',
-      desc: '当前注册：chevron-right / close / sun / moon（后续组件用到时统一在 icons.ts 追加）',
+      desc: `实时读取内部 icons.ts 注册表，当前共 ${Object.keys(ICONS).length} 枚；名称即 name 属性取值，点击格子复制完整用法片段。新增图标在 icons.ts 登记后本页自动同步`,
       build: (c) => {
-        const row = h('div');
-        row.style.cssText = 'display:flex;gap:24px;align-items:center;color:var(--xie-color-text-1)';
-        for (const name of ['chevron-right', 'close', 'sun', 'moon']) {
-          row.append(h('x-icon', { name, label: name, size: '24px' }));
+        const grid = h('div', { class: 'icon-gallery' });
+        for (const name of Object.keys(ICONS)) {
+          const cell = h('div', { class: 'icon-gallery__cell', title: '点击复制 <x-icon> 用法片段' });
+          cell.append(h('x-icon', { name, label: name, size: '22px' }));
+          const label = document.createElement('span');
+          label.className = 'icon-gallery__name';
+          label.textContent = name;
+          cell.append(label);
+          cell.addEventListener('click', () => copyName(name, label));
+          grid.append(cell);
         }
-        c.append(row);
+        c.append(grid);
       },
-      code: `<x-icon name="chevron-right" size="24px"></x-icon>
-<x-icon name="close" size="24px"></x-icon>
-<x-icon name="sun" size="24px"></x-icon>
-<x-icon name="moon" size="24px"></x-icon>`,
+      code: Object.keys(ICONS)
+        .map((n) => `<x-icon name="${n}" size="24px"></x-icon>`)
+        .join('\n'),
     }),
 
     demoCard({
@@ -35,7 +42,7 @@ export function render(el) {
         const row = h('div');
         row.style.cssText = 'display:flex;gap:20px;align-items:center;font-size:22px';
         for (const color of [
-          'var(--xie-color-text-2)',
+          'var(--xie-color-fg)',
           'var(--xie-color-primary)',
           'var(--xie-color-success)',
           'var(--xie-color-danger)',
@@ -72,7 +79,7 @@ export function render(el) {
 
     demoCard({
       title: '内部消费：单一图标源',
-      desc: 'x-menu-group 折叠箭头 / x-theme-panel 关闭 & 太阳 & 月亮均改用 <x-icon>，路径不再重复',
+      desc: 'chevron-right→菜单分组折叠；chevrons-right→容器侧栏折叠钮；close→抽屉关闭；sun/moon→外观开关；user→头像占位。路径均不再重复',
       build: (c) => {
         const menu = h('x-menu');
         menu.style.maxWidth = '220px';
@@ -91,7 +98,11 @@ export function render(el) {
 <x-switch>
   <x-icon slot="off" name="sun"></x-icon>
   <x-icon slot="on" name="moon"></x-icon>
-</x-switch>`,
+</x-switch>
+
+<!-- x-container 侧栏折叠按钮 / x-avatar 无图无字占位： -->
+<x-icon name="chevrons-right"></x-icon>
+<x-icon name="user"></x-icon>`,
     }),
 
     h('h2', null, 'API · x-icon'),
@@ -100,7 +111,7 @@ export function render(el) {
       [
         ['name', '注册表中的图标名；未登记渲染为空 svg（不报错）', 'string', "''"],
         ['size', 'CSS 长度，驱动宽高（写入内部 --_icon-size）', 'string', "''（= 1em）"],
-        ['label', '无障碍名；留空视为装饰（aria-hidden="true"）', 'string', "''"],
+        ['label', '无障碍名称（aria-label：屏幕阅读器朗读，无视觉表现）；留空视为装饰（aria-hidden="true"）', 'string', "''"],
       ],
     ),
     apiTable(
@@ -116,4 +127,17 @@ export function render(el) {
 
 function codeInline(code) {
   return h('div', { class: 'demo-card' }, h('div', { class: 'demo-card__code' }, h('pre', null, h('code', null, code))));
+}
+
+/** 点击格子复制完整用法片段（非仅图标名），短暂回显状态后还原名称 */
+async function copyName(name, labelEl) {
+  try {
+    await navigator.clipboard.writeText(`<x-icon name="${name}"></x-icon>`);
+    labelEl.textContent = '片段已复制 ✓';
+  } catch {
+    labelEl.textContent = '复制失败';
+  }
+  setTimeout(() => {
+    labelEl.textContent = name;
+  }, 1000);
 }

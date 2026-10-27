@@ -11,11 +11,13 @@
  */
 import './tokens/index.js';
 import './categories/basic/index.js';
+import './categories/layout/index.js';
 import './categories/form/index.js';
 import './categories/nav/index.js';
 import './categories/feedback/index.js';
 
 export type * from './categories/basic/index.js';
+export type * from './categories/layout/index.js';
 export type * from './categories/form/index.js';
 export type * from './categories/nav/index.js';
 export type * from './categories/feedback/index.js';

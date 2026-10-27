@@ -146,6 +146,10 @@ export function render(result: TemplateResult, root: Element | ShadowRoot): Disp
   const binders = new Map<number, (value: unknown) => void>();
   const tw = document.createTreeWalker(frag, NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_ELEMENT);
   let n: Node | null = tw.currentNode as Node | null;
+  // 文本占位先只「记录」，遍历完成后再统一替换：若在遍历途中 replaceChild，会移除
+  // TreeWalker 的当前节点，使其 nextNode() 立即返回 null，导致后续所有占位（尤其
+  // 多个文本插值）漏绑——表现为首个文本正常、其余渲染为空。
+  const pendingText: { comment: Comment; idx: number }[] = [];
   while (n) {
     if (n.nodeType === Node.ELEMENT_NODE) {
       const el = n as Element;
@@ -160,14 +164,19 @@ export function render(result: TemplateResult, root: Element | ShadowRoot): Disp
       const data = (n as Comment).data;
       if (data.startsWith(TOKEN_PREFIX) && data.endsWith(TOKEN_SUFFIX)) {
         const idx = Number(data.slice(TOKEN_PREFIX.length, -TOKEN_SUFFIX.length));
-        const textNode = document.createTextNode('');
-        n.parentNode!.replaceChild(textNode, n);
-        binders.set(idx, (value) => {
-          textNode.data = value == null ? '' : String(value);
-        });
+        pendingText.push({ comment: n as Comment, idx });
       }
     }
     n = tw.nextNode();
+  }
+
+  // 遍历结束后再安全替换注释为文本节点并建立绑定
+  for (const { comment, idx } of pendingText) {
+    const textNode = document.createTextNode('');
+    comment.parentNode!.replaceChild(textNode, comment);
+    binders.set(idx, (value) => {
+      textNode.data = value == null ? '' : String(value);
+    });
   }
 
   // 初次写入 + 为动态值建立 effect（读取信号即追踪依赖，变更后自动重跑）

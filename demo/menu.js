@@ -19,8 +19,18 @@ export const MENU = [
     items: [
       { id: 'button', label: 'Button 按钮', tag: 'x-button', status: 'done' },
       { id: 'icon', label: 'Icon 图标', tag: 'x-icon', status: 'done' },
+      { id: 'text', label: 'Typography 排版', tag: 'x-text', status: 'done' },
+      { id: 'logo', label: 'Logo 品牌标识', tag: 'x-logo', status: 'done' },
+      { id: 'avatar', label: 'Avatar 头像', tag: 'x-avatar', status: 'done' },
       { id: 'badge', label: 'Badge 徽标', tag: 'x-badge', status: 'planned' },
-      { id: 'avatar', label: 'Avatar 头像', tag: 'x-avatar', status: 'planned' },
+    ],
+  },
+  {
+    id: 'layout',
+    label: '布局组件',
+    items: [
+      { id: 'flex', label: 'Flex 弹性布局', tag: 'x-flex', status: 'done' },
+      { id: 'container', label: 'Container 布局容器', tag: 'x-container', status: 'done' },
     ],
   },
   {

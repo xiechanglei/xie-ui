@@ -1,4 +1,3 @@
-- 菜单的最小化与logo的最小化，是否可以抽离出来，logo最小化时，title和subtitle隐藏，菜单最小化时，文字隐藏，只显示图标（没有图标显示什么）
 - 内置一些动画，比如旋转，
-- docs网页里面的logo好看的，可以封装成logo组件，三个属性，logo文字，title，subtitle 
-- layout组件与Typography组件
+- x-container 对外提供一个方法，loadMenuMode（menudata，pageloader），用于自动生成左侧菜单，右侧页面的页面。menudata给一些约定
+- 然后给我的docs页面的菜单全部安排上icon，这些icon属于应用级别的icon而不是框架级别的icon不需要放在库里面，放在docs下面的代码中就可以了

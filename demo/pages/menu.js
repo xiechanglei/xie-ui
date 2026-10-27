@@ -129,11 +129,38 @@ export function render(el) {
 </x-menu-group>`,
     }),
 
+    demoCard({
+      title: '窄栏态（rail）',
+      desc: 'rail=true 时隐藏文字：有图标显图标、无图标兜底显标签首字（一般由 x-container 折叠侧栏自动下沉）',
+      build: (c) => {
+        const m = menu(
+          group('导航', [
+            item('home', '首页', { icon: '🏠' }),
+            item('bell', '通知', { icon: '🔔' }),
+            item('set', '设置'),
+            item('data', '报表'),
+          ]),
+        );
+        m.setAttribute('rail', '');
+        m.style.width = '68px';
+        m.style.border = '1px dashed var(--xie-color-border)';
+        m.style.borderRadius = '8px';
+        c.append(m);
+      },
+      code: `<x-menu rail>
+  <x-menu-group label="导航" collapsible>
+    <x-menu-item value="home"><span slot="icon">🏠</span>首页</x-menu-item>
+    <x-menu-item value="set">设置</x-menu-item>
+  </x-menu-group>
+</x-menu>`,
+    }),
+
     h('h2', null, 'API · x-menu'),
     apiTable(
       ['属性', '说明', '类型', '默认值'],
       [
         ['value', '当前选中项的 value（反射）', 'string', "''"],
+        ['rail', '窄栏态：扇出给后代项/分组，隐藏文字改显图标或首字（反射；通常由 x-container 下沉设置）', 'boolean', 'false'],
       ],
     ),
     apiTable(
@@ -151,6 +178,7 @@ export function render(el) {
         ['label', '分组标题', 'string', "''"],
         ['collapsible', '是否可折叠（默认 false，需显式开启）', 'boolean', 'false'],
         ['collapsed', '当前是否折叠（反射，驱动动画）', 'boolean', 'false'],
+        ['rail', '窄栏态：头部仅显图标（有）或首字（无），隐藏标题与折叠箭头（由 x-menu 扇出）', 'boolean', 'false'],
       ],
     ),
     apiTable(
@@ -160,7 +188,7 @@ export function render(el) {
         ['x-toggle', '折叠切换时派发，detail:{ collapsed:boolean }'],
         ['slot=(默认)', '分组内容（菜单项 / 嵌套分组）'],
         ['slot=icon', '分组标题图标'],
-        ['part', 'group / header / label / indicator / content / content-inner'],
+        ['part', 'group / header / label / mini / indicator / content / content-inner'],
       ],
     ),
 
@@ -172,6 +200,7 @@ export function render(el) {
         ['note', '右侧备注文本（也可用 slot=note 覆盖）', 'string', "''"],
         ['disabled', '是否禁用（不可点击、跳过 Tab）', 'boolean', 'false'],
         ['active', '是否选中（由 x-menu 维护，反射）', 'boolean', 'false'],
+        ['rail', '窄栏态：隐藏文字与备注，有图标显图标、无图标显标签首字徽标（由 x-menu 扇出）', 'boolean', 'false'],
       ],
     ),
     apiTable(
@@ -180,12 +209,13 @@ export function render(el) {
         ['slot=(默认)', '菜单项文本'],
         ['slot=icon', '菜单项图标（缺省不占位）'],
         ['slot=note', '自定义备注徽标（替代 note 属性）'],
-        ['part', 'base / label / note'],
+        ['part', 'base / label / note / mini'],
       ],
     ),
 
     h('h2', null, '说明'),
     h('p', null, '键盘导航当前支持 Tab 聚焦 + Enter/Space 触发（内部用原生 button/role=menuitem）；方向键 roving focus 为后续增强项。所有配色/圆角/折叠动画均消费全局主题令牌，随明暗与主色实时联动。'),
+    h('p', null, '窄栏态 <code>rail</code>：通常不手写，而由父级 <code>x-container</code> 在侧栏折叠时下沉给 <code>x-menu</code>，再由菜单扇出到每个分组/项（有图标显图标、无图标取标签首字兼底）。'),
   );
 }
 

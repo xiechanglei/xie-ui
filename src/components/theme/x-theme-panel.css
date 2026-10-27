@@ -4,20 +4,11 @@
   display: contents;
 }
 
-/* 标题块（放入 drawer 的 slot="title"）：主标题 + 说明副标题 */
+/* 标题块（放入 x-drawer-header 默认插槽）：主标题 + 说明副标题（字号/颜色由 x-text 角色接管） */
 .title-block {
   display: flex;
   flex-direction: column;
   gap: 2px;
-}
-.hd__title {
-  font-size: calc(var(--xie-font-size-md) + 2px);
-  font-weight: 600;
-}
-.hd__desc {
-  font-size: var(--xie-font-size-sm);
-  font-weight: 400;
-  color: var(--xie-color-muted);
 }
 
 /* 主体：外层滚动与内边距、底部分隔线均由 drawer 的 .body/.footer 承担，这里只管各区块间距 */

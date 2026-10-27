@@ -34,6 +34,10 @@
 .h-label {
   flex: 1 1 auto;
   min-width: 0;
+  /* 同菜单项：折叠/展开动画期间强制单行裁切，避免文字换行造成头部高度跳动 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 折叠指示箭头：展开时朝下，折叠时朝右 */
@@ -90,4 +94,36 @@
 :host([collapsed]) .content-inner {
   visibility: hidden;
   transition: visibility 0s 0.25s;
+}
+
+/* rail 窄栏兜底首字徽标：默认隐去 */
+.mini {
+  display: none;
+}
+
+/* rail（窄栏）态：分组头部居中、仅显图标（有）或首字（无），隐藏文字与折叠箭头 */
+:host([rail]) .h-label {
+  display: none;
+}
+:host([rail]) .chevron {
+  display: none;
+}
+:host([rail]) .header {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+/* 窄栏下取消子菜单缩进：否则 .content-inner 的 padding-left 会把居中的项整体右推、导致不对齐 */
+:host([rail]) .content-inner {
+  padding-left: 0;
+}
+:host([rail]) .header ::slotted([slot="icon"]) {
+  margin-right: 0;
+}
+:host([rail]:not([data-has-icon])) .mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
 }

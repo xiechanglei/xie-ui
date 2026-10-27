@@ -16,11 +16,13 @@ class XMenu extends XBaseElement {
 
   static properties: Record<string, PropertyOptions> = {
     value: { type: 'String', reflect: true, default: '' },
+    rail: { type: 'Boolean', reflect: true, default: false },
   };
 
   static styles = [menuStyles];
 
   declare value: string;
+  declare rail: boolean;
 
   constructor() {
     super();
@@ -34,10 +36,12 @@ class XMenu extends XBaseElement {
   protected firstUpdated(): void {
     this.addEventListener('x-menu-item-activate', this.__onActivate);
     this.__syncActive();
+    this.__syncRail();
   }
 
   protected override updated(): void {
     this.__syncActive();
+    this.__syncRail();
   }
 
   override disconnectedCallback(): void {
@@ -69,12 +73,22 @@ class XMenu extends XBaseElement {
     const items = this.querySelectorAll('x-menu-item') as unknown as XMenuItemLike[];
     for (const item of items) item.active = !!this.value && item.value === this.value;
   }
+
+  /** 把 rail（窄栏态）扇出给后代菜单项与分组（由 x-container 下沉触发） */
+  private __syncRail(): void {
+    const kids = this.querySelectorAll('x-menu-item, x-menu-group') as unknown as XRailLike[];
+    for (const kid of kids) kid.rail = this.rail;
+  }
 }
 
 /** 结构型引用，避免跨模块循环依赖 */
 interface XMenuItemLike {
   value: string;
   active: boolean;
+}
+
+interface XRailLike {
+  rail: boolean;
 }
 
 declare global {

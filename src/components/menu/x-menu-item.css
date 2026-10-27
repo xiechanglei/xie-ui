@@ -50,6 +50,9 @@
   min-width: 0;
   display: inline-flex;
   align-items: center;
+  /* 折叠/展开动画期间宽度在变，强制单行并裁切：否则文字会换行导致行高跳动、字形重排（即「跳跃」） */
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .note {
@@ -57,6 +60,7 @@
   margin-left: var(--xie-space-2);
   font-size: var(--xie-font-size-sm);
   color: var(--xie-color-muted);
+  white-space: nowrap;
 }
 :host([disabled]) .note {
   font-style: italic;
@@ -73,4 +77,33 @@
 }
 :host([active]) .base ::slotted([slot="icon"]) {
   color: var(--xie-color-primary);
+}
+
+/* rail 窄栏兜底首字徽标：仅折叠且无图标时显出 */
+.mini {
+  display: none;
+}
+
+/* rail（窄栏）态：隐藏文字与备注，内容居中；有图标显图标，无图标显首字徽标 */
+:host([rail]) .label {
+  display: none;
+}
+:host([rail]) .note {
+  display: none;
+}
+:host([rail]) .base {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+:host([rail]) .base ::slotted([slot="icon"]) {
+  margin-right: 0;
+}
+:host([rail]:not([data-has-icon])) .mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-weight: 600;
 }

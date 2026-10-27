@@ -1,4 +1,4 @@
-/* x-drawer-header —— 抽屉头部：标题 + 可选关闭按钮。作为 x-drawer 的直接子元素，固定顶部不参与滚动。 */
+/* x-drawer-header —— 抽屉头部：标题（+可选副标题）+ 可选关闭按钮。作为 x-drawer 的直接子元素，固定顶部不参与滚动。 */
 :host {
   display: block;
   box-sizing: border-box;
@@ -7,6 +7,11 @@
   color: var(--xie-color-fg);
   font-size: calc(var(--xie-font-size-md) + 1px);
 }
+/* 作者样式的 display 会覆盖 UA 的 [hidden]{display:none}（author origin 优先），
+   必须显式补回：x-drawer 自动生成头部时需靠 hidden 让位于显式头部 */
+:host([hidden]) {
+  display: none;
+}
 
 .inner {
   display: flex;
@@ -14,10 +19,19 @@
   justify-content: space-between;
   gap: 12px;
 }
+/* 标题 + 副标题纵向成组（无副标题时 subtitle 的 x-text 置 hidden，高度退回单行，
+   关闭按钮依旧垂直居中于整块文字，与旧版单行表现一致） */
+.texts {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 .title {
   min-width: 0;
   font-weight: 600;
 }
+/* .sub 为 x-text[variant=caption]：字号/颜色由其 :host 自定，此处不再覆盖（写了也不会透传） */
 .close {
   all: unset;
   box-sizing: border-box;

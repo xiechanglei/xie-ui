@@ -48,6 +48,8 @@
 }
 
 /* 颜色轴：覆盖 accent（与形态正交，任意 color×variant 组合自动成立） */
+/* default = 中性缺省态（次要/取消按钮）：非强调角色，吃 muted/fg/surface/bg 中性令牌，随明暗翻转 */
+:host([color="default"]) .base { --_accent: var(--xie-color-muted); --_accent-hover: color-mix(in srgb, var(--xie-color-muted) 70%, var(--xie-color-fg)); --_accent-fg: var(--xie-color-bg); --_accent-soft: var(--xie-color-surface); }
 :host([color="secondary"]) .base { --_accent: var(--xie-color-secondary); --_accent-hover: var(--xie-color-secondary-hover); --_accent-fg: var(--xie-color-secondary-fg); --_accent-soft: var(--xie-color-secondary-soft); }
 :host([color="success"]) .base { --_accent: var(--xie-color-success); --_accent-hover: var(--xie-color-success-hover); --_accent-fg: var(--xie-color-success-fg); --_accent-soft: var(--xie-color-success-soft); }
 :host([color="warning"]) .base { --_accent: var(--xie-color-warning); --_accent-hover: var(--xie-color-warning-hover); --_accent-fg: var(--xie-color-warning-fg); --_accent-soft: var(--xie-color-warning-soft); }

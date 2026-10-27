@@ -10,6 +10,16 @@ import { h, clear } from '/demo/render.js';
 
 const navEl = document.getElementById('menu');
 const pageEl = document.getElementById('page');
+const shell = document.querySelector('x-container');
+
+/** 侧栏折叠态持久化：启动回填 + 监听 x-rail-change 落盘（rail 由容器单源下沉给 logo/menu）。 */
+const RAIL_KEY = 'docs-rail';
+if (shell) {
+  if (localStorage.getItem(RAIL_KEY) === '1') shell.rail = true;
+  shell.addEventListener('x-rail-change', (e) => {
+    localStorage.setItem(RAIL_KEY, e.detail.rail ? '1' : '0');
+  });
+}
 
 /** 侧边导航由一个 x-menu 承载：分类=x-menu-group（可折叠），组件项=x-menu-item。 */
 let menuEl;
@@ -72,7 +82,7 @@ async function route() {
     console.error(err);
   }
   setActive(id);
-  document.querySelector('.docs-main')?.scrollTo({ top: 0 });
+  shell?.scrollContentTop?.();
 }
 
 window.addEventListener('hashchange', route);

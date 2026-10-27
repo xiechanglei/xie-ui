@@ -19,6 +19,7 @@ class XMenuGroup extends XBaseElement {
     label: { type: 'String', default: '' },
     collapsible: { type: 'Boolean', reflect: true, default: false },
     collapsed: { type: 'Boolean', reflect: true, default: false },
+    rail: { type: 'Boolean', reflect: true, default: false },
   };
 
   static styles = [menuGroupStyles];
@@ -26,6 +27,7 @@ class XMenuGroup extends XBaseElement {
   declare label: string;
   declare collapsible: boolean;
   declare collapsed: boolean;
+  declare rail: boolean;
 
   constructor() {
     super();
@@ -40,13 +42,18 @@ class XMenuGroup extends XBaseElement {
         type="button"
         aria-expanded=${this.derive(() => (this.collapsible ? String(!this.collapsed) : undefined))}
         tabindex=${this.derive(() => (this.collapsible ? undefined : '-1'))}
-      ><slot name="icon"></slot><span class="h-label" part="label">${this.derive(() => this.label)}</span><span class="chevron" part="indicator" aria-hidden="true"><x-icon name="chevron-right"></x-icon></span></button>
+      ><slot name="icon"></slot><span class="mini" part="mini" aria-hidden="true"></span><span class="h-label" part="label">${this.derive(() => this.label)}</span><span class="chevron" part="indicator" aria-hidden="true"><x-icon name="chevron-right"></x-icon></span></button>
       <div class="content" part="content"><div class="content-inner" part="content-inner"><slot></slot></div></div>
     </div>`;
   }
 
   protected firstUpdated(): void {
     this.shadowRoot!.querySelector('.header')!.addEventListener('click', this.__onHeader);
+    this.__syncRail();
+  }
+
+  protected override updated(): void {
+    this.__syncRail();
   }
 
   override disconnectedCallback(): void {
@@ -67,6 +74,22 @@ class XMenuGroup extends XBaseElement {
   private __onHeader = (): void => {
     this.toggle();
   };
+
+  /**
+   * rail 窄栏态：头部仅显图标（有）或首字兼底（无）；隐藏分组文字与折叠箭头。
+   */
+  private __syncRail(): void {
+    const sr = this.shadowRoot!;
+    const mini = sr.querySelector('.mini');
+    if (!mini) return;
+    const hasIcon = !!this.querySelector('[slot="icon"]');
+    this.toggleAttribute('data-has-icon', hasIcon);
+    if (this.rail && !hasIcon) {
+      mini.textContent = (this.label || '').trim().charAt(0).toUpperCase();
+    } else {
+      mini.textContent = '';
+    }
+  }
 }
 
 declare global {

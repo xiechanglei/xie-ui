@@ -78,7 +78,7 @@ export function render(el) {
         ['options', '档位标签，逗号分隔；项数即档位数', 'string', "''"],
         ['value', '选中档位下标（反射，0 ~ 项数-1）', 'number', '0'],
         ['disabled', '是否禁用（不可拖动/聚焦）', 'boolean', 'false'],
-        ['label', '无障碍名（aria-label）', 'string', "''"],
+        ['label', '无障碍名称（aria-label：屏幕阅读器朗读，无视觉表现）', 'string', "''"],
       ],
     ),
     apiTable(

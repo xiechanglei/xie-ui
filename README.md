@@ -152,9 +152,14 @@ template: {
 | Switch | `<x-switch>` | 🚧 开发中（M0） |
 | Slider | `<x-slider>` | 🚧 开发中（M0，离散选项滑块，档位吸附拖动；已用于主题面板圆角/尺寸/阴影） |
 | Menu | `<x-menu>` / `<x-menu-group>` / `<x-menu-item>` | 🚧 开发中（M0，导航菜单三件套） |
-| Drawer | `<x-drawer>` + `<x-drawer-header>` / `<x-drawer-footer>` | 🚧 开发中（M0；header 用 `show-close` 控制关闭按钮，footer 自动贴底；与内容无分隔线） |
+| Drawer | `<x-drawer>` + `<x-drawer-header>` / `<x-drawer-footer>` | 🚧 开发中（M0；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位），footer 自动贴底；与内容无分隔线） |
 | ThemePanel | `<x-theme-panel>` | 🚧 开发中（M0，基于抽屉的右侧设置面板） |
 | Icon | `<x-icon>` | 🚧 开发中（M0，仅收录本库内部组件实际使用的图标，不派生更多） |
+| Typography | `<x-text>` | 🚧 开发中（M0，排版原子件：`variant` = title/subtitle/body/caption/muted，内部吃令牌、随主题联动） |
+| Avatar | `<x-avatar>` | 🚧 开发中（M0，头像/标识方块：内容优先级 `src` 图片 > `text` 文字 > `name` 第一个字 > 占位图标；`shape`/`size`/`color`，加载失败自动回退，logo 的 mark 即复用本组件） |
+| Flex | `<x-flex>` | 🚧 开发中（M0，弹性布局原子：`direction`/`align`/`justify`/`wrap`/`inline`/`gap`（令牌别名） |
+| Container | `<x-container>` | 🚧 开发中（M0，应用外壳：header/sidebar/main/footer + 侧栏折叠为窄栏 `rail`，rail 单源下沉给 logo/menu） |
+| Logo | `<x-logo>` | 🚧 开发中（M0，品牌标识：mark 复用 x-avatar，`mark`/`src`/`title`/`subtitle`，rail 窄栏只显首字母） |
 | Input | `<x-input>` | 📋 规划中（M1） |
 | Checkbox | `<x-checkbox>` | 📋 规划中（M1） |
 | Radio | `<x-radio>` | 📋 规划中（M1） |

@@ -35,8 +35,9 @@ export function render(el) {
 
     demoCard({
       title: '语义色 color',
-      desc: 'primary / secondary / success / warning / danger / info，与形态正交；颜色均可在主题面板里定制',
+      desc: 'default（中性缺省态，次要/取消按钮）/ primary / secondary / success / warning / danger / info，与形态正交；强调色可在主题面板定制，default 随明暗翻转',
       build: (c) => c.append(
+        button('Default', { color: 'default' }),
         button('Primary', { color: 'primary' }),
         button('Secondary', { color: 'secondary' }),
         button('Success', { color: 'success' }),
@@ -44,7 +45,8 @@ export function render(el) {
         button('Danger', { color: 'danger' }),
         button('Info', { color: 'info' }),
       ),
-      code: `<x-button color="primary">Primary</x-button>
+      code: `<x-button color="default">Default</x-button>
+<x-button color="primary">Primary</x-button>
 <x-button color="success">Success</x-button>
 <x-button color="danger">Danger</x-button>
 <x-button color="info">Info</x-button>`,
@@ -98,7 +100,7 @@ export function render(el) {
       ['属性', '说明', '类型', '默认值'],
       [
         ['variant', '形态（填充样式）', "'solid' | 'outline' | 'ghost' | 'soft'", "'solid'"],
-        ['color', '语义色（与形态正交，任意组合）', "'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info'", "'primary'"],
+        ['color', '语义色（与形态正交，任意组合）；default 为中性缺省态、非强调角色', "'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info'", "'primary'"],
         ['size', '按钮尺寸', "'sm' | 'md' | 'lg'", "'md'"],
         ['type', '原生按钮类型', "'button' | 'submit' | 'reset'", "'button'"],
         ['disabled', '是否禁用', 'boolean', 'false'],

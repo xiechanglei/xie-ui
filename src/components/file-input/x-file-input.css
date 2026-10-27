@@ -3,6 +3,8 @@
   display: inline-flex;
   align-items: center;
   box-sizing: border-box;
+  /* 缺省自然宽；x-form 等宽列模式下发 --form-control-width 统一拉满 */
+  width: var(--form-control-width, auto);
   max-width: 100%;
   vertical-align: middle;
   font-family: var(--xie-font-family, inherit);

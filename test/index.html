@@ -9,25 +9,25 @@
 </head>
 <body>
 
-<x-form layout="vertical" label-position="left">
+<x-form>
     <x-form-item label="姓名" name="name" required>
-        <x-input name="name" placeholder="请输入姓名"></x-input>
+        <x-input placeholder="请输入姓名"></x-input>
     </x-form-item>
 
-    <x-form-item label="邮箱" name="email" help="不会公开显示">
-        <x-input name="email" type="email" placeholder="you@example.com"></x-input>
+    <x-form-item label="邮箱" name="email">
+        <x-input type="email" placeholder="you@example.com"></x-input>
     </x-form-item>
 
     <x-form-item label="密码" name="pwd">
-        <x-input name="pwd" type="password" show-password></x-input>
+        <x-input type="password" show-password></x-input>
     </x-form-item>
 
     <x-form-item label="简介" name="bio">
-        <x-textarea name="bio" placeholder="多行文本" autosize maxlength="200" show-count></x-textarea>
+        <x-textarea placeholder="多行文本" autosize maxlength="200" show-count></x-textarea>
     </x-form-item>
 
     <x-form-item label="城市" name="city">
-        <x-select name="city" placeholder="选择一个">
+        <x-select placeholder="选择一个">
             <option value="bj">北京</option>
             <option value="sh">上海</option>
             <option value="gz">广州</option>
@@ -35,8 +35,8 @@
         </x-select>
     </x-form-item>
 
-    <x-form-item label="爱好" name="hobbies" help="可多选">
-        <x-select name="hobbies" multiple placeholder="选择多个">
+    <x-form-item label="爱好" name="hobbies">
+        <x-select multiple placeholder="选择多个">
             <option value="code">编程</option>
             <option value="music">音乐</option>
             <option value="read">阅读</option>
@@ -45,7 +45,7 @@
     </x-form-item>
 
     <x-form-item label="性别" name="sex">
-        <x-radio-group name="sex" direction="row">
+        <x-radio-group direction="row">
             <x-radio-item value="male" label="男"></x-radio-item>
             <x-radio-item value="female">女</x-radio-item>
             <x-radio-item value="secret">保密</x-radio-item>
@@ -54,15 +54,15 @@
 
 
     <x-form-item label="订阅" name="sub">
-        <x-switch name="sub"></x-switch>
+        <x-switch></x-switch>
     </x-form-item>
 
-    <x-form-item label="音量" name="level" help="档位滑块，value 为下标">
-        <x-slider name="level" options="静音,低,中,高"></x-slider>
+    <x-form-item label="音量" name="level">
+        <x-slider options="静音,低,中,高"></x-slider>
     </x-form-item>
 
     <x-form-item label="附件" name="file">
-        <x-file-input name="file" multiple></x-file-input>
+        <x-file-input multiple></x-file-input>
     </x-form-item>
 
     <x-form-footer align="start">

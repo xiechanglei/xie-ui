@@ -2,13 +2,15 @@
  * x-form-item —— 表单字段包装器（布局分类 · 表单）。
  *
  * 职责：把一个受控控件（x-input / x-select / x-checkbox-group …）与它的 label、错误/帮助文本
- * 组织成一个可统一排布的单元。布局不自己主张，而是读取 x-form 经 CSS 自定义属性下发的三轴：
+ * 组织成一个可统一排布的单元。布局不自己主张，而是读取 x-form 经 CSS 自定义属性下发的 label 轴（与 item 流向轴 layout 无关）：
  *  - label 与控件的关系：`--form-label-position`（top 上下堆叠 / left 左右并排）
  *  - 左右并排时 label 对齐：`--form-label-align`（start 左 / end 右 / center 居中）
  *  - label 列宽：`--form-label-width`（让各行控件左边缘对齐）
  * 本 item 的 `label-position`/`label-align`/`label-width` 若显式设置则覆盖 form 默认（逐字段微调）。
  *
  * 值/校验：控件仍是数据的权威来源（各控件自带 FCCE，被页面原生 `<form>` 直接包裹时能自动计入；x-form 因 shadow 隔离收不到，改手动聚合）。
+ * item 是「字段声明处」：label/name/required/help 都写在 item 上，`name` 为权威绑定键，强制下沉给控件（覆盖控件自写的），
+ * 控件自己的 name 仅在 item 未写时生效（脱离 form-item 单独用控件时照常工作）。
  * item 只做「读取 + 展示」：`validate()` 调控件的原生 checkValidity（与 form 归属无关），把错误信息渲染到下方；
  * 用户显式写过 `required` 会下沉给控件、并显示必填星号；`label` 会推进控件的 aria-label 做无障碍关联。
  */
@@ -178,16 +180,46 @@ class XFormItem extends XBaseElement {
     else this.__syncMessage();
   };
 
-  /** required / label / name 下沉到控件 + aria 关联（不覆盖用户已写的） */
+  /** required / label / name 下沉到控件 + aria 关联；name 以 item 为权威（覆盖控件自写的），aria-label 不覆盖用户已写的 */
   private __syncControl(): void {
     const c = this.control;
     if (!c) return;
     if (this.required) c.required = true;
     if (this.label && !c.getAttribute('aria-label')) c.setAttribute('aria-label', this.label);
-    if (this.name && !c.name) c.name = this.name;
+    if (this.name && c.name !== this.name) c.name = this.name;
   }
 
-  /** 解析三轴布局：本 item 显式值 > 继承 form 的 --form-* > 内置默认，写成局部变量供 CSS 用 */
+  /** 重解析 label 轴布局（供 x-form 回填测量出的 --form-label-width 后立即生效，程序化无循环） */
+  refreshLayout(): void {
+    this.__syncLayout();
+  }
+
+  /** 首渲染是否就绪（label 元素已建且文本/投影内容非空）；供 x-form 决定能否开始宽度测量 */
+  get labelRendered(): boolean {
+    const lb = this.shadowRoot?.querySelector('.label');
+    if (!lb) return false;
+    const tx = this.shadowRoot?.querySelector('.label-text');
+    const hasText = !!tx?.textContent?.trim();
+    const hasSlotted = !!this.querySelector('[slot="label"]');
+    return hasText || hasSlotted || !this.label;
+  }
+
+  /**
+   * label 自然宽（含必填星号）：供 x-form 扫描做 auto 列对齐。
+   * 直接量 rect 会被 flex 链式收缩压成多行（CJK 可断行→测出单字宽），
+   * 故临时盖 width:max-content 读一次再还原——同步布局计算不经历绘制，无闪视。
+   */
+  get measuredLabelWidth(): number {
+    const lb = this.shadowRoot?.querySelector<HTMLElement>('.label');
+    if (!lb) return 0;
+    const prev = lb.style.width;
+    lb.style.width = 'max-content';
+    const w = lb.getBoundingClientRect().width;
+    lb.style.width = prev;
+    return w;
+  }
+
+  /** 解析 label 轴布局：本 item 显式值 > 继承 form 的 --form-* > 内置默认，写成局部变量供 CSS 用 */
   private __syncLayout(): void {
     const cs = getComputedStyle(this);
     const position =

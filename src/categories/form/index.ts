@@ -70,7 +70,6 @@ export type {
   XFormItem,
   XFormFooter,
   FormLayout,
-  FormFlow,
   FormLabelPosition,
   FormLabelAlign,
   FormFooterAlign,

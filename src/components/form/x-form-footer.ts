@@ -38,6 +38,15 @@ class XFormFooter extends XBaseElement {
   }
 
   protected override updated(): void {
+    this.__syncLayout();
+  }
+
+  /** 重算对齐/缩进（供 x-form 布局变更与 auto 测量回填后显式驱动：footer 先于 form 升级时首读变量为空，不重算会漏缩进） */
+  refreshLayout(): void {
+    this.__syncLayout();
+  }
+
+  private __syncLayout(): void {
     const s = this.style;
     s.setProperty(
       '--_jc',

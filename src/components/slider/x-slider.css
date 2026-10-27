@@ -4,6 +4,9 @@
   display: block;
   box-sizing: border-box;
   width: 100%;
+  /* 百分比宽对内在本征尺寸贡献 0：在横排（layout=horizontal 的 flex row wrap）里盒子会塌缩到接近 0，
+     绝对定位的档位标签/气泡溢出叠到自己与相邻 item 上。给个本征宽下限兜底，纵向/满宽容器仍按 100% 铺满 */
+  min-width: 160px;
   --_thumb: 20px;
   --_track-h: 10px;
   --_halo: color-mix(in oklab, var(--xie-color-primary), transparent 84%);

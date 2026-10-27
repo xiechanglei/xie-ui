@@ -167,7 +167,7 @@ template: {
 | Select | `<x-select>` | 🚧 开发中（M0，下拉选择：自绘弹层 listbox（吃全局令牌、选中打勾、不足向上翻转）+ 键盘导航（↑↓/Home/End/Enter/Esc）；`multiple` 多选（选中不关弹层、`values` 数组、同名多项进 FormData）；选项来自 light DOM `<option>` 或 `options` 数组；`placeholder`/`variant`×`color`；FCCE form 关联） |
 | FileUpload | `<x-file-input>` | 🚧 开发中（M0，文件选择：隐藏原生 file + 自绘按钮；`accept`/`multiple`、`files` 只读、`reset()`；选中文件以 `name` 计入 FormData） |
 | Filter | `<x-filter>` / `<x-filter-item>` | 🚧 开发中（M0，筛选器：单选 chip 行，观感复用 x-button（未选 soft、选中 solid、重置钮 solid）；选中项保留、其余横向折叠退场（grid 0fr→1fr 动画 + inert）；行尾 × 重置钮展开；`value` 聚合、可取消 `x-change`；`color`/`size`/`disabled` 下沉；刻意不做 form 关联（视图过滤用） |
-| Form | `<x-form>` / `<x-form-item>` / `<x-form-footer>` | 🚧 开发中（M0，表单三件套：三轴正交布局（label↔控件 top/left + label-align + label-width；item 之间 stack/row 换行 + gap；footer align + label-offset）+ `layout` 预设；x-form 统一遍历「最外层」控件、按公开值面聚合 `values`/`formData`（表单归属不跨 shadow，slot 进来的控件 `new FormData()` 收不到，故手动收集；控件自带 FCCE 仍在，直接放页面原生 form 可自动计入），`validate`/`submit`/`reset`/`setValues`，可取消 `x-submit`；`disabled` 显式下发各控件） |
+| Form | `<x-form>` / `<x-form-item>` / `<x-form-footer>` | 🚧 开发中（M0，表单三件套：正交布局（`layout` 管输入项纵排（默认）/横排换行；`label-position` 管 label 在上/在左，默认 left，与 layout 无关；`label-width` 不写时自动测量最宽 label 回填对齐，`label-align` 管文本对齐；`gap` 间距默认 20px；`columns`=N 等宽 grid 列根治长短不齐（文本类控件拉满格宽，纵向可用双列表单）；footer `align` + `label-offset`，且无条件通栏沉底不参与流向）；字段统一在 x-form-item 声明（label/name/required/help，`name` 为权威绑定键强制下沉给控件）；x-form 统一遍历「最外层」控件、按公开值面聚合 `values`/`formData`（表单归属不跨 shadow，slot 进来的控件 `new FormData()` 收不到，故手动收集；控件自带 FCCE 仍在，直接放页面原生 form 可自动计入），`validate`/`submit`/`reset`/`setValues`，可取消 `x-submit`；`disabled` 显式下发各控件） |
 | Dialog | `<x-dialog>` | 📋 规划中（M3） |
 | Toast | `<x-toast>` | 📋 规划中（M3） |
 | Table | `<x-table>` | 📋 规划中（M4） |

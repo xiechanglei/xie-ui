@@ -1,5 +1,7 @@
 /* x-form —— 外壳。内部真正的 <form> + <fieldset> 承载 FCCE 收集与 disabled 语义；
-   item 之间的流向（轴2）由 --form-items-dir/--form-items-wrap 驱动，间距走 --form-gap。 */
+   item 之间的流向（轴2）由 --form-items-dir/--form-items-wrap 驱动（缺省 vertical+left 开箱形态：单列逐行 20px），间距走 --form-gap；
+   等宽列（columns）时 .items 切 grid，列轨走 --form-columns，文本类控件由 --form-control-width 拉满格宽；
+   footer 无条件通栏（flex width:100% 强制换行 / grid 跳列），独立在表单最下面一行。 */
 :host {
   display: block;
   box-sizing: border-box;
@@ -21,10 +23,26 @@
   display: flex;
   flex-direction: var(--form-items-dir, column);
   flex-wrap: var(--form-items-wrap, nowrap);
-  gap: var(--form-gap, var(--xie-space-4));
+  gap: var(--form-gap, var(--xie-space-5, 20px));
   margin: 0;
   padding: 0;
   border: 0;
   min-width: 0;
   align-items: stretch;
+}
+
+/* 按钮区独立成行：footer 是表单动作区而非输入项，不参与流向——
+   flex 下 width:100% 占满一行强制换行天然沉底；grid（columns）下跳全部列通栏。
+   用 width 而非 flex-basis：纵向下主轴是高度，basis 会把 footer 拉成整表单高 */
+.items slot::slotted(x-form-footer) {
+  width: 100%;
+}
+:host([columns]) .items slot::slotted(x-form-footer) {
+  grid-column: 1 / -1;
+}
+
+/* 等宽列：指定 columns 后改 grid 分发（行优先排列，纵向也能多列）；同行 item 等高（stretch） */
+:host([columns]) .items {
+  display: grid;
+  grid-template-columns: var(--form-columns, repeat(2, minmax(0, 1fr)));
 }

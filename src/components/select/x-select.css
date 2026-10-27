@@ -5,7 +5,8 @@
   --_accent: var(--xie-color-primary);
   display: inline-block;
   box-sizing: border-box;
-  width: 200px;
+  /* 宽度缺省 200px；x-form 等宽列模式下发 --form-control-width 统一拉满 */
+  width: var(--form-control-width, 200px);
   vertical-align: middle;
   font-family: var(--xie-font-family, inherit);
   font-size: var(--xie-font-size-md);

@@ -2,10 +2,17 @@
  * x-form —— 表单容器（布局分类 · 表单）。
  *
  * 三件事：
- *  1. 布局编排（三轴，经 CSS 自定义属性穿透 shadow 下发给 x-form-item，零 JS 逐个设置）：
- *     - `layout` 预设一键设好「label 位置 + item 流向」：vertical(top+stack) / horizontal(left+stack) / inline(left+row)；
- *     - 细调 `label-position`/`label-align`/`label-width`（轴1：label 与控件）、`flow`（轴2：item 之间 stack/row 换行）、`gap`。
- *     显式细调优先于预设。
+ *  1. 布局编排（属性两两正交、各管一轴，经 CSS 自定义属性穿透 shadow 下发给 x-form-item，零 JS 逐个设置）：
+ *     - `layout`（轴2：item 之间）：vertical 纵向堆叠 / horizontal 横排自动换行——只管输入项怎么排，不碰 label；
+ *     - `label-position`（轴1：label 与控件）：top 上下堆叠 / left 左右并排，与 layout 无关；
+ *     - `label-width`（label 列宽）/ `label-align`（label 文本对齐，仅 left 模式有意义）/ `gap`（item 间距）。
+ *     - `columns`（等宽列）：指定列数后 item 改走 grid 等宽分发（横排长短不齐的根治方案），
+ *       并向控件下发 `--form-control-width:100%` 把文本类控件（input/textarea/select/file-input）拉满格宽；
+ *       纵向+columns=2 即双列桌面表单，horizontal+columns=N 即 N 列筛选栏；不写维持 flex 自然宽。
+ *       footer 自动通栏（grid-column 1/-1）。
+ *     默认值开箱即经典桌面表单：`layout=vertical`（单列逐行）+ `label-position=left` + `gap=20px`，
+ *     label-width 不写时自动测量全表单最宽 label 回填对齐；筛选栏等横排场景显式写 `layout="horizontal"`。
+ *     footer 无条件通栏沉底（width:100% / grid-column:1/-1），不参与 layout 流向。
  *  2. 数据收集：各控件自带 FCCE，但**表单归属是「节点树」概念**——放在 shadow 内的 `<form>`
  *     关联不到 light DOM 里经 slot 投影进来的控件（浏览器实测：连原生 input 被 slot 进 shadow form 也不计入），
  *     故收集由 x-form **手动遍历「最外层」控件**、按公开值面（value/checked/files/values）聚合出 `values`/`formData()`
@@ -20,17 +27,10 @@ import { XBaseElement, html, define, type PropertyOptions, type TemplateResult }
 import '../../tokens/index.js';
 import './x-form-item.js';
 import { FORM_CONTROL_SELECTOR, type XFormItem, type FormLabelPosition, type FormLabelAlign } from './x-form-item.js';
+import type { XFormFooter } from './x-form-footer.js';
 import formStyles from './x-form.css?inline';
 
-export type FormLayout = 'vertical' | 'horizontal' | 'inline';
-export type FormFlow = 'stack' | 'row';
-
-/** layout 预设 → label 位置 + item 流向 */
-const LAYOUT_PRESET: Record<FormLayout, { position: FormLabelPosition; flow: FormFlow }> = {
-  vertical: { position: 'top', flow: 'stack' },
-  horizontal: { position: 'left', flow: 'stack' },
-  inline: { position: 'left', flow: 'row' },
-};
+export type FormLayout = 'vertical' | 'horizontal';
 
 /** gap 别名 → 令牌值；未命中原样作 CSS 长度 */
 const GAP_ALIAS: Record<string, string> = {
@@ -39,6 +39,7 @@ const GAP_ALIAS: Record<string, string> = {
   sm: 'var(--xie-space-2)',
   md: 'var(--xie-space-3)',
   lg: 'var(--xie-space-4)',
+  xl: 'var(--xie-space-5)',
 };
 
 type ControlLike = HTMLElement & {
@@ -57,11 +58,11 @@ class XForm extends XBaseElement {
 
   static properties: Record<string, PropertyOptions> = {
     layout: { type: 'String', reflect: true, default: 'vertical' },
-    labelPosition: { type: 'String', reflect: true, default: '' },
+    labelPosition: { type: 'String', reflect: true, default: 'left' },
     labelAlign: { type: 'String', reflect: true, default: '' },
     labelWidth: { type: 'String', reflect: true, default: '' },
-    flow: { type: 'String', reflect: true, default: '' },
-    gap: { type: 'String', default: '' },
+    columns: { type: 'String', reflect: true, default: '' },
+    gap: { type: 'String', default: '20px' },
     disabled: { type: 'Boolean', reflect: true, default: false },
   };
 
@@ -71,7 +72,8 @@ class XForm extends XBaseElement {
   declare labelPosition: FormLabelPosition | '';
   declare labelAlign: FormLabelAlign | '';
   declare labelWidth: string;
-  declare flow: FormFlow | '';
+  /** 等宽列数（数字串；空 = 不开，维持 flex 自然宽） */
+  declare columns: string;
   declare gap: string;
   declare disabled: boolean;
 
@@ -101,15 +103,18 @@ class XForm extends XBaseElement {
       this.__ensureSnapshot();
       this.__syncDisabled();
       this.__emitChange();
+      this.__queueLabelMeasure();
     });
     this.__syncLayout();
     this.__syncDisabled();
     this.__ensureSnapshot();
+    this.__queueLabelMeasure();
   }
 
   protected override updated(): void {
     this.__syncLayout();
     this.__syncDisabled();
+    this.__queueLabelMeasure();
     const fs = this.shadowRoot!.querySelector<HTMLFieldSetElement>('fieldset');
     if (fs) fs.disabled = this.disabled;
   }
@@ -132,19 +137,77 @@ class XForm extends XBaseElement {
   /* ------------------------------- 布局下发 ------------------------------- */
 
   private __syncLayout(): void {
-    const preset = LAYOUT_PRESET[this.layout] ?? LAYOUT_PRESET.vertical;
-    const position = this.labelPosition || preset.position;
-    const flow = this.flow || preset.flow;
     const s = this.style;
-    s.setProperty('--form-label-position', position);
+    // 轴1（label↔控件）：位置/对齐/列宽独立下发，未写落到内置默认
+    s.setProperty('--form-label-position', this.labelPosition || 'top');
     s.setProperty('--form-label-align', this.labelAlign || 'start');
-    s.setProperty('--form-label-width', this.labelWidth || 'auto');
-    s.setProperty('--form-flow', flow);
-    // 轴2（item 之间流向）：stack→纵列不换行；row→横排换行
-    s.setProperty('--form-items-dir', flow === 'row' ? 'row' : 'column');
-    s.setProperty('--form-items-wrap', flow === 'row' ? 'wrap' : 'nowrap');
+    // label-width：显式值直发；left 模式且未写时交给 __measureLabels 回填测量值（不在此写 auto 覆盖）；top 模式写 auto
+    if (this.labelWidth) s.setProperty('--form-label-width', this.labelWidth);
+    else if ((this.labelPosition || 'top') !== 'left') s.setProperty('--form-label-width', 'auto');
+    // 轴2（item↔item）：layout 直驱流向——vertical→纵列不换行；horizontal→横排换行
+    const row = this.layout === 'horizontal';
+    s.setProperty('--form-items-dir', row ? 'row' : 'column');
+    s.setProperty('--form-items-wrap', row ? 'wrap' : 'nowrap');
     const gap = (this.gap || '').trim();
     s.setProperty('--form-gap', gap ? GAP_ALIAS[gap] ?? gap : 'var(--xie-space-4)');
+    // 等宽列：合法数字时切 grid 分发并拉满文本类控件；非法/未写保持 flex 自然宽
+    const cols = parseInt(this.columns, 10);
+    if (Number.isFinite(cols) && cols > 0) {
+      s.setProperty('--form-columns', `repeat(${cols}, minmax(0, 1fr))`);
+      s.setProperty('--form-control-width', '100%');
+    } else {
+      s.removeProperty('--form-columns');
+      s.removeProperty('--form-control-width');
+    }
+    // footer 的 align/label-offset 也读继承的 --form-*，随布局变更重算
+    this.__refreshFooters();
+  }
+
+  /** 驱动所有后代 x-form-footer 重算对齐/缩进（它们可能先于 form 升级，首读 --form-* 为空） */
+  private __refreshFooters(): void {
+    for (const ft of Array.from(this.querySelectorAll<XFormFooter>('x-form-footer'))) ft.refreshLayout();
+  }
+
+  /* ------------------------------- label 宽度 auto 测量 ------------------------------- */
+
+  private __measureQueued = false;
+
+  /** 微任务合并排队：slotchange/属性变更可能连续触发，一次只测一轮；未就绪时退到 rAF 重试 */
+  private __queueLabelMeasure(): void {
+    if (this.__measureQueued) return;
+    this.__measureQueued = true;
+    queueMicrotask(() => {
+      this.__measureQueued = false;
+      if (!this.__measureLabels()) this.__retryMeasure();
+    });
+  }
+
+  /** 子项尚未完成首次渲染（动态 append 后自定义元素升级在微任务里）：下一帧重试直到全部就绪 */
+  private __retryMeasure(): void {
+    if (this.isConnected) requestAnimationFrame(() => this.__queueLabelMeasure());
+  }
+
+  /**
+   * label-position=left 且用户未显式写 label-width 时：扫描各 item 的自然宽 label，
+   * 取最宽者回填为 --form-label-width（Element Plus auto 做法），控件左边缘开箱即齐。
+   * 全部 item 的 label 渲染就绪才测（否则漏测未升级项）；回填后宽度固定，重测幂等收敛。
+   * 回填后逐个 item.refreshLayout() 让新 --_lw 生效（仅改 CSS 变量不会触发 item 的 JS 更新）。
+   * 返回是否已完成测量（false = 未就绪，调用方应重试）。
+   */
+  private __measureLabels(): boolean {
+    if ((this.labelPosition || 'top') !== 'left') { this.__refreshFooters(); return true; }
+    if (this.labelWidth) { this.__refreshFooters(); return true; } // 用户显式宽度为权威，__syncLayout 已直发
+    const items = this.items;
+    for (const it of items) if (!it.labelRendered) return false; // 有 item 未完成首渲染，本轮作废
+    let max = 0;
+    for (const it of items) {
+      if (it.labelWidth) continue; // 本 item 显式微调，不参与全表对齐
+      max = Math.max(max, it.measuredLabelWidth);
+    }
+    if (max > 0) this.style.setProperty('--form-label-width', `${Math.ceil(max)}px`);
+    for (const it of items) it.refreshLayout();
+    this.__refreshFooters(); // label-offset 读的 --form-label-width 刚回填，footer 同步重算
+    return true;
   }
 
   /* ------------------------------- 数据收集 ------------------------------- */

@@ -15,13 +15,14 @@
   gap: 6px;
 }
 
-/* label 区：行内 flex，justify 走 --_la 决定左右/居中；必填星号紧随其后 */
+/* label 区：行内 flex，justify 走 --_la 决定左右/居中；必填星号紧随其后。
+   flex:none 不伸不缩：x-form auto 测量时拿到的才是自然宽（min-width:0 可缩会把 CJK 文本压成多行致测窄） */
 .label {
   display: flex;
   align-items: center;
   justify-content: var(--_la, flex-start);
   gap: 2px;
-  flex: 0 0 auto;
+  flex: none;
   font-size: var(--xie-font-size-md, 14px);
   color: var(--xie-color-fg, #18181b);
   line-height: 1.4;

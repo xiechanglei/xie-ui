@@ -3,7 +3,8 @@
 :host {
   display: inline-block;
   box-sizing: border-box;
-  width: 280px;
+  /* 宽度缺省 280px；x-form 等宽列模式下发 --form-control-width 统一拉满 */
+  width: var(--form-control-width, 280px);
   vertical-align: middle;
   font-family: var(--xie-font-family, inherit);
   font-size: var(--xie-font-size-md);

@@ -1,0 +1,16 @@
+/* x-radio-item —— 盒体样式来自 x-radio.css，这里只加「盒 + 文字」行排布。 */
+:host {
+  line-height: normal;
+  font-family: var(--xie-font-family, inherit);
+  font-size: var(--xie-font-size-md);
+  color: var(--xie-color-fg);
+  user-select: none;
+}
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--xie-space-2);
+}
+.label:not(:empty) {
+  cursor: pointer;
+}

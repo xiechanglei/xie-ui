@@ -161,9 +161,11 @@ template: {
 | Container | `<x-container>` | 🚧 开发中（M0，应用外壳：header/sidebar/main/footer + 侧栏折叠为窄栏 `rail`，rail 单源下沉给 logo/menu） |
 | Logo | `<x-logo>` | 🚧 开发中（M0，品牌标识：mark 复用 x-avatar，`mark`/`src`/`title`/`subtitle`，rail 窄栏只显首字母） |
 | Input | `<x-input>` | 🚧 开发中（M0，单行输入：内包原生 input；`variant`(outline/filled/flush) × `color`(6 角色) 双轴 + `size`，`clearable`/`show-count`/前后缀插槽；逐字符 `x-input`、提交 `x-change`（可取消回退）） |
-| Checkbox | `<x-checkbox>` | 📋 规划中（M1） |
-| Radio | `<x-radio>` | 📋 规划中（M1） |
-| Select | `<x-select>` | 📋 规划中（M2） |
+| Textarea | `<x-textarea>` | 🚧 开发中（M0，多行文本域：与 Input 同源事件模型 + `variant`×`color` 双轴，`autosize`/`max-rows` 自适应高度、`resize`、`show-count`；FCCE form 关联） |
+| Checkbox | `<x-checkbox>` / `<x-checkbox-item>` / `<x-checkbox-group>` | 🚧 开发中（M0，复选框三件套：原子/带文字项/容器；`shape`×`color` 双轴 + `indeterminate` 三方态；group 条件下沉公共属性、`min`/`max` 数量约束、聚合 `x-change`；本库首个 FCCE form 关联） |
+| Radio | `<x-radio>` / `<x-radio-item>` / `<x-radio-group>` | 🚧 开发中（M0，单选框三件套：与 Checkbox 同源，互斥由 group 维护（跨 shadow 无法靠原生同名），`value` 以字符串聚合；FCCE form 关联） |
+| Select | `<x-select>` | 🚧 开发中（M0，下拉选择：内包原生 select（弹层/键盘/移动滚轮白送）+ 自绘 chevron；选项来自 light DOM `<option>` 或 `options` 数组；`placeholder`/`variant`×`color`；FCCE form 关联） |
+| FileUpload | `<x-file-input>` | 🚧 开发中（M0，文件选择：隐藏原生 file + 自绘按钮；`accept`/`multiple`、`files` 只读、`reset()`；选中文件以 `name` 计入 FormData） |
 | Dialog | `<x-dialog>` | 📋 规划中（M3） |
 | Toast | `<x-toast>` | 📋 规划中（M3） |
 | Table | `<x-table>` | 📋 规划中（M4） |

@@ -1,0 +1,103 @@
+/* x-textarea —— 多行文本域。形态(variant)×语义色(color)双轴，配色消费全局令牌随主题联动。
+   缺省态写在基座，属性选择器只做覆盖。字体显式吃 --xie-font-family（原生 textarea 同 input 不吃页面字体）。 */
+:host {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 280px;
+  vertical-align: middle;
+  font-family: var(--xie-font-family, inherit);
+  font-size: var(--xie-font-size-md);
+  color: var(--xie-color-fg);
+}
+:host([hidden]) {
+  display: none;
+}
+:host([disabled]) {
+  opacity: 0.55;
+}
+
+.field {
+  --_accent: var(--xie-color-primary);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--xie-space-2) var(--xie-space-3);
+  background: var(--xie-color-bg);
+  border: 1px solid var(--xie-color-border);
+  border-radius: var(--xie-radius-md);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+.field:focus-within {
+  border-color: var(--_accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--_accent) 18%, transparent);
+}
+
+textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: calc(1.5em * 3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  caret-color: var(--_accent);
+}
+textarea::placeholder {
+  color: var(--xie-color-muted);
+  opacity: 1;
+}
+
+/* 底部行：放计数（右对齐） */
+.foot {
+  display: flex;
+  justify-content: flex-end;
+  min-height: 0;
+}
+.count {
+  margin-top: var(--xie-space-1);
+  color: var(--xie-color-muted);
+  font-size: var(--xie-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+.count[hidden] {
+  display: none;
+}
+
+/* 尺寸轴：字号联动 */
+:host([size='sm']) { font-size: var(--xie-font-size-sm); }
+:host([size='lg']) { font-size: var(--xie-font-size-lg); }
+
+/* 拖拽轴 */
+:host([resize='none']) textarea { resize: none; }
+:host([resize='both']) textarea { resize: both; }
+:host([resize='auto']) textarea { resize: none; } /* autosize 由 JS 接管高度 */
+:host([autosize]) textarea { resize: none; }
+
+/* 形态轴 */
+:host([variant='filled']) .field { background: var(--xie-color-surface); border-color: transparent; }
+:host([variant='filled']) .field:focus-within { border-color: var(--_accent); }
+:host([variant='flush']) .field {
+  padding-inline: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--xie-color-border);
+  border-radius: 0;
+}
+:host([variant='flush']) .field:focus-within { border-bottom-color: var(--_accent); box-shadow: none; }
+
+/* 状态 */
+:host([readonly]) .field { background: var(--xie-color-surface); }
+
+/* 颜色轴 */
+:host([color='secondary']) .field { --_accent: var(--xie-color-secondary); }
+:host([color='success']) .field { --_accent: var(--xie-color-success); }
+:host([color='warning']) .field { --_accent: var(--xie-color-warning); }
+:host([color='danger']) .field { --_accent: var(--xie-color-danger); }
+:host([color='info']) .field { --_accent: var(--xie-color-info); }

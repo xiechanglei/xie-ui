@@ -1,0 +1,82 @@
+/* x-radio —— 单选框。圆形盒体即原生 input（appearance:none），选中点由 CSS :checked 驱动。
+   缺省态写在基座，属性选择器只做覆盖；颜色/尺寸全部走令牌随主题联动。 */
+:host {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  box-sizing: border-box;
+  line-height: 0;
+  cursor: pointer;
+}
+:host([hidden]) {
+  display: none;
+}
+:host([disabled]) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.box {
+  --_accent: var(--xie-color-primary);
+  --_box: 18px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.native {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  width: var(--_box);
+  height: var(--_box);
+  margin: 0;
+  background: var(--xie-color-bg);
+  border: 1.5px solid var(--xie-color-border);
+  border-radius: 9999px;
+  cursor: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.native:hover {
+  border-color: var(--_accent);
+}
+.native:checked {
+  border-color: var(--_accent);
+}
+.native:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--_accent) 22%, transparent);
+}
+
+/* 选中圆点：checked 时从中心弹出，颜色取 accent */
+.mark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.mark::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--_accent);
+  font-size: var(--_box);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.15s ease;
+}
+.native:checked ~ .mark::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+:host([size='sm']) .box { --_box: 15px; }
+:host([size='lg']) .box { --_box: 21px; }
+
+:host([color='secondary']) .box { --_accent: var(--xie-color-secondary); }
+:host([color='success']) .box { --_accent: var(--xie-color-success); }
+:host([color='warning']) .box { --_accent: var(--xie-color-warning); }
+:host([color='danger']) .box { --_accent: var(--xie-color-danger); }
+:host([color='info']) .box { --_accent: var(--xie-color-info); }

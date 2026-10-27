@@ -40,8 +40,11 @@ export const MENU = [
       { id: 'switch', label: 'Switch 开关', tag: 'x-switch', status: 'done' },
       { id: 'slider', label: 'Slider 滑块', tag: 'x-slider', status: 'done' },
       { id: 'input', label: 'Input 输入框', tag: 'x-input', status: 'done' },
-      { id: 'checkbox', label: 'Checkbox 复选', tag: 'x-checkbox', status: 'planned' },
-      { id: 'select', label: 'Select 选择器', tag: 'x-select', status: 'planned' },
+      { id: 'textarea', label: 'Textarea 文本域', tag: 'x-textarea', status: 'done' },
+      { id: 'checkbox', label: 'Checkbox 复选', tag: 'x-checkbox', status: 'done' },
+      { id: 'radio', label: 'Radio 单选', tag: 'x-radio', status: 'done' },
+      { id: 'select', label: 'Select 选择器', tag: 'x-select', status: 'done' },
+      { id: 'file', label: 'FileUpload 上传', tag: 'x-file-input', status: 'done' },
     ],
   },
   {

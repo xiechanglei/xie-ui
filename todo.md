@@ -3,3 +3,5 @@
 - 然后给我的docs页面的菜单全部安排上icon，这些icon属于应用级别的icon而不是框架级别的icon不需要放在库里面，放在docs下面的代码中就可以了
 - checkbox
 - radio 
+- table组件，如何设计
+- 高级别的容器组件，form以及form-item，form-item有label属性，form组件可以选择排列方式，水平或者垂直，form-item可以选择占据的列数，form组件可以选择是否显示边框，还需要好好想想与设计才能去使常用的使用场景下的易用性

@@ -1,0 +1,114 @@
+/* x-checkbox —— 复选框。形态(shape)×语义色(color)双轴正交，配色只消费全局令牌，随主题实时联动。
+   盒子即原生 input（appearance:none），勾选/三方态由 CSS :checked/:indeterminate 驱动，JS 不回写视觉。
+   注意：初始默认值不反射成宿主 attribute，故缺省态(rounded/primary/md)一律写在基座，属性选择器只做覆盖。 */
+:host {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  box-sizing: border-box;
+  line-height: 0;
+  cursor: pointer;
+}
+:host([hidden]) {
+  display: none;
+}
+:host([disabled]) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.box {
+  /* 颜色轴：只定义 accent（选中底色/描边）与其上的勾色，缺省 primary */
+  --_accent: var(--xie-color-primary);
+  --_accent-fg: var(--xie-color-primary-fg, #fff);
+  /* 尺寸轴：盒子边长，缺省 md */
+  --_box: 16px;
+  /* 形态轴：圆角，缺省 rounded（吃全局 --xie-radius-sm，随主题圆角滑杆联动） */
+  --_rad: var(--xie-radius-sm);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 盒子本体：原生 input 关掉浏览器自绘，所有外观交给这里 */
+.native {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  width: var(--_box);
+  height: var(--_box);
+  margin: 0;
+  background: var(--xie-color-bg);
+  border: 1.5px solid var(--xie-color-border);
+  border-radius: var(--_rad);
+  cursor: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.native:hover {
+  border-color: var(--_accent);
+}
+.native:checked,
+.native:indeterminate {
+  background: var(--_accent);
+  border-color: var(--_accent);
+}
+.native:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--_accent) 22%, transparent);
+}
+
+/* 勾选标记层：覆盖在盒子上，不吃点击 */
+.mark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* 对勾（::before）：checked 且非三方态时弹出 */
+.mark::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 0.28em;
+  height: 0.56em;
+  border: solid var(--_accent-fg);
+  border-width: 0 2px 2px 0;
+  font-size: var(--_box);
+  transform: translate(-50%, -50%) rotate(45deg) scale(0);
+  transition: transform 0.15s ease;
+}
+.native:checked:not(:indeterminate) ~ .mark::before {
+  transform: translate(-50%, -50%) rotate(45deg) scale(1);
+}
+/* 三方态横线（::after）：indeterminate 时展开 */
+.mark::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.6em;
+  height: 2px;
+  background: var(--_accent-fg);
+  font-size: var(--_box);
+  transform: translate(-50%, -50%) scaleX(0);
+  transition: transform 0.15s ease;
+}
+.native:indeterminate ~ .mark::after {
+  transform: translate(-50%, -50%) scaleX(1);
+}
+
+/* 尺寸轴：sm/md(缺省)/lg 覆盖盒边长 */
+:host([size='sm']) .box { --_box: 14px; }
+:host([size='lg']) .box { --_box: 18px; }
+
+/* 形态轴：square/circle 覆盖圆角（rounded 为缺省） */
+:host([shape='square']) .box { --_rad: 0; }
+:host([shape='circle']) .box { --_rad: 9999px; }
+
+/* 颜色轴：6 角色覆盖 accent + 勾色 */
+:host([color='secondary']) .box { --_accent: var(--xie-color-secondary); --_accent-fg: var(--xie-color-secondary-fg, #fff); }
+:host([color='success']) .box { --_accent: var(--xie-color-success); --_accent-fg: var(--xie-color-success-fg, #fff); }
+:host([color='warning']) .box { --_accent: var(--xie-color-warning); --_accent-fg: var(--xie-color-warning-fg, #fff); }
+:host([color='danger']) .box { --_accent: var(--xie-color-danger); --_accent-fg: var(--xie-color-danger-fg, #fff); }
+:host([color='info']) .box { --_accent: var(--xie-color-info); --_accent-fg: var(--xie-color-info-fg, #fff); }

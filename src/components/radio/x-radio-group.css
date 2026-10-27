@@ -1,0 +1,21 @@
+/* x-radio-group —— 容器排版，同 checkbox group：缺省纵向，可切横向。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family, inherit);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--_grp-gap, var(--xie-space-3));
+}
+:host([direction='row']) .group {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}

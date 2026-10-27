@@ -42,5 +42,73 @@
     ev.addEventListener('x-input', (e) => (out.textContent = 'x-input：' + e.detail.value));
     ev.addEventListener('x-change', (e) => (out.textContent = `x-change：${e.detail.value}（前值 ${e.detail.previousValue}）`));
 </script>
+
+<h3>x-checkbox / group</h3>
+<x-checkbox-group id="cbg" name="fruit" color="success" min="1" max="2">
+    <x-checkbox-item label="苹果" value="apple" checked></x-checkbox-item>
+    <x-checkbox-item label="香蕉" value="banana"></x-checkbox-item>
+    <x-checkbox-item label="橙子" value="orange"></x-checkbox-item>
+</x-checkbox-group>
+<p><x-checkbox indeterminate></x-checkbox> 原子三方态　<x-checkbox-item label="shape=circle" shape="circle" color="danger" checked></x-checkbox-item></p>
+<p id="cbout">已选：—</p>
+
+<h3>x-radio / group</h3>
+<x-radio-group id="rdg" name="gender" direction="row" color="info">
+    <x-radio-item label="男" value="male" checked></x-radio-item>
+    <x-radio-item label="女" value="female"></x-radio-item>
+    <x-radio-item label="保密" value="secret"></x-radio-item>
+</x-radio-group>
+<p id="rdout">当前：male</p>
+
+<h3>x-textarea</h3>
+<p style="display:flex;gap:12px;flex-wrap:wrap">
+    <x-textarea placeholder="autosize" autosize rows="2" max-rows="6" style="width:260px"></x-textarea>
+    <x-textarea show-count maxlength="50" variant="filled" color="danger" rows="3" style="width:260px"></x-textarea>
+</p>
+
+<h3>x-select</h3>
+<p style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+    <x-select id="sel1" placeholder="请选择城市" style="width:180px">
+        <option value="bj">北京</option>
+        <option value="sh">上海</option>
+        <option value="gz">广州</option>
+    </x-select>
+    <x-select id="sel2" variant="filled" color="success" placeholder="options 数组" style="width:180px"></x-select>
+</p>
+
+<h3>x-file-input</h3>
+<p style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+    <x-file-input name="doc" accept="image/*" multiple></x-file-input>
+    <x-file-input color="danger" size="sm" button-label="小按钮"></x-file-input>
+    <x-button id="fileReset">清空文件</x-button>
+</p>
+
+<h3>form 关联（FCCE）验证</h3>
+<form id="fm">
+    <x-input name="uname" placeholder="用户名"></x-input>
+    <x-textarea name="note" rows="2" placeholder="备注"></x-textarea>
+    <x-radio-group name="tier">
+        <x-radio-item label="基础" value="basic" checked></x-radio-item>
+        <x-radio-item label="高级" value="pro"></x-radio-item>
+    </x-radio-group>
+    <x-checkbox name="agree" value="yes" label="同意"></x-checkbox>
+    <x-select name="city" placeholder="城市"><option value="a">A</option><option value="b">B</option></x-select>
+    <x-button type="submit">提交看 FormData</x-button>
+</form>
+<pre id="fmout" style="white-space:pre-wrap"></pre>
+
+<script>
+    sel2.options = ['Vue', 'React', { value: 'svelte', label: 'Svelte（禁用）', disabled: true }];
+    cbg.addEventListener('x-change', (e) => (cbout.textContent = '已选：' + (e.detail.value.join('、') || '—')));
+    rdg.addEventListener('x-change', (e) => (rdout.textContent = '当前：' + (e.detail.value || '—')));
+    sel1.addEventListener('x-change', (e) => console.log('select1', e.detail));
+    document.querySelector('x-file-input').addEventListener('x-change', (e) => console.log('files', e.detail.files.map(f => f.name)));
+    fileReset.addEventListener('click', () => document.querySelector('x-file-input').reset());
+    fm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(fm);
+        fmout.textContent = [...fd.entries()].map(([k, v]) => `${k} = ${v instanceof File ? v.name : v}`).join('\n') || '（空）';
+    });
+</script>
 </body>
 </html>

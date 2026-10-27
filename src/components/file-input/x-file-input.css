@@ -1,0 +1,83 @@
+/* x-file-input —— 文件选择。隐藏原生 input（仅作行为载体），自绘按钮 + 文件名展示。 */
+:host {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  max-width: 100%;
+  vertical-align: middle;
+  font-family: var(--xie-font-family, inherit);
+  font-size: var(--xie-font-size-md);
+  color: var(--xie-color-fg);
+}
+:host([hidden]) {
+  display: none;
+}
+:host([disabled]) {
+  opacity: 0.55;
+}
+
+.field {
+  --_accent: var(--xie-color-primary);
+  --_accent-fg: var(--xie-color-primary-fg, #fff);
+  display: flex;
+  align-items: center;
+  gap: var(--xie-space-2);
+  min-width: 0;
+}
+
+/* 行为载体：留在文档流但不可见，保留原生选择能力 */
+input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.btn {
+  all: unset;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--xie-space-1);
+  height: var(--xie-size-md);
+  padding: 0 var(--xie-space-3);
+  border-radius: var(--xie-radius-md);
+  background: var(--_accent);
+  color: var(--_accent-fg);
+  font-size: inherit;
+  cursor: pointer;
+  user-select: none;
+  transition: filter 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:hover {
+  filter: brightness(0.94);
+}
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--_accent) 28%, transparent);
+}
+:host([disabled]) .btn {
+  cursor: not-allowed;
+}
+
+.text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--xie-color-muted);
+}
+
+/* 尺寸轴：按钮高度联动 */
+:host([size='sm']) .btn { height: var(--xie-size-sm); padding: 0 var(--xie-space-2); }
+:host([size='lg']) .btn { height: var(--xie-size-lg); padding: 0 var(--xie-space-4); }
+
+/* 颜色轴 */
+:host([color='secondary']) .field { --_accent: var(--xie-color-secondary); --_accent-fg: var(--xie-color-secondary-fg, #fff); }
+:host([color='success']) .field { --_accent: var(--xie-color-success); --_accent-fg: var(--xie-color-success-fg, #fff); }
+:host([color='warning']) .field { --_accent: var(--xie-color-warning); --_accent-fg: var(--xie-color-warning-fg, #fff); }
+:host([color='danger']) .field { --_accent: var(--xie-color-danger); --_accent-fg: var(--xie-color-danger-fg, #fff); }
+:host([color='info']) .field { --_accent: var(--xie-color-info); --_accent-fg: var(--xie-color-info-fg, #fff); }

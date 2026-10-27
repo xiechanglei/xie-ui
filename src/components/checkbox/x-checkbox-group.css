@@ -1,0 +1,21 @@
+/* x-checkbox-group —— 容器排版。缺省纵向堆叠（表单选项常见），可切横向；gap 走别名或原始长度。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family, inherit);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.group {
+  display: flex;
+  gap: var(--_grp-gap, var(--xie-space-3));
+  flex-direction: column;
+  align-items: flex-start;
+}
+:host([direction='row']) .group {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}

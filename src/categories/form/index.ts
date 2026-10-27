@@ -8,6 +8,11 @@
  */
 import '../../tokens/index.js';
 import '../../components/input/index.js';
+import '../../components/textarea/index.js';
+import '../../components/select/index.js';
+import '../../components/file-input/index.js';
+import '../../components/checkbox/index.js';
+import '../../components/radio/index.js';
 import '../../components/switch/index.js';
 import '../../components/slider/index.js';
 
@@ -18,5 +23,42 @@ export type {
   InputColor,
   InputSize,
 } from '../../components/input/x-input.js';
+export type {
+  XTextarea,
+  TextareaVariant,
+  TextareaColor,
+  TextareaSize,
+  TextareaResize,
+} from '../../components/textarea/x-textarea.js';
+export type {
+  XSelect,
+  SelectVariant,
+  SelectColor,
+  SelectSize,
+  SelectOption,
+  SelectOptionInput,
+} from '../../components/select/x-select.js';
+export type {
+  XFileInput,
+  FileInputColor,
+  FileInputSize,
+} from '../../components/file-input/x-file-input.js';
+export type {
+  XCheckbox,
+  XCheckboxItem,
+  XCheckboxGroup,
+  CheckboxShape,
+  CheckboxColor,
+  CheckboxSize,
+  CheckboxGroupDirection,
+} from '../../components/checkbox/index.js';
+export type {
+  XRadio,
+  XRadioItem,
+  XRadioGroup,
+  RadioColor,
+  RadioSize,
+  RadioGroupDirection,
+} from '../../components/radio/index.js';
 export type { XSwitch } from '../../components/switch/x-switch.js';
 export type { XSlider } from '../../components/slider/x-slider.js';

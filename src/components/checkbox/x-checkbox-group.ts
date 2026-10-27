@@ -53,13 +53,18 @@ class XCheckboxGroup extends XBaseElement {
   /** 记录「本 group 往某子项下发过哪些属性」，以便后续更新这些属性而不覆盖用户自写的 */
   private readonly __granted = new WeakMap<Element, Set<string>>();
 
+  // 必须显式挂 shadow：基座渲染目标是 shadowRoot ?? this，缺失会把 light DOM 子项清空
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
   protected render(): TemplateResult {
     return html`<div class="group" part="group"><slot></slot></div>`;
   }
 
   protected firstUpdated(): void {
     this.addEventListener('x-change', this.__onChildChange as EventListener);
-    this.querySelector('slot')?.addEventListener('slotchange', () => this.__syncChildren());
     const slot = this.shadowRoot!.querySelector('slot')!;
     slot.addEventListener('slotchange', () => this.__syncChildren());
     this.__syncChildren();

@@ -45,6 +45,12 @@ class XRadioGroup extends XBaseElement {
 
   private readonly __granted = new WeakMap<Element, Set<string>>();
 
+  // 必须显式挂 shadow：基座渲染目标是 shadowRoot ?? this，缺失会把 light DOM 子项清空
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+
   protected render(): TemplateResult {
     return html`<div class="group" part="group"><slot></slot></div>`;
   }

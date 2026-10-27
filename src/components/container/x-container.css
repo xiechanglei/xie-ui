@@ -1,0 +1,138 @@
+/* x-container —— 应用外壳。整体为 grid（header / sidebar / main / footer 四区），
+   侧栏宽度经宿主内联 --_side-w 驱动；rail 折叠时容器切换窄栏并把 rail 下沉给 x-logo / x-menu。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  height: 100%;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: var(--_side-w, 260px) 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'header header'
+    'sidebar main'
+    'footer footer';
+  height: 100%;
+  /* 侧栏折叠平滑过渡：--_side-w 变化时轨道宽度缓动，主内容区随之平滑伸缩（Chromium 107+ 支持） */
+  transition: grid-template-columns 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 侧栏在右：交换两列与区域方位 */
+:host([side='right']) .grid {
+  grid-template-columns: 1fr var(--_side-w, 260px);
+  grid-template-areas:
+    'header header'
+    'main sidebar'
+    'footer footer';
+}
+
+/* 顶部 / 底部：默认不占位，检测到内容（data-header / data-footer）才显出容器 */
+.header {
+  grid-area: header;
+  display: none;
+}
+:host([data-header]) .header {
+  display: block;
+}
+.footer {
+  grid-area: footer;
+  display: none;
+}
+:host([data-footer]) .footer {
+  display: block;
+}
+
+/* 侧栏：相对定位承载骑跨分隔线的折叠按钮；内容裁切交给 .sidebar__scroll */
+.sidebar {
+  grid-area: sidebar;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-inline-end: 1px solid var(--xie-color-border, #e4e4e7);
+  background: var(--xie-color-bg);
+}
+:host([side='right']) .sidebar {
+  border-inline-end: 0;
+  border-inline-start: 1px solid var(--xie-color-border, #e4e4e7);
+}
+.sidebar__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* 横向裁切、纵向滚动：折叠动画期内容被平滑裁切，且不再占用按钮的骑跨空间 */
+  overflow: hidden auto;
+}
+
+/* 折叠按钮：小圆钮，骑跨在侧栏与主内容区的分隔线上（默认贴右上角，随侧栏宽度缓动一起滑动） */
+.rail-toggle {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  top: 16px;
+  right: 0;
+  transform: translateX(50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--xie-color-bg);
+  border: 1px solid var(--xie-color-border, #e4e4e7);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  color: var(--xie-color-muted);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.rail-toggle[hidden] {
+  display: none;
+}
+.rail-toggle:hover {
+  color: var(--xie-color-primary);
+  background: var(--xie-color-primary-soft);
+}
+.rail-toggle:focus-visible {
+  outline: 2px solid var(--xie-color-primary);
+  outline-offset: 1px;
+}
+.rail-toggle x-icon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+/* 右侧栏：小钮改贴左侧分隔线 */
+:host([side='right']) .rail-toggle {
+  right: auto;
+  left: 0;
+  transform: translateX(-50%);
+}
+/* 左侧栏：展开时箭头朝左（收起方向），折叠后朝右（展开方向）；右侧栏取反 */
+:host(:not([rail])) .rail-toggle x-icon {
+  transform: rotate(180deg);
+}
+:host([side='right']:not([rail])) .rail-toggle x-icon {
+  transform: rotate(0deg);
+}
+:host([side='right'][rail]) .rail-toggle x-icon {
+  transform: rotate(180deg);
+}
+
+/* 主内容区：自身滚动 */
+.main {
+  grid-area: main;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+/* 尊重系统「减少动态效果」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .grid {
+    transition: none;
+  }
+}

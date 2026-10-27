@@ -1,0 +1,26 @@
+/* x-flex —— 弹性布局原子。布局属性一律写在 :host（作为真正的弹性容器），
+   内部 .flex 用 display:contents 不生成盒子，使插槽内容直接成为 :host 的弹性项，
+   从而 gap / align / justify 对内容生效；.flex 仅作 part 定制钩子。 */
+:host {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: var(--_dir, row);
+  /* 默认间距取温和的 sm（≈8px）；需紧贴时传 gap="none" 归零 */
+  gap: var(--_gap, var(--xie-space-1, 8px));
+  /* align 不设默认 center：normal(=stretch) 对纵向堆叠更自然；横向想让子项居中请显式 align="center" */
+  align-items: var(--_ai, normal);
+  justify-content: var(--_jc, flex-start);
+}
+:host([wrap]) {
+  flex-wrap: wrap;
+}
+:host([inline]) {
+  display: inline-flex;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.flex {
+  display: contents;
+}

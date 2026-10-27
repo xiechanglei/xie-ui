@@ -1,0 +1,42 @@
+/* x-text —— 排版角色。字号/字重/颜色一律取令牌，写在 :host 上，
+   经扁平树继承透传到 <slot> 的文本，故随主题（深浅色 / 尺寸档位）实时联动。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-size: var(--xie-font-size-md);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--xie-color-fg);
+}
+:host([inline]) {
+  display: inline;
+}
+:host([hidden]) {
+  display: none;
+}
+
+/* 变体 */
+:host([variant="title"]) {
+  font-size: var(--xie-font-size-lg);
+  font-weight: 600;
+}
+:host([variant="subtitle"]) {
+  font-size: var(--xie-font-size-md);
+  font-weight: 500;
+}
+:host([variant="caption"]) {
+  font-size: var(--xie-font-size-sm);
+  color: var(--xie-color-muted);
+}
+:host([variant="muted"]) {
+  color: var(--xie-color-muted);
+}
+/* body 为默认，无需覆盖 */
+
+/* 内部包裹盒：仅作 part 定制钩子，字体属性全部继承自宿主 */
+.text {
+  display: inline;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+}

@@ -1,0 +1,101 @@
+/* x-avatar —— 头像/标识方块。尺寸经宿主内联 --_sz 驱动（sm/md/lg 令牌或任意长度），
+   形状/配色用反射属性走 :host([shape]) / :host([color]) 选择器，一律吃令牌随主题联动。
+   内容三选一（图片 / 文字 / 占位图标）由组件按优先级 hidden 切换，这里只负责外观。 */
+:host {
+  --_sz: var(--xie-size-md, 36px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--_sz);
+  height: var(--_sz);
+  flex: 0 0 auto;
+  overflow: hidden;
+  vertical-align: middle;
+  /* 缺省圆角（shape=default）：直接写在基座而非 :host([shape]) 选择器，
+     因初始默认值不反射 attribute，属性选择器会落空；吃 --xie-radius-md 故随全局圆角档位联动 */
+  border-radius: var(--xie-radius-md, 6px);
+  background: var(--xie-color-surface, #f4f4f5);
+  color: var(--xie-color-muted, #71717a);
+  font-weight: 600;
+  font-size: calc(var(--_sz) * 0.42);
+  line-height: 1;
+  user-select: none;
+}
+:host([hidden]) {
+  display: none;
+}
+
+/* 内部盒仅作 part 钩子：用 display:contents 让 img/txt/icon 直接成为宿主的弹性项并被居中 */
+.base {
+  display: contents;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* 作者样式的 display 会覆盖 UA 的 [hidden]{display:none}（author origin 优先），
+   必须显式补回，否则 hidden 切换失效：破图/文字会同时显示 */
+.img[hidden] {
+  display: none;
+}
+.txt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  letter-spacing: 0.02em;
+}
+.txt[hidden] {
+  display: none;
+}
+.ph {
+  width: 60%;
+  height: 60%;
+}
+
+/* 形状（显式指定才覆盖基座缺省；default 无需规则，基座即是） */
+:host([shape='circle']) {
+  border-radius: var(--xie-radius-full, 9999px);
+}
+:host([shape='rounded']) {
+  border-radius: var(--xie-radius-md, 6px);
+}
+:host([shape='square']) {
+  border-radius: 0;
+}
+
+/* 文字态底色角色（仅影响无图时的底色/文字色；图片态底色被 <img> 覆盖无妨）。
+   default = 中性缺省态（非强调色角色），与 :host 基础样式同源吃 surface/muted */
+:host([color='default']) {
+  background: var(--xie-color-surface);
+  color: var(--xie-color-muted);
+}
+:host([color='primary']) {
+  background: var(--xie-color-primary);
+  color: var(--xie-color-primary-fg);
+}
+:host([color='secondary']) {
+  background: var(--xie-color-secondary);
+  color: var(--xie-color-secondary-fg);
+}
+:host([color='success']) {
+  background: var(--xie-color-success);
+  color: var(--xie-color-success-fg);
+}
+:host([color='warning']) {
+  background: var(--xie-color-warning);
+  color: var(--xie-color-warning-fg);
+}
+:host([color='danger']) {
+  background: var(--xie-color-danger);
+  color: var(--xie-color-danger-fg);
+}
+:host([color='info']) {
+  background: var(--xie-color-info);
+  color: var(--xie-color-info-fg);
+}

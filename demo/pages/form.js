@@ -60,7 +60,7 @@ export function render(el) {
         f.append(
           fi('用户名', { name: 'username', required: '' }, ctl('x-input', { placeholder: '请输入用户名' })),
           fi('邮箱', { name: 'email', help: '不会公开显示' }, ctl('x-input', { type: 'email', placeholder: 'you@example.com' })),
-          footer({}, btn('提交', { type: 'submit' }), btn('重置', { type: 'reset', variant: 'outline' })),
+          footer({}, btn('提交', { command: 'submit' }), btn('重置', { command: 'reset', variant: 'outline' })),
         );
         f.addEventListener('x-submit', (e) => (status.textContent = '提交成功：' + JSON.stringify(e.detail.values)));
         f.addEventListener('x-invalid', () => (status.textContent = '校验未通过，请检查标红字段'));
@@ -74,11 +74,11 @@ export function render(el) {
     <x-input type="email"></x-input>
   </x-form-item>
   <x-form-footer>
-    <x-button type="submit">提交</x-button>
-    <x-button type="reset" variant="outline">重置</x-button>
+    <x-button command="submit">提交</x-button>
+    <x-button command="reset" variant="outline">重置</x-button>
   </x-form-footer>
 </x-form>
-<!-- 提交/重置靠 type 自动归属到本 form，不写任何 click 派发 -->`,
+<!-- 提交/重置靠 command 递交给本 form 认领，不写任何 click 派发 -->`,
     }),
 
     demoCard({
@@ -90,14 +90,14 @@ export function render(el) {
           fi('用户名', { name: 'u1', required: '' }, ctl('x-input')), 
           fi('密码', { name: 'p1' }, ctl('x-input', { type: 'password', 'show-password': '' })),
           fi('城市', { name: 'c1' }, sel(['北京', '上海', '广州', '深圳'])),
-          footer({ 'label-offset': '', align: 'end' }, btn('登录', { type: 'submit' })),
+          footer({ 'label-offset': '', align: 'end' }, btn('登录', { command: 'submit' })),
         );
         c.append(f);
       },
       code: `<x-form label-width="90px" label-align="end">
   <x-form-item label="用户名" name="u1" required><x-input></x-input></x-form-item>
   <x-form-item label="密码" name="p1"><x-input type="password" show-password></x-input></x-form-item>
-  <x-form-footer label-offset align="end"><x-button type="submit">登录</x-button></x-form-footer>
+  <x-form-footer label-offset align="end"><x-button command="submit">登录</x-button></x-form-footer>
 </x-form>`,
     }),
 
@@ -128,7 +128,7 @@ export function render(el) {
           fi('关键词', { name: 'kw' }, ctl('x-input', { placeholder: '搜索' })),
           fi('类型', { name: 'tp' }, sel(['全部', '文章', '问答'])),
           fi('状态', { name: 'st' }, sel(['全部', '已发布', '草稿'])),
-          footer({}, btn('查询', { type: 'submit', color: 'primary' }), btn('重置', { type: 'reset', variant: 'ghost' })),
+          footer({}, btn('查询', { command: 'submit', color: 'primary' }), btn('重置', { command: 'reset', variant: 'ghost' })),
         );
         c.append(f);
       },
@@ -139,7 +139,7 @@ export function render(el) {
       <option>全部</option><option>文章</option><option>问答</option>
     </x-select>
   </x-form-item>
-  <x-form-footer><x-button type="submit">查询</x-button></x-form-footer>
+  <x-form-footer><x-button command="submit">查询</x-button></x-form-footer>
 </x-form>
 <!-- 横排需显式写 layout=horizontal（默认 vertical）；绑定键只写在 x-form-item 的 name 上（自动下沉给控件）；选项二选一：light DOM <option>（如上）或 JS 赋数组 s.options = ['全部','文章','问答'] -->`,
     }),
@@ -155,7 +155,7 @@ export function render(el) {
           fi('状态', { name: 'st' }, sel(['全部', '已发布', '草稿'])),
           fi('优先级', { name: 'pri' }, ctl('x-slider', { options: '低,中,高' })),
           fi('通知', { name: 'ntf' }, ctl('x-switch')),
-          footer({}, btn('查询', { type: 'submit', color: 'primary' }), btn('重置', { type: 'reset', variant: 'ghost' })),
+          footer({}, btn('查询', { command: 'submit', color: 'primary' }), btn('重置', { command: 'reset', variant: 'ghost' })),
         );
         c.append(f);
       },
@@ -163,14 +163,14 @@ export function render(el) {
   <x-form-item label="关键词" name="kw"><x-input></x-input></x-form-item>
   <x-form-item label="类型" name="tp"><x-select>…</x-select></x-form-item>
   <x-form-item label="状态" name="st"><x-select>…</x-select></x-form-item>
-  <x-form-footer><x-button type="submit">查询</x-button></x-form-footer>
+  <x-form-footer><x-button command="submit">查询</x-button></x-form-footer>
 </x-form>
 <!-- 双列桌面表单：<x-form columns="2" label-width="90px"> -->`,
     }),
 
     demoCard({
       title: '校验与提交',
-      desc: 'required 必填 + type=email/pattern 正则走原生约束；footer 里 <x-button type="submit"> 即触发提交，校验通过派发可取消的 x-submit（detail.values 为聚合值）',
+      desc: 'required 必填 + type=email/pattern 正则走原生约束；footer 里 <x-button command="submit"> 即触发提交，校验通过派发可取消的 x-submit（detail.values 为聚合值）',
       build: (c) => {
         const f = form({ 'label-width': '80px', 'label-align': 'end' });
         const out = h('p', { class: 'demo-card__title' }, '点“提交”试试：留空 / 非法邮箱会被拦下');
@@ -178,7 +178,7 @@ export function render(el) {
           fi('账号', { name: 'acc', required: '' }, ctl('x-input', { placeholder: '必填' })),
           fi('邮箱', { name: 'mail', required: '' }, ctl('x-input', { type: 'email', placeholder: '需合法邮箱' })),
           fi('验证码', { name: 'code', error: '' }, ctl('x-input', { maxlength: '6', placeholder: '最多 6 位' })),
-          footer({ 'label-offset': '' }, btn('提交', { type: 'submit' }), btn('清空', { type: 'reset', variant: 'outline' })),
+          footer({ 'label-offset': '' }, btn('提交', { command: 'submit' }), btn('清空', { command: 'reset', variant: 'outline' })),
         );
         f.addEventListener('x-submit', (e) => (out.textContent = '校验通过 · values = ' + JSON.stringify(e.detail.values)));
         f.addEventListener('x-invalid', () => (out.textContent = '存在未通过校验的字段'));
@@ -187,7 +187,7 @@ export function render(el) {
       code: `form.addEventListener('x-submit', (e) => {
   console.log(e.detail.values); // 校验通过后的聚合值
 });
-<x-button type="submit">提交</x-button>  <!-- 放在任意 form（含 x-form）内即自动提交，无需手写 click -->
+<x-button command="submit">提交</x-button>  <!-- 放在任意 form（含 x-form）内即自动提交，无需手写 click -->
 form.submit();       // 也可命令式触发：通过则派发 x-submit，失败聚焦首个非法项并派发 x-invalid
 form.validate();     // 仅校验返回 boolean
 form.values;         // 当前聚合值（不校验）
@@ -199,7 +199,7 @@ form.reset();        // 还原到初始快照 + 清错误态`,
     rich('字段信息集中在 <code>x-form-item</code>：label / <code>name</code> / required / help 都写在 item 上，一个字段一个声明处。<code>name</code> 是权威绑定键，自动下沉给内部控件（覆盖控件自写的）；控件自己的 name 仅在 item 未写时生效，所以把控件脱离 form-item 放进页面原生 <code>&lt;form&gt;</code> 时照常工作。'),
     rich('数据收集：x-form 统一遍历「最外层」控件，按各控件公开的值面（<code>value</code>/<code>checked</code>/<code>files</code>/<code>values</code>）聚合出 <code>values</code> / <code>formData()</code>，重复键自动收数组、禁用项与未勾选不计入。为何不靠 <code>new FormData()</code>：表单归属是「节点树」概念，x-form shadow 内的 <code>&lt;form&gt;</code> 关联不到被 slot 投影进来的控件（实测连原生 <code>&lt;input&gt;</code> 也不行）；而控件自带的 FCCE 仍在——你把它们直接放进页面原生 <code>&lt;form&gt;</code> 时仍能自动计入。<code>disabled</code> 同样因跨树无法靠 <code>&lt;fieldset&gt;</code> 原生下发，改由 x-form 显式置各控件。'),
     rich('校验以控件原生约束为权威：item 的 <code>required</code> 会下沉给控件，<code>validate()</code> 调控件 <code>checkValidity()</code> 并把 <code>validationMessage</code> 渲染到字段下方；手动 <code>error</code> 属性可强制显示自定义错误。'),
-    rich('提交入口沿用原生写法：footer 里放 <code>&lt;x-button type="submit"&gt;</code> / <code>type="reset"</code> 即可，<b>不需要手写 click 派发</b>。为何要组件自己接线：表单归属按节点树算，跳不过 shadow 边界（实测 x-button 内部那颗原生 button 的 <code>.form</code> 为 null），所以 <code>type=submit/reset</code> 由 x-button 沿 <code>composedPath</code> 自己找最近的 form 代为 <code>requestSubmit()</code> / <code>reset()</code>，走的仍是原生事件链路（x-form 与页面原生 <code>&lt;form&gt;</code> 一律有效，不在 form 内则与原生一样什么都不做；<code>x-click</code> 被 <code>preventDefault</code> 可阻断提交，等价原生）。'),
+    rich('提交入口不写监听：footer 里放 <code>&lt;x-button command="submit"&gt;</code> / <code>command="reset"</code> 即可，<b>不需要手写 click 派发</b>。机制：表单归属按节点树算、跳不过 shadow 边界（实测 x-button 内部那颗原生 button 的 <code>.form</code> 为 null），所以 x-button 不自己去拿 form，而是把意图包成 <code>x-command</code> 事件向上递交（composed 才跳得出 shadow），由链上<b>第一个认领者</b>接走——x-form 声明了认领 <code>submit</code>/<code>reset</code>，就近优先（内层先认领，外层自动让路，所以对话框里的 form 不会误打到页面 form）。链上无人认领时退回最近的页面原生 <code>&lt;form&gt;</code> 代为 <code>requestSubmit()</code>/<code>reset()</code>，走的仍是原生事件链路；不在任何 form 里则什么都不做（<code>x-click</code> 被 <code>preventDefault</code> 可阻断递交，等价原生）。<b>命令只沿祖先链上传</b>，所以按钮必须是 form 的后代：把它放在 <code>&lt;x-form&gt;</code> 外面的兄弟节点上是打不到它的（对话框里要把 footer 放进 form 内，同此理）。'),
 
     h('h2', null, 'API · x-form'),
     apiTable(
@@ -223,8 +223,8 @@ form.reset();        // 还原到初始快照 + 清错误态`,
         ['setValues(obj)', '按 name 批量写入控件值（程序化、不派发）'],
         ['validate(): boolean', '校验全部字段，失败聚焦首个非法项并派发 x-invalid'],
         ['submit()', '触发提交：校验通过派发可取消的 x-submit（默认不导航）'],
-        ['x-button type="submit" / "reset"', '放在本 form（或任意 <code>&lt;form&gt;</code>）内即自动提交/重置，无需手写 click 派发'],
-        ['reset() / clearValidate()', '还原到初始快照并清错误态 / 仅清错误态'],
+        ['x-button command="submit" / "reset"', '放在本 form（或任意 <code>&lt;form&gt;</code>）内即自动提交/重置，无需手写 click 派发'],
+        ['reset() / clearValidate()', '还原到初始快照（各控件首次登记时的值，动态追加的字段也算）并清错误态 / 仅清错误态'],
         ['x-submit', 'detail:{ values }，cancelable，preventDefault 可拦截后续'],
         ['x-change', '字段变化后转发，detail:{ values }'],
         ['x-invalid', '校验未通过时派发'],

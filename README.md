@@ -52,7 +52,7 @@ import '@xie-work/xie-ui';
 
 > `variant`（形态：solid/outline/ghost/soft）与 `color`（语义色：primary/secondary/success/warning/danger/info）两轴正交，可任意组合。
 >
-> `type="submit" | "reset"` 自动归属所在的 form（`x-form` 或页面原生 `<form>` 都算），直接提交/重置，无需监听 `x-click` 再手写 `form.submit()`。
+> `command="submit" | "reset" | "close" | …` 把点击意图向上递交，由链上最近的认领者处理（`x-form` 认领 submit/reset，`x-dialog`/`x-drawer` 认领 close），无需监听 `x-click` 再手写 `form.submit()` / `dialog.hide()`。
 
 ```ts
 const btn = document.querySelector('x-button')!;
@@ -80,6 +80,7 @@ input.addEventListener('x-change', (e) => console.log(e.detail.value));
 | 尺寸 | `size: 'sm' \| 'md' \| 'lg'` |
 | 状态 | `disabled`、`loading`、`readonly`、`required` 跨组件同名同义 |
 | 事件 | `{component}-{action}`，如 `x-change`、`x-input`、`x-close`；载荷在 `event.detail` |
+| 跨层命令 | 触发件（如 `x-button`）写 `command="名字"`，意图包成 `x-command` 向上冒泡，由**第一个认领它的祖先组件**接走（就近优先，内层认领后外层自动让路）：`x-form` 认领 `submit`/`reset`，`x-dialog`/`x-drawer` 认领 `close`；链上无人认领则退回页面原生 `<form>`，再没有就什么都不做。**命令只沿祖先链上传**，故触发件必须是目标组件的后代（把 footer 与 form 写成兄弟节点时 `submit` 就够不着 form）。发起方/接收方清单与扩展方式详见 [command.md](./command.md) |
 | 插槽 | 默认插槽放主内容；图标场景提供 `icon-start` / `icon-end` |
 | 样式定制 | 每个组件暴露 `::part(base/...)`，见各组件文档 |
 
@@ -150,11 +151,11 @@ template: {
 
 | 组件 | 标签 | 状态 |
 |---|---|---|
-| Button | `<x-button>` | 🚧 开发中（M0，`type=submit\|reset` 自动归属所在 form，无需手写派发） |
+| Button | `<x-button>` | 🚧 开发中（M0，`command=submit\|reset\|close` 向上递交意图、由祖先组件认领，无需手写派发） |
 | Switch | `<x-switch>` | 🚧 开发中（M0，二元开关：`<button role=switch>` 受控切换；FCCE form 关联（`name`/`required`，勾选才计入 FormData）） |
 | Slider | `<x-slider>` | 🚧 开发中（M0，离散选项滑块，档位吸附拖动；已用于主题面板圆角/尺寸/阴影；FCCE form 关联（`name`，提交当前档位标签）） |
 | Menu | `<x-menu>` / `<x-menu-group>` / `<x-menu-item>` | 🚧 开发中（M0，导航菜单三件套） |
-| Drawer | `<x-drawer>` + `<x-drawer-header>` / `<x-drawer-footer>` | 🚧 开发中（M0；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位），footer 自动贴底；与内容无分隔线；Esc 走与对话框共享的浮层栈，只关最上层） |
+| Drawer | `<x-drawer>` + `<x-drawer-header>` / `<x-drawer-footer>` | 🚧 开发中（M0；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位），footer 自动贴底、按钮写 `command="close"` 即可关本抽屉；与内容无分隔线；Esc 走与对话框共享的浮层栈，只关最上层） |
 | ThemePanel | `<x-theme-panel>` | 🚧 开发中（M0，基于抽屉的右侧设置面板） |
 | Icon | `<x-icon>` | 🚧 开发中（M0，仅收录本库内部组件实际使用的图标，不派生更多） |
 | Typography | `<x-text>` | 🚧 开发中（M0，排版原子件：`variant` = title/subtitle/body/caption/muted，内部吃令牌、随主题联动） |
@@ -169,8 +170,8 @@ template: {
 | Select | `<x-select>` | 🚧 开发中（M0，下拉选择：自绘弹层 listbox（吃全局令牌、选中打勾、不足向上翻转）+ 键盘导航（↑↓/Home/End/Enter/Esc）；`multiple` 多选（选中不关弹层、`values` 数组、同名多项进 FormData）；选项来自 light DOM `<option>` 或 `options` 数组；`placeholder`/`variant`×`color`；FCCE form 关联） |
 | FileUpload | `<x-file-input>` | 🚧 开发中（M0，文件选择：隐藏原生 file + 自绘按钮；`accept`/`multiple`、`files` 只读、`reset()`；选中文件以 `name` 计入 FormData） |
 | Filter | `<x-filter>` / `<x-filter-item>` | 🚧 开发中（M0，筛选器：单选 chip 行，观感复用 x-button（未选 soft、选中 solid、重置钮 solid）；选中项保留、其余横向折叠退场（grid 0fr→1fr 动画 + inert）；行尾 × 重置钮展开；`value` 聚合、可取消 `x-change`；`color`/`size`/`disabled` 下沉；刻意不做 form 关联（视图过滤用） |
-| Form | `<x-form>` / `<x-form-item>` / `<x-form-footer>` | 🚧 开发中（M0，表单三件套：正交布局（`layout` 管输入项纵排（默认）/横排换行；`label-position` 管 label 在上/在左，默认 left，与 layout 无关；`label-width` 不写时自动测量最宽 label 回填对齐，`label-align` 管文本对齐；`gap` 间距默认 20px；`columns`=N 等宽 grid 列根治长短不齐（文本类控件拉满格宽，纵向可用双列表单）；footer `align` + `label-offset`，且无条件通栏沉底不参与流向）；字段统一在 x-form-item 声明（label/name/required/help，`name` 为权威绑定键强制下沉给控件）；x-form 统一遍历「最外层」控件、按公开值面聚合 `values`/`formData`（表单归属不跨 shadow，slot 进来的控件 `new FormData()` 收不到，故手动收集；控件自带 FCCE 仍在，直接放页面原生 form 可自动计入），`validate`/`submit`/`reset`/`setValues`，可取消 `x-submit`；提交入口沿用原生写法——footer 里 `<x-button type="submit"|"reset">` 即自动归属本 form；`disabled` 显式下发各控件） |
-| Dialog | `<x-dialog>` + `<x-dialog-header>` / `<x-dialog-footer>` | 🚧 开发中（M0，与抽屉同模式的居中浮层：遮罩 + 面板、Esc 关闭、滚动锁（与抽屉共享计数与 Esc 栈，一次 Esc 只关最上层）；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位）；`closable=false` 一次性禁用遮罩点击/Esc/关闭按钮三条路径（`hide()` 照旧可用）；`width` 默认 480px，内容超高只有中部滚动、header/footer 常驻） |
+| Form | `<x-form>` / `<x-form-item>` / `<x-form-footer>` | 🚧 开发中（M0，表单三件套：正交布局（`layout` 管输入项纵排（默认）/横排换行；`label-position` 管 label 在上/在左，默认 left，与 layout 无关；`label-width` 不写时自动测量最宽 label 回填对齐，`label-align` 管文本对齐；`gap` 间距默认 20px；`columns`=N 等宽 grid 列根治长短不齐（文本类控件拉满格宽，纵向可用双列表单）；footer `align` + `label-offset`，且无条件通栏沉底不参与流向）；字段统一在 x-form-item 声明（label/name/required/help，`name` 为权威绑定键强制下沉给控件）；x-form 统一遍历「最外层」控件、按公开值面聚合 `values`/`formData`（表单归属不跨 shadow，slot 进来的控件 `new FormData()` 收不到，故手动收集；控件自带 FCCE 仍在，直接放页面原生 form 可自动计入），`validate`/`submit`/`reset`/`setValues`，可取消 `x-submit`；提交入口不写监听——footer 里 `<x-button command="submit"|"reset">` 即就近交给本 form 认领（footer 须在 `<x-form>` 内：命令只沿祖先链上传）；`disabled` 显式下发各控件） |
+| Dialog | `<x-dialog>` + `<x-dialog-header>` / `<x-dialog-footer>` | 🚧 开发中（M0，与抽屉同模式的居中浮层：遮罩 + 面板、Esc 关闭、滚动锁（与抽屉共享计数与 Esc 栈，一次 Esc 只关最上层）；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位）；`closable=false` 一次性禁用遮罩点击/Esc/关闭按钮三条路径（footer 里的 `command="close"` 与 `hide()` 照旧可用）；`width` 默认 480px，内容超高只有中部滚动、header/footer 常驻） |
 | Toast | `<x-toast>` | 📋 规划中（M3） |
 | Table | `<x-table>` | 📋 规划中（M4） |
 

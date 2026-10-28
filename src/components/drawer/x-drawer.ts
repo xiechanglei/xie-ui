@@ -2,7 +2,8 @@
  * x-drawer —— 通用抽屉浮层（反馈与浮层分类）。
  *
  * 从视口边缘（默认右）滑入的面板 + 遮罩，用于承载设置面板、详情、表单等浮层内容。
- * 通过 `open` 属性（反射）驱动显隐；点遮罩 / 按 Esc 触发可取消的 `x-close`。
+ * 通过 `open` 属性（反射）驱动显隐；点遮罩 / 按 Esc / header 关闭按钮触发可取消的 `x-close`。
+ * footer 里的按钮不必手写 click 派发：`<x-button command="close">` 即向上递交、由本件认领后 hide()。
  * 面板为纵向 flex 容器，直接子元素排布：`<x-drawer-header>` / `<x-drawer-footer>` 固定顶/底，
  * 其余内容占据中部并自动滚动、内衬留白（见组件 CSS 的 ::slotted 规则）。
  * 面板视觉（背景/阴影/宽度）由全局令牌驱动，随主题实时联动。
@@ -15,7 +16,7 @@ import { XBaseElement, html, define, type PropertyOptions, type TemplateResult }
 // 滚动锁与 Esc 关闭栈与对话框共用（计数/栈必须在浮层之间唯一，见 core/overlay.ts）
 import { lockPageScroll, unlockPageScroll, popOverlayCloser, pushOverlayCloser } from '../../core/overlay.js';
 import '../../tokens/index.js';
-// 自动头部依赖 x-drawer-header（副作用注册）：其关闭按钮跳 shadow 上溯找到宿主 drawer 后 hide()
+// 自动头部依赖 x-drawer-header（副作用注册）：其关闭按钮向上递交 close 命令、由本件认领后 hide()
 import './x-drawer-header.js';
 import drawerStyles from './x-drawer.css?inline';
 
@@ -35,6 +36,9 @@ class XDrawer extends XBaseElement {
   };
 
   static styles = [drawerStyles];
+
+  /** 认领 close 命令（见 core/command.ts）：footer 里的 `<x-button command="close">` 与头部关闭按钮都走这条回到 hide() */
+  static commands = { close: 'hide' };
 
   declare open: boolean;
   declare placement: DrawerPlacement;

@@ -66,8 +66,8 @@
     </x-form-item>
 
     <x-form-footer align="start">
-        <x-button type="submit">提交</x-button>
-        <x-button type="reset" variant="outline">重置</x-button>
+        <x-button command="submit">提交</x-button>
+        <x-button command="reset" variant="outline">重置</x-button>
         <x-button id="disable" variant="ghost">切换禁用</x-button>
     </x-form-footer>
 </x-form>
@@ -77,7 +77,7 @@
     const out = document.getElementById('out');
 
     // 字段级校验失败（required/type/pattern）会在对应 x-form-item 下方显示错误；
-    // 提交/重置直接由 x-button 的 type=submit|reset 归属到本 form（无需手写 click 派发），values 实时打印在下方
+    // 提交/重置直接由 x-button 的 command=submit|reset 递交给本 form（无需手写 click 派发），values 实时打印在下方
     form.addEventListener('x-submit', (e) => {
         out.innerText = '校验通过 ✓\n' + JSON.stringify(e.detail.values, null, 2);
     });

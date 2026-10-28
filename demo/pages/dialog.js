@@ -51,8 +51,9 @@ function makeDialog(opts) {
 
   if (opts.footer) {
     const footer = document.createElement('x-dialog-footer');
-    const cancel = button(opts.cancel || '取消');
-    cancel.addEventListener('click', () => d.hide());
+    // 取消：不写一行监听，只声明 command，交给 x-dialog 认领后走 hide()
+    const cancel = button(opts.cancel || '取消', { command: 'close' });
+    // 确定：需要在关之前插自己的逻辑（打日志、提交）时，仍照旧绑 click 调 hide()
     const ok = button(opts.ok || '确定', { variant: 'solid', color: 'primary' });
     ok.addEventListener('click', () => (opts.onOk ? opts.onOk(d) : d.hide()));
     footer.append(cancel, ok);
@@ -80,7 +81,7 @@ export function render(el) {
     title: '编辑资料',
     subtitle: '改动在保存后生效',
     footer: true,
-    text: '头部是显式写的 <x-dialog-header show-close subtitle="…">，底部是 <x-dialog-footer>（取消 / 确定两个按钮，各自调 hide()）。需要富标题（图标、标签）时就这样写；写了显式 header 后，自动生成的那个会让位。',
+    text: '头部是显式写的 <x-dialog-header show-close subtitle="…">，底部是 <x-dialog-footer>（取消只写 command="close"，确定绑 click 在 hide() 前先打个日志）。需要富标题（图标、标签）时就这样写；写了显式 header 后，自动生成的那个会让位。',
   });
   const baseBtn = button('打开基础对话框', { variant: 'solid' });
   baseBtn.addEventListener('click', () => baseDialog.show());
@@ -96,7 +97,7 @@ export function render(el) {
     footer: true,
     ok: '我已阅读并同意',
     cancel: '稍后再说',
-    text: '本对话框写了 closable="false"：点遮罩、按 Esc 都不会关闭，头部那个关闭按钮也不再出现。只有点下面两个按钮（它们调 hide()）才会关——命令式入口不受这个旋钮限制。',
+    text: '本对话框写了 closable="false"：点遮罩、按 Esc 都不会关闭，头部那个关闭按钮也不再出现。只有点下面两个按钮（一个写 command="close"、一个调 hide()）才会关——命令式入口不受这个旋钮限制。',
   });
   const strictBtn = button('打开不可关闭的对话框（closable=false）', { variant: 'outline' });
   strictBtn.addEventListener('click', () => strictDialog.show());
@@ -118,7 +119,7 @@ export function render(el) {
   const longBtn = button('打开长内容对话框（width=640px）', { variant: 'outline', color: 'secondary' });
   longBtn.addEventListener('click', () => longDialog.show());
 
-  /* —— 5. 装表单：x-dialog + x-form，提交仍靠 x-button type=submit —— */
+  /* —— 5. 装表单：x-dialog + x-form，提交靠 x-button command=submit —— */
   const formDialog = document.createElement('x-dialog');
   formDialog.setAttribute('label', '新建标签');
   formDialog.setAttribute('title', '新建标签');
@@ -138,12 +139,13 @@ export function render(el) {
     })(),
   );
   const formFooter = document.createElement('x-dialog-footer');
-  const formCancel = button('取消');
-  formCancel.addEventListener('click', () => formDialog.hide());
-  // 放在对话框 footer 里的 x-button type=submit 会自动沿 composedPath 归属到同一个 form 里的 x-form
-  const formSubmit = button('保存', { type: 'submit', variant: 'solid', color: 'primary' });
+  // 取消：向上递交 close，跳过中间的 x-form（它只认领 submit/reset）由 x-dialog 接走
+  const formCancel = button('取消', { command: 'close' });
+  // 提交：命令沿冒泡链上传、只认祖先，所以 footer 必须放进 x-form 里才打得到它（见下方「装表单」的说明）
+  const formSubmit = button('保存', { command: 'submit', variant: 'solid', color: 'primary' });
   formFooter.append(formCancel, formSubmit);
-  formDialog.append(form, formFooter);
+  form.append(formFooter);
+  formDialog.append(form);
   form.addEventListener('x-submit', (e) => {
     formOut.textContent = '提交结果：' + JSON.stringify(e.detail.values);
     formDialog.hide();
@@ -185,8 +187,8 @@ export function render(el) {
         `  <x-dialog-header show-close subtitle="改动在保存后生效">编辑资料</x-dialog-header>\n` +
         `  <div><!-- 主体内容 --></div>\n` +
         `  <x-dialog-footer>\n` +
-        `    <x-button>取消</x-button>\n` +
-        `    <x-button variant="solid" color="primary">确定</x-button>\n` +
+        `    <x-button command="close">取消</x-button>\n` +
+        `    <x-button command="close" variant="solid" color="primary">确定</x-button>\n` +
         `  </x-dialog-footer>\n` +
         `</x-dialog>`,
     }),
@@ -198,7 +200,7 @@ export function render(el) {
         `<x-dialog label="必读协议">\n` +
         `  <x-dialog-header>服务条款有更新</x-dialog-header>\n` +
         `  <div>正文…</div>\n` +
-        `  <x-dialog-footer><x-button variant="solid">我已阅读并同意</x-button></x-dialog-footer>\n` +
+        `  <x-dialog-footer><x-button command="close" variant="solid">我已阅读并同意</x-button></x-dialog-footer>\n` +
         `</x-dialog>\n` +
         `<script>dialog.closable = false; // Boolean 属性写了即 true，故置 false 走 property</script>`,
     }),
@@ -206,11 +208,11 @@ export function render(el) {
       title: '长内容 + 自定义宽度',
       desc: 'width 决定面板宽度（默认 480px）；内容超高时只有中部滚动，header/footer 常驻',
       build: (c) => c.append(longBtn, longDialog),
-      code: `<x-dialog width="640px" title="版本更新说明">\n  <div><!-- 很长的内容，自动滚动 --></div>\n  <x-dialog-footer><x-button variant="solid">知道了</x-button></x-dialog-footer>\n</x-dialog>`,
+      code: `<x-dialog width="640px" title="版本更新说明">\n  <div><!-- 很长的内容，自动滚动 --></div>\n  <x-dialog-footer><x-button command="close" variant="solid">知道了</x-button></x-dialog-footer>\n</x-dialog>`,
     }),
     demoCard({
       title: '装表单（配合 x-form）',
-      desc: '对话框里放 x-form，footer 里的 x-button type="submit" 自动归属到它——不必写任何 click 派发',
+      desc: 'footer 要放进 x-form 里：命令沿冒泡链上传、只认祖先，兄弟节点够不着',
       build: (c) => c.append(formBtn, formDialog, formOut),
       code:
         `<x-dialog title="新建标签" subtitle="提交后出现在列表里">\n` +
@@ -219,8 +221,8 @@ export function render(el) {
         `      <x-input placeholder="必填"></x-input>\n` +
         `    </x-form-item>\n` +
         `    <x-dialog-footer>\n` +
-        `      <x-button>取消</x-button><!-- 绑 click 调 dialog.hide() -->\n` +
-        `      <x-button type="submit" variant="solid" color="primary">保存</x-button>\n` +
+        `      <x-button command="close">取消</x-button>\n` +
+        `      <x-button command="submit" variant="solid" color="primary">保存</x-button>\n` +
         `    </x-dialog-footer>\n` +
         `  </x-form>\n` +
         `</x-dialog>`,
@@ -228,7 +230,7 @@ export function render(el) {
 
     h('h2', null, '与抽屉的关系'),
     rich(
-      '<code>x-dialog</code> 与 <code>x-drawer</code> 共用同一套浮层基建：<code>x-dialog-header</code> / <code>x-dialog-footer</code> 直接继承抽屉的头部与底部（只换标签名与宿主查找，DOM/CSS 不重复一份）；滚动锁跨实例计数、按 <code>Esc</code> 只关「最上面那层」浮层——抽屉里再开对话框，一次 Esc 不会把两个一起关掉。二者的选择只在于内容量与是否打断主线流程：短确认/单字段用对话框，长设置/详情用抽屉。',
+      '<code>x-dialog</code> 与 <code>x-drawer</code> 共用同一套浮层基建：<code>x-dialog-header</code> / <code>x-dialog-footer</code> 直接继承抽屉的头部与底部（只换标签名，DOM/CSS 不重复一份）；滚动锁跨实例计数、按 <code>Esc</code> 只关「最上面那层」浮层——抽屉里再开对话框，一次 Esc 不会把两个一起关掉。二者的选择只在于内容量与是否打断主线流程：短确认/单字段用对话框，长设置/详情用抽屉。',
     ),
 
     h('h2', null, 'API'),
@@ -249,7 +251,7 @@ export function render(el) {
     apiTable(
       ['属性', '说明', '类型', '默认值'],
       [
-        ['show-close', '显示右侧关闭按钮（点击关闭所属对话框）', 'boolean', 'false'],
+        ['show-close', '显示右侧关闭按钮（点击向上递交 close 命令，由所属对话框认领后关闭）', 'boolean', 'false'],
         ['subtitle', '主标题下方的次要说明行（复用 <x-text variant="caption">）；留空不渲染', 'string', "''"],
       ],
     ),
@@ -270,6 +272,14 @@ export function render(el) {
         ['hide()', '关闭对话框（先派发可取消的 x-close）；不受 closable 限制'],
         ['toggle()', '切换'],
       ],
+    ),
+    h('h3', null, '关闭的接线方式'),
+    rich(
+      'footer 里的按钮不必拿到对话框的引用、也不必绑 click：写 <code>command="close"</code> 即向上递交关闭意图，链上最近的 <code>x-dialog</code> / <code>x-drawer</code> 认领后走 <code>hide()</code>（所以仍会先派发可取消的 <code>x-close</code>）。命令式入口不受 <code>closable</code> 旋钮限制，因此必读协议场景（<code>closable=false</code>）里取消按钮照常可用。需要在关之前插自己的逻辑时，仍可直接绑 click 调 <code>hide()</code>。',
+    ),
+    h('h3', null, '命令只沿冒泡链找祖先'),
+    rich(
+      '<code>command</code> 是把意图包成事件<b>向上冒泡</b>，由链上第一个认领者接走——因此触发按钮必须是目标组件的<b>后代</b>。往对话框里塞表单时这点会直接决定结构：<code>&lt;x-dialog&gt; → &lt;x-form&gt; → 字段 + &lt;x-dialog-footer&gt;</code> 可行（<code>submit</code> 被 x-form 就近认领，<code>close</code> 越过 x-form 继续上传被 x-dialog 认领，两条命令互不打扰）；而把 footer 与 form 写成兄弟节点时，<code>submit</code> 一路上行碰不到 form，只能退回页面原生 <code>&lt;form&gt;</code>，链上再没有就静默什么都不做。代价是要清楚：footer 嵌进 form 后就不是对话框的直接子元素了，会跟正文一起在中部滚动区里滚（不常驻贴底）。需要按钮常驻时反过来写：footer 作为 <code>&lt;x-dialog&gt;</code> 直接子元素，取消钮仍写 <code>command="close"</code>，提交钮则改绑 click 调 <code>form.submit()</code>——常驻与命令接线在此不可兼得，按内容长短取舍。',
     ),
     h('h3', null, '事件 Events'),
     apiTable(

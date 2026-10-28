@@ -15,6 +15,7 @@ import {
   type Signal,
   type ReadonlySignal,
 } from './signals.js';
+import { COMMAND_EVENT, type CommandDetail } from './command.js';
 
 /* -------------------------------------------------------------------------- */
 /*                                  样式工具                                    */
@@ -237,6 +238,12 @@ export abstract class XBaseElement extends HTMLElement {
   static properties: Record<string, PropertyOptions> = {};
   /** 子类声明：组件样式（共享 CSSStyleSheet 文本） */
   static styles: (CSSStyleSheet | string)[] = [];
+  /**
+   * 子类声明：认领哪些跨层命令，形如 { close: 'hide' }（命令名 → 本组件的实例方法名）。
+   * 声明了才挂 x-command 监听；未声明的命令名一律不接（不做同名方法反射，见 core/command.ts）。
+   * 子类只写这一行即可覆盖父件的认领表（静态属性沿原型链可见）。
+   */
+  static commands: Record<string, string> = {};
 
   /** 属性名 -> 信号 */
   protected readonly __signals = new Map<string, Signal<unknown>>();
@@ -416,8 +423,26 @@ export abstract class XBaseElement extends HTMLElement {
     // 先渲染结构，再注入样式：兼容 fallback 下 <style> 作为子节点被 textContent 清空的问题
     this.__initialRender();
     this.__adoptStyles();
+    // 认领跨层命令：只有声明了认领表的组件才挂监听（多数组件用不到，不给它们背这个开销）。
+    // 同一函数引用重复 addEventListener 会被 DOM 自动去重，故断连重连无需额外守卫。
+    if (Object.keys((this.constructor as typeof XBaseElement).commands).length)
+      this.addEventListener(COMMAND_EVENT, this.__onCommand as EventListener);
     this.firstUpdated?.();
   }
+
+  /**
+   * 跨层命令入口：查自己的认领表 → 先认领（preventDefault 让外层与旁听者知道意图已被消化）
+   * → 再调对应方法。不自己往上找目标，也不 stopPropagation：冒泡链上第一个认领者即胜出，
+   * 外层组件靠 defaultPrevented 让路，消费者的旁听监听不受影响。
+   */
+  private __onCommand = (event: CustomEvent<CommandDetail>): void => {
+    const detail = event.detail;
+    if (!detail || event.defaultPrevented || detail.source === this) return;
+    const method = (this.constructor as typeof XBaseElement).commands[detail.name];
+    if (!method) return;
+    event.preventDefault();
+    (this as unknown as Record<string, (arg: unknown) => void>)[method]?.(detail.arg);
+  };
 
   disconnectedCallback(): void {
     this.__connected = false;

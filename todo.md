@@ -4,4 +4,3 @@
 - table组件，如何设计
 - 日期选择组件,input组件里面type=date已经实现，是需要重新实现还是权衡框架的大小
 - from的校验规则只有简单的required吗，
-- 在test页面中写测试demo，我来执行，第一对于所有的输入组件，不依赖form的情况下独立存在，依然可以通过js获取以及设置value,第二，所有的输入组件放在form下，通过form也可以设置以及获取values

@@ -92,7 +92,9 @@ export function render(el) {
 <x-button variant="outline" loading>Outline Loading</x-button>`,
     }),
 
-    formActionDemo(),
+    formCommandDemo(),
+
+    commandDemo(),
 
     eventDemo(),
 
@@ -104,7 +106,7 @@ export function render(el) {
         ['variant', '形态（填充样式）', "'solid' | 'outline' | 'ghost' | 'soft'", "'solid'"],
         ['color', '语义色（与形态正交，任意组合）；default 为中性缺省态、非强调角色', "'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info'", "'primary'"],
         ['size', '按钮尺寸', "'sm' | 'md' | 'lg'", "'md'"],
-        ['type', '原生按钮类型；submit / reset 自动归属所在 form（含 x-form），无需手写 click 派发', "'button' | 'submit' | 'reset'", "'button'"],
+        ['command', '点击后向上递交的命令名，由链上最近的认领者处理（见下方「命令传递」示例）：x-form 认领 submit / reset，x-dialog / x-drawer 认领 close；链上无人认领则什么都不做', 'string', "''"],
         ['disabled', '是否禁用', 'boolean', 'false'],
         ['loading', '是否加载中', 'boolean', 'false'],
       ],
@@ -148,11 +150,11 @@ export function render(el) {
   );
 }
 
-/* 表单动作演示：type=submit/reset 自动归属所在 form */
-function formActionDemo() {
+/* 表单命令演示：command=submit/reset 就近交给所在 form 认领 */
+function formCommandDemo() {
   return demoCard({
     title: '表单提交 / 重置',
-    desc: 'type="submit" | "reset" 会自动归属到所在的 form（x-form 或页面原生 form 都算）：按钮自己沿 composedPath 找最近 form 并代为 requestSubmit/reset，不写任何监听',
+    desc: 'command="submit" | "reset" 向上递交，由所在的 x-form 就近认领（用页面原生 form 时也能接住），不写任何监听',
     build: (c) => {
       const f = document.createElement('x-form');
       const item = document.createElement('x-form-item');
@@ -164,8 +166,8 @@ function formActionDemo() {
       item.append(inp);
       const footer = document.createElement('x-form-footer');
       footer.append(
-        button('提交', { type: 'submit' }),
-        button('重置', { type: 'reset', variant: 'outline', color: 'default' }),
+        button('提交', { command: 'submit' }),
+        button('重置', { command: 'reset', variant: 'outline', color: 'default' }),
       );
       const status = h('span', { class: 'demo-card__title' }, '尚未提交');
       f.append(item, footer);
@@ -176,10 +178,39 @@ function formActionDemo() {
     code: `<x-form>
   <x-form-item label="关键词" name="kw" required><x-input></x-input></x-form-item>
   <x-form-footer>
-    <x-button type="submit">提交</x-button>
-    <x-button type="reset" variant="outline">重置</x-button>
+    <x-button command="submit">提交</x-button>
+    <x-button command="reset" variant="outline">重置</x-button>
   </x-form-footer>
 </x-form>`,
+  });
+}
+
+/* 命令传递演示：command 把意图向上递交，由认领它的祖先组件处理 */
+function commandDemo() {
+  const dialog = document.createElement('x-dialog');
+  dialog.setAttribute('title', '命令传递');
+  dialog.setAttribute('subtitle', '下面两个按钮都没绑过 click');
+  dialog.append(h('p', null, '开关靠 open / show()，关闭则根本不需要知道对话框的存在：取消按钮只写了 command="close"。'));
+  const footer = document.createElement('x-dialog-footer');
+  footer.append(
+    button('取消', { command: 'close', variant: 'outline', color: 'default' }),
+    button('确定', { command: 'close' }),
+  );
+  dialog.append(footer);
+  return demoCard({
+    title: '命令传递 command',
+    desc: '按钮只声明意图、不认识任何宿主：命令沿祖先链冒泡（跨 shadow 边界），链上第一个认领它的组件接走并 preventDefault，外层组件自动让路',
+    build: (c) => c.append(
+      h('x-button', { onclick: () => dialog.show() }, '打开对话框'),
+      dialog,
+    ),
+    code: `<x-dialog title="命令传递">
+  <x-dialog-footer>
+    <x-button command="close">取消</x-button>
+    <x-button command="close" variant="solid">确定</x-button>
+  </x-dialog-footer>
+</x-dialog>
+<!-- 内置命令：submit / reset → x-form；close → x-dialog / x-drawer -->`,
   });
 }
 

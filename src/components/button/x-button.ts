@@ -2,11 +2,12 @@
  * x-button —— M0 打样组件，验证 core 渲染链路：
  *  attribute 观察 → signal 桥接 → 模板细粒度绑定 → adoptedStyleSheets 共享样式
  *
- * 表单动作：`type="submit|reset"` 沿 composedPath 找最近的 form 并代为 requestSubmit/reset
- * （表单归属跳不过 shadow 边界，本件手动接线；对 x-form 与页面原生 form 一律有效）。
+ * 动作声明：`command="submit|reset|close|…"` 把意图向上传给认领它的祖先组件（见 core/command.ts），
+ * 按钮自身不认识 form 也不认识浮层。对 x-form / x-dialog / x-drawer 以及页面原生 form 一律有效。
  */
 
 import { XBaseElement, html, define, type PropertyOptions } from '../../core/element.js';
+import { dispatchCommand } from '../../core/command.js';
 import '../../tokens/index.js';
 import buttonStyles from './x-button.css?inline';
 
@@ -23,7 +24,8 @@ class XButton extends XBaseElement {
     variant: { type: 'String', reflect: true, default: 'solid' },
     color: { type: 'String', reflect: true, default: 'primary' },
     size: { type: 'String', reflect: true, default: 'md' },
-    type: { type: 'String', reflect: true, default: 'button' },
+    /** 点击后向上递交的命令名（空 = 纯按钮，只发 x-click）；不反射：属纯输入型属性，不参与样式 */
+    command: { type: 'String', default: '' },
     disabled: { type: 'Boolean', reflect: true, default: false },
     loading: { type: 'Boolean', reflect: true, default: false },
   };
@@ -34,7 +36,7 @@ class XButton extends XBaseElement {
   declare variant: ButtonVariant;
   declare color: ButtonColor;
   declare size: ButtonSize;
-  declare type: 'button' | 'submit' | 'reset';
+  declare command: string;
   declare disabled: boolean;
   declare loading: boolean;
 
@@ -52,7 +54,7 @@ class XButton extends XBaseElement {
     return html`<button
       class="base"
       part="base"
-      type=${this.signalOf('type')}
+      type="button"
       disabled=${innerDisabled}
       aria-busy=${this.derive(() => String(!!this.prop('loading')))}
     ><span class="spinner" part="spinner" hidden=${showSpinner}></span><span class="label" part="label"><slot></slot></span></button>`;
@@ -80,25 +82,9 @@ class XButton extends XBaseElement {
       event.stopImmediatePropagation();
       return;
     }
-    // x-click 未被取消才代为接线表单动作
-    this.__formAction(event);
-  };
-
-  /**
-   * 表单动作接线：表单归属按节点树算，本件 shadow 里的原生 button 看不到外层 form
-   * （实测 innerBtn.form 为 null、type=submit 点下去零提交），所以这里自己找归属：
-   * 沿 composedPath 取最近的 form（含 x-form shadow 内的 form，投影链上能拿到），
-   * 走原生 requestSubmit/reset —— 与原生 button 同一事件链路，不另发明一套提交协议。
-   * 找不到 form 时与原生一致：什么都不做。x-click 被 preventDefault 则不触发（等价原生）。
-   */
-  private __formAction(event: MouseEvent): void {
-    const type = this.prop<string>('type');
-    if (type !== 'submit' && type !== 'reset') return;
-    const form = event.composedPath().find((n): n is HTMLFormElement => n instanceof HTMLFormElement);
-    if (!form) return;
-    event.preventDefault(); // 归属已手动解析，显式派发一次即可
-    if (type === 'submit') form.requestSubmit();
-    else form.reset();
+    // x-click 未被取消才向上递交意图（被取消等价原生：按钮动作不发生）
+    const command = this.prop<string>('command');
+    if (command) dispatchCommand(this, command);
   };
 
   /** 统一事件派发：composed + bubbles，返回是否未被 preventDefault */

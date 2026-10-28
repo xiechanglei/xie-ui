@@ -19,7 +19,7 @@
  *     （重复键自动收数组；禁用项/未勾选不计入，与原生 FormData 语义一致）。shadow 内仍保留真 `<form>` 作结构载体与提交派发。
  *  3. 校验/提交：`validate()` 遍历 x-form-item 走控件原生 checkValidity（与 form 归属无关，照常可用）；`submit()` 触发内部 form 的
  *     requestSubmit → 拦截为可取消的 `x-submit`（默认不导航）。`reset()` 按初始快照还原各控件并清错误态（也接内部 form 的原生 reset 事件）。
- *     按钮无需手写派发：footer 里 `<x-button type="submit">` / `type="reset"` 即自动归属到本 form。
+ *     按钮无需手写派发：footer 里 `<x-button command="submit">` / `command="reset"` 即自动归属到本 form。
  *
  * `disabled`：同样因跨树而无法靠 `<fieldset disabled>` 原生下发，改由 x-form 显式置各控件 disabled（用 WeakSet 记录强制态，释放时不误清用户自设的禁用）。
  */
@@ -69,6 +69,13 @@ class XForm extends XBaseElement {
 
   static styles = [formStyles];
 
+  /**
+   * 认领跨层命令（见 core/command.ts）：子控件里任意深度的 `<x-button command="submit">` 都会
+   * 就近打到本 form 的公开方法上——submit() 走内部 form 的 requestSubmit（因而原生校验、
+   * x-submit 可取消等链路全部保留），reset() 走快照还原。不另发明一套提交协议。
+   */
+  static commands = { submit: 'submit', reset: 'reset' };
+
   declare layout: FormLayout;
   declare labelPosition: FormLabelPosition | '';
   declare labelAlign: FormLabelAlign | '';
@@ -80,7 +87,6 @@ class XForm extends XBaseElement {
 
   /** 初始值快照（reset 用）：控件元素 → value/checked */
   private readonly __initial = new Map<ControlLike, unknown>();
-  private __snapshotTaken = false;
   /** form 级 disabled 强制下发的控件集合（释放时只清「确实是 form 逼禁的」那些） */
   private readonly __forceDisabled = new WeakSet<ControlLike>();
 
@@ -290,7 +296,8 @@ class XForm extends XBaseElement {
       if (!name || !(name in obj)) continue;
       this.__applyTo(el, obj[name]);
     }
-    this.__snapshotTaken = false;
+    // 新写入的值就是新的“初始值”：清掉旧记录重新快照
+    this.__initial.clear();
     this.__ensureSnapshot();
   }
 
@@ -328,11 +335,16 @@ class XForm extends XBaseElement {
     else if ('value' in el) el.value = v;
   }
 
+  /**
+   * 补齐初始值快照（reset 用）：只登记还没记录过的控件，已有记录不覆盖。
+   * 必须是增量而不能“一次性完成”：静态 DOM 下 `<x-form>` 的开始标签就把元素升级并跑完首渲染，
+   * 那一刻子控件还没解析、__controls() 为空；若此时就打上“已快照”标记，后续 slotchange 会被
+   * 挡掉，快照永远为空→ reset 还原不出任何东西（本轮 command=reset 探针实测暴露的）。
+   */
   private __ensureSnapshot(): void {
-    if (this.__snapshotTaken) return;
-    this.__snapshotTaken = true;
-    this.__initial.clear();
-    for (const el of this.__controls()) this.__initial.set(el, this.__snapshotOf(el));
+    for (const el of this.__controls()) {
+      if (!this.__initial.has(el)) this.__initial.set(el, this.__snapshotOf(el));
+    }
   }
 
   /* ------------------------------- 校验/提交 ------------------------------- */
@@ -388,8 +400,10 @@ class XForm extends XBaseElement {
   };
 
   /**
-   * 内部 form 的原生 reset 事件（由 shadow 里的 x-button type=reset 触发）→ 转发到本件 reset()。
-   * 控件在 light DOM、与内部 form 无归属关系，原生 reset 动不了它们，必须接回快照还原。
+   * 内部 form 的原生 reset 事件 → 转发到本件 reset()。
+   * 控件在 light DOM、与内部 form 无归属关系，原生 reset 动不了它们，必须接回快照还原
+   * （走 `command="reset"` 时直接调 reset()、不经过这里；保留本监听是为了外部对内部 form 的
+   * 任何原生 reset 都能得到同一结果，不只服务于组件自己）。
    */
   private __onReset = (event: Event): void => {
     event.preventDefault();

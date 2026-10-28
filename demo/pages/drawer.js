@@ -52,10 +52,9 @@ function makeDrawer(opts) {
   // 底部：独立组件，右对齐贴底
   if (opts.footer) {
     const footer = document.createElement('x-drawer-footer');
-    const cancel = button('取消');
-    cancel.addEventListener('click', () => d.hide());
-    const ok = button('确定', { variant: 'solid' });
-    ok.addEventListener('click', () => d.hide());
+    // 两个按钮都不绑 click：只声明 command="close"，由所属抽屉认领后走 hide()
+    const cancel = button('取消', { command: 'close' });
+    const ok = button('确定', { variant: 'solid', command: 'close' });
     footer.append(cancel, ok);
     d.append(footer);
   }
@@ -106,8 +105,8 @@ export function render(el) {
         `  <x-drawer-header show-close subtitle="管理此工作区的提醒方式">通知设置</x-drawer-header>\n` +
         `  <div><!-- 主体内容 --></div>\n` +
         `  <x-drawer-footer>\n` +
-        `    <x-button>取消</x-button>\n` +
-        `    <x-button variant="solid">确定</x-button>\n` +
+        `    <x-button command="close">取消</x-button>\n` +
+        `    <x-button command="close" variant="solid">确定</x-button>\n` +
         `  </x-drawer-footer>\n` +
         `</x-drawer>`,
     }),
@@ -139,7 +138,7 @@ export function render(el) {
     apiTable(
       ['属性', '说明', '类型', '默认值'],
       [
-        ['show-close', '显示右上角关闭按钮（点击关闭所属抽屉）', 'boolean', 'false'],
+        ['show-close', '显示右上角关闭按钮（点击向上递交 close 命令，由所属抽屉认领后关闭）', 'boolean', 'false'],
         ['subtitle', '主标题下方的次要说明行（复用 <x-text variant="caption">）；留空不渲染', 'string', "''"],
       ],
     ),
@@ -160,6 +159,10 @@ export function render(el) {
         ['hide()', '关闭抽屉（先派发可取消的 x-close）'],
         ['toggle()', '切换'],
       ],
+    ),
+    h('h3', null, '关闭的接线方式'),
+    rich(
+      'footer 里的按钮不必拿到抽屉的引用、也不必绑 click：写 <code>command="close"</code> 即向上递交关闭意图，链上最近的 <code>x-drawer</code> / <code>x-dialog</code> 认领后走 <code>hide()</code>（仍会先派发可取消的 <code>x-close</code>）。同理 <code>x-drawer-header</code> 的关闭按钮也不认宿主，所以它与 <code>x-dialog-header</code> 能共用一份实现。',
     ),
     h('h3', null, '事件 Events'),
     apiTable(

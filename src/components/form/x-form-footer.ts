@@ -6,8 +6,8 @@
  *  - `label-offset`：布尔，横向布局（x-form 的 label-position=left）时按 label 列宽缩进，
  *    让按钮与控件列左边缘对齐，而不是压在 label 下面（Element Plus 式表单的经典细节）。
  *
- * 按钮无需手写派发：放在本区域内的 `<x-button type="submit"|"reset">` 由 x-button 自行沿
- * composedPath 找到所属 form（表单归属跳不过 shadow 边界）并代为 requestSubmit/reset。
+ * 按钮无需手写派发：放在本区域内的 `<x-button command="submit"|"reset">` 向上递交命令，
+ * 由所属 x-form 认领（见 core/command.ts），本件不参与接线。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';

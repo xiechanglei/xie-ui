@@ -66,8 +66,8 @@
     </x-form-item>
 
     <x-form-footer align="start">
-        <x-button id="submit">提交</x-button>
-        <x-button id="reset" variant="outline">重置</x-button>
+        <x-button type="submit">提交</x-button>
+        <x-button type="reset" variant="outline">重置</x-button>
         <x-button id="disable" variant="ghost">切换禁用</x-button>
     </x-form-footer>
 </x-form>
@@ -77,15 +77,12 @@
     const out = document.getElementById('out');
 
     // 字段级校验失败（required/type/pattern）会在对应 x-form-item 下方显示错误；
-    // 提交/重置/禁用用命令式按钮驱动，values 实时打印在下方
-    document.getElementById('submit').addEventListener('click', () => {
-        out.innerText = form.validate()
-            ? '校验通过 ✓\n' + JSON.stringify(form.values, null, 2)
-            : '存在未通过校验的字段，见红色提示';
+    // 提交/重置直接由 x-button 的 type=submit|reset 归属到本 form（无需手写 click 派发），values 实时打印在下方
+    form.addEventListener('x-submit', (e) => {
+        out.innerText = '校验通过 ✓\n' + JSON.stringify(e.detail.values, null, 2);
     });
-    document.getElementById('reset').addEventListener('click', () => {
-        form.reset();
-        out.innerText = '已重置\n' + JSON.stringify(form.values, null, 2);
+    form.addEventListener('x-invalid', () => {
+        out.innerText = '存在未通过校验的字段，见红色提示';
     });
     document.getElementById('disable').addEventListener('click', () => {
         form.disabled = !form.disabled;

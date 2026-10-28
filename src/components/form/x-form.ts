@@ -18,7 +18,8 @@
  *     故收集由 x-form **手动遍历「最外层」控件**、按公开值面（value/checked/files/values）聚合出 `values`/`formData()`
  *     （重复键自动收数组；禁用项/未勾选不计入，与原生 FormData 语义一致）。shadow 内仍保留真 `<form>` 作结构载体与提交派发。
  *  3. 校验/提交：`validate()` 遍历 x-form-item 走控件原生 checkValidity（与 form 归属无关，照常可用）；`submit()` 触发内部 form 的
- *     requestSubmit → 拦截为可取消的 `x-submit`（默认不导航）。`reset()` 按初始快照还原各控件并清错误态。
+ *     requestSubmit → 拦截为可取消的 `x-submit`（默认不导航）。`reset()` 按初始快照还原各控件并清错误态（也接内部 form 的原生 reset 事件）。
+ *     按钮无需手写派发：footer 里 `<x-button type="submit">` / `type="reset"` 即自动归属到本 form。
  *
  * `disabled`：同样因跨树而无法靠 `<fieldset disabled>` 原生下发，改由 x-form 显式置各控件 disabled（用 WeakSet 记录强制态，释放时不误清用户自设的禁用）。
  */
@@ -96,6 +97,7 @@ class XForm extends XBaseElement {
 
   protected firstUpdated(): void {
     this.__formEl().addEventListener('submit', this.__onSubmit);
+    this.__formEl().addEventListener('reset', this.__onReset);
     this.addEventListener('x-change', this.__onFieldChange as EventListener);
     this.addEventListener('x-input', this.__onFieldChange as EventListener);
     const slot = this.shadowRoot!.querySelector('slot')!;
@@ -383,6 +385,15 @@ class XForm extends XBaseElement {
         detail: { values: this.values },
       }),
     );
+  };
+
+  /**
+   * 内部 form 的原生 reset 事件（由 shadow 里的 x-button type=reset 触发）→ 转发到本件 reset()。
+   * 控件在 light DOM、与内部 form 无归属关系，原生 reset 动不了它们，必须接回快照还原。
+   */
+  private __onReset = (event: Event): void => {
+    event.preventDefault();
+    this.reset();
   };
 
   private __onFieldChange = (event: Event): void => {

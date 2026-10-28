@@ -92,6 +92,8 @@ export function render(el) {
 <x-button variant="outline" loading>Outline Loading</x-button>`,
     }),
 
+    formActionDemo(),
+
     eventDemo(),
 
     h('h2', null, 'API'),
@@ -102,7 +104,7 @@ export function render(el) {
         ['variant', '形态（填充样式）', "'solid' | 'outline' | 'ghost' | 'soft'", "'solid'"],
         ['color', '语义色（与形态正交，任意组合）；default 为中性缺省态、非强调角色', "'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info'", "'primary'"],
         ['size', '按钮尺寸', "'sm' | 'md' | 'lg'", "'md'"],
-        ['type', '原生按钮类型', "'button' | 'submit' | 'reset'", "'button'"],
+        ['type', '原生按钮类型；submit / reset 自动归属所在 form（含 x-form），无需手写 click 派发', "'button' | 'submit' | 'reset'", "'button'"],
         ['disabled', '是否禁用', 'boolean', 'false'],
         ['loading', '是否加载中', 'boolean', 'false'],
       ],
@@ -144,6 +146,41 @@ export function render(el) {
       ],
     ),
   );
+}
+
+/* 表单动作演示：type=submit/reset 自动归属所在 form */
+function formActionDemo() {
+  return demoCard({
+    title: '表单提交 / 重置',
+    desc: 'type="submit" | "reset" 会自动归属到所在的 form（x-form 或页面原生 form 都算）：按钮自己沿 composedPath 找最近 form 并代为 requestSubmit/reset，不写任何监听',
+    build: (c) => {
+      const f = document.createElement('x-form');
+      const item = document.createElement('x-form-item');
+      item.setAttribute('label', '关键词');
+      item.setAttribute('name', 'kw');
+      item.setAttribute('required', '');
+      const inp = document.createElement('x-input');
+      inp.setAttribute('placeholder', '留空会被校验拦下');
+      item.append(inp);
+      const footer = document.createElement('x-form-footer');
+      footer.append(
+        button('提交', { type: 'submit' }),
+        button('重置', { type: 'reset', variant: 'outline', color: 'default' }),
+      );
+      const status = h('span', { class: 'demo-card__title' }, '尚未提交');
+      f.append(item, footer);
+      f.addEventListener('x-submit', (e) => (status.textContent = 'x-submit：' + JSON.stringify(e.detail.values)));
+      f.addEventListener('x-invalid', () => (status.textContent = '校验未通过：关键词必填'));
+      c.append(f, status);
+    },
+    code: `<x-form>
+  <x-form-item label="关键词" name="kw" required><x-input></x-input></x-form-item>
+  <x-form-footer>
+    <x-button type="submit">提交</x-button>
+    <x-button type="reset" variant="outline">重置</x-button>
+  </x-form-footer>
+</x-form>`,
+  });
 }
 
 /* 事件交互演示：真实监听 x-click 并回显 */

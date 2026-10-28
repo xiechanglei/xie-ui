@@ -128,5 +128,48 @@
         setTimeout(() => h.close(), 0); // 句柄 close 应在挂载后仍能关掉它（此处立即关，验证改接生效）
     };
 </script>
+
+<hr />
+<h3>Badge 徽标</h3>
+<x-badge value="5"></x-badge>
+<x-badge value="120" max="99"></x-badge>
+<x-badge value="0"></x-badge>
+<x-badge value="0" show-zero></x-badge>
+<x-badge dot></x-badge>
+<x-badge value="9" color="danger">
+    <x-avatar text="X" color="primary" shape="rounded"></x-avatar>
+</x-badge>
+<x-badge value="new" color="info" placement="bottom-left">
+    <x-icon name="settings" size="24px"></x-icon>
+</x-badge>
+<button id="b-inc">给第一个徽标加计数</button>
+<script>
+    document.getElementById('b-inc').onclick = () => {
+        const b = document.querySelector('x-badge');
+        b.value = String(Number(b.value || 0) + 1);
+    };
+</script>
+
+<hr />
+<h3>Tooltip 文字提示</h3>
+<x-tooltip content="顶部提示（默认）"><button>top</button></x-tooltip>
+<x-tooltip content="底部提示" placement="bottom"><button>bottom</button></x-tooltip>
+<x-tooltip content="左侧提示" placement="left"><button>left</button></x-tooltip>
+<x-tooltip content="右侧提示" placement="right"><button>right</button></x-tooltip>
+<x-tooltip content="0ms 立即弹" delay="0"><button>delay=0</button></x-tooltip>
+<x-tooltip content="open 强制常开" open><button>open</button></x-tooltip>
+<x-tooltip content=" " ><button>空 content 不弹</button></x-tooltip>
+
+<hr />
+<h3>Box 通用容器</h3>
+<x-box>默认中性卡面（solid + default，横向充满）</x-box>
+<br />
+<x-box variant="soft" color="info">soft + info 淡底</x-box>
+<br />
+<x-box variant="outline" color="danger">outline + danger 描边</x-box>
+<br />
+<x-box width="fit" shadow="md" hoverable>fit + shadow md + hoverable（悬停浮起）</x-box>
+<br />
+<x-box color="primary" radius="full" padding="sm" width="fit">胶囊面</x-box>
 </body>
 </html>

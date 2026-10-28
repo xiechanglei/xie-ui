@@ -13,6 +13,7 @@ import '../../components/button/index.js';
 import '../../components/icon/index.js';
 import '../../components/text/index.js';
 import '../../components/avatar/index.js';
+import '../../components/badge/index.js';
 import '../../components/logo/index.js';
 import '../../components/theme/index.js';
 
@@ -26,6 +27,12 @@ export type { XIcon } from '../../components/icon/x-icon.js';
 export type { IconName } from '../../components/icon/icons.js';
 export type { XText, TextVariant } from '../../components/text/x-text.js';
 export type { XAvatar, AvatarShape, AvatarColor } from '../../components/avatar/x-avatar.js';
+export type {
+  XBadge,
+  BadgeColor,
+  BadgePlacement,
+  BadgeSize,
+} from '../../components/badge/x-badge.js';
 export type { XLogo } from '../../components/logo/x-logo.js';
 export type {
   XThemePanel,

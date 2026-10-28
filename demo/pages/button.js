@@ -8,6 +8,14 @@ function button(label, attrs = {}) {
   return b;
 }
 
+/** 图标件：name 为 icons.ts 注册表里的已登记名 */
+function icon(name, attrs = {}) {
+  const i = document.createElement('x-icon');
+  i.setAttribute('name', name);
+  for (const [k, v] of Object.entries(attrs)) i.setAttribute(k, String(v));
+  return i;
+}
+
 export function render(el) {
   el.append(
     h('h1', null, 'Button 按钮'),
@@ -80,6 +88,23 @@ export function render(el) {
     }),
 
     demoCard({
+      title: '图标 + 文字',
+      desc: '把 x-icon 和文本一起放进默认插槽即可（前后缀皆可），间距由组件自带 gap 统一留白；只放图标即成图标钮',
+      build: (c) => c.append(
+        (() => { const b = button('', {}); b.append(icon('upload'), '上传文件'); return b; })(),
+        (() => { const b = button('', { variant: 'outline', color: 'danger' }); b.append(icon('close'), '删除'); return b; })(),
+        (() => { const b = button('', { variant: 'ghost', color: 'default' }); b.append('下一步', icon('chevron-right')); return b; })(),
+        (() => { const b = button('', { variant: 'soft', color: 'success' }); b.append(icon('check'), '保存'); return b; })(),
+        (() => { const b = button('', { variant: 'outline' }); b.append(icon('settings')); b.setAttribute('aria-label', '设置'); return b; })(),
+        (() => { const b = button('', { size: 'sm' }); b.append(icon('user'), '小号'); return b; })(),
+      ),
+      code: `<x-button><x-icon name="upload"></x-icon>上传文件</x-button>
+<x-button variant="outline" color="danger"><x-icon name="close"></x-icon>删除</x-button>
+<x-button variant="ghost">下一步<x-icon name="chevron-right"></x-icon></x-button>
+<x-button variant="outline" aria-label="设置"><x-icon name="settings"></x-icon></x-button>`,
+    }),
+
+    demoCard({
       title: '禁用与加载',
       desc: 'disabled / loading 为布尔属性，存在即生效',
       build: (c) => c.append(
@@ -124,7 +149,7 @@ export function render(el) {
     apiTable(
       ['插槽', '说明'],
       [
-        ['(默认)', '按钮文本内容'],
+        ['(默认)', '按钮内容：纯文本、x-icon + 文本（前后缀皆可，组件自带间距）或只放 x-icon 作图标钮'],
       ],
     ),
 

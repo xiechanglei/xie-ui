@@ -90,6 +90,9 @@
 .label {
   display: inline-flex;
   align-items: center;
+  /* 插槽常装 x-icon + 文字（或反序）：文字节点在 flex 下也是匿名项，gap 统一给内容项留间距；
+     8px 对齐 MUI 图标钮惯例（space-1 的 4px 在图标与汉字之间目测偏挤） */
+  gap: var(--xie-space-2);
 }
 
 .spinner {

@@ -10,6 +10,7 @@ import '../../tokens/index.js';
 import '../../components/drawer/index.js';
 import '../../components/dialog/index.js';
 import '../../components/toast/index.js';
+import '../../components/tooltip/index.js';
 
 export type { XDrawer, DrawerPlacement } from '../../components/drawer/x-drawer.js';
 export type { XDrawerHeader } from '../../components/drawer/x-drawer-header.js';
@@ -18,3 +19,4 @@ export type { XDialog } from '../../components/dialog/x-dialog.js';
 export type { XDialogHeader } from '../../components/dialog/x-dialog-header.js';
 export type { XDialogFooter } from '../../components/dialog/x-dialog-footer.js';
 export type { XToast, ToastPlacement, ToastColor, ToastOptions, ToastHandle } from '../../components/toast/x-toast.js';
+export type { XTooltip, TooltipPlacement } from '../../components/tooltip/x-tooltip.js';

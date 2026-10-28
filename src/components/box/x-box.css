@@ -1,0 +1,77 @@
+/* x-box —— 视觉表面容器。外观全部落在宿主本身（消费者可直接 `x-box{}` 覆写），
+   双轴走 x-button 同款「颜色轴设变量、形态轴消费」范式。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+
+  /* 颜色轴（默认 default = 中性卡面）：surface 底、正文色、border 色描边，随明暗主题翻转 */
+  --_accent: var(--xie-color-surface);
+  --_accent-fg: var(--xie-color-fg);
+  --_accent-soft: var(--xie-color-surface);
+  --_line: var(--xie-color-border);
+
+  /* 形态轴（默认 solid）：实底色面 */
+  background: var(--_accent);
+  color: var(--_accent-fg);
+  /* 描边恒占 1px（不显描边的形态置 transparent），防 variant 切换时尺寸跳动 */
+  border: 1px solid transparent;
+
+  border-radius: var(--_rad, var(--xie-radius-md));
+  padding: var(--_pad, var(--xie-space-4));
+  font-family: var(--xie-font-family), inherit;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+:host([hidden]) {
+  display: none;
+}
+
+/* —— 颜色轴：6 个强调角色（--_line 跟随 accent，outline 描边即角色色） —— */
+:host([color='primary'])   { --_accent: var(--xie-color-primary);   --_accent-fg: var(--xie-color-primary-fg);   --_accent-soft: var(--xie-color-primary-soft);   --_line: var(--xie-color-primary); }
+:host([color='secondary']) { --_accent: var(--xie-color-secondary); --_accent-fg: var(--xie-color-secondary-fg); --_accent-soft: var(--xie-color-secondary-soft); --_line: var(--xie-color-secondary); }
+:host([color='success'])   { --_accent: var(--xie-color-success);   --_accent-fg: var(--xie-color-success-fg);   --_accent-soft: var(--xie-color-success-soft);   --_line: var(--xie-color-success); }
+:host([color='warning'])   { --_accent: var(--xie-color-warning);   --_accent-fg: var(--xie-color-warning-fg);   --_accent-soft: var(--xie-color-warning-soft);   --_line: var(--xie-color-warning); }
+:host([color='danger'])    { --_accent: var(--xie-color-danger);    --_accent-fg: var(--xie-color-danger-fg);    --_accent-soft: var(--xie-color-danger-soft);    --_line: var(--xie-color-danger); }
+:host([color='info'])      { --_accent: var(--xie-color-info);      --_accent-fg: var(--xie-color-info-fg);      --_accent-soft: var(--xie-color-info-soft);      --_line: var(--xie-color-info); }
+
+/* —— 形态轴：面容器里内容多为任意子树，除 solid 外不强染文字色（吃正文色） —— */
+:host([variant='soft']) {
+  background: var(--_accent-soft);
+  color: var(--xie-color-fg);
+}
+:host([variant='outline']) {
+  background: transparent;
+  color: var(--xie-color-fg);
+  border-color: var(--_line);
+}
+:host([variant='ghost']) {
+  background: transparent;
+  color: var(--xie-color-fg);
+}
+
+/* —— 横向尺寸：full 即 block 天然充满；fit 只包住子元素 —— */
+:host([width='fit']) {
+  width: fit-content;
+}
+
+/* —— 阴影轴：三档吃全局阴影令牌（strength 旋钮/主题自动联动） —— */
+:host([shadow='sm']) { box-shadow: var(--xie-shadow-1); }
+:host([shadow='md']) { box-shadow: var(--xie-shadow-2); }
+:host([shadow='lg']) { box-shadow: var(--xie-shadow-3); }
+
+/* —— 可点暗示：悬停浮起（阴影升一档 + 微位移）；只给视觉，不接管语义/键盘 —— */
+:host([hoverable]) {
+  cursor: pointer;
+}
+:host([hoverable]:hover) {
+  box-shadow: var(--xie-shadow-2);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    transition: none;
+  }
+  :host([hoverable]:hover) {
+    transform: none;
+  }
+}

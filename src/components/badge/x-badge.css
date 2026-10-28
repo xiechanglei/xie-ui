@@ -1,0 +1,92 @@
+/* x-badge —— 徽标/角标。尺寸档位经 --_h/--_fs/--_dot 三个内部变量驱动（反射属性选择器切换），
+   锚定/独立两态由宿主 data-anchored 切换：独立态徽标就是行内盒，锚定态浮到内容角上并加背景色环。 */
+:host {
+  --_h: 18px; /* 胶囊高 = 圆点所在档位基准 */
+  --_fs: var(--xie-font-size-sm, 12px);
+  --_dot: 8px;
+  display: inline-flex;
+  position: relative;
+  box-sizing: border-box;
+  vertical-align: middle;
+  font-family: var(--xie-font-family), inherit;
+}
+:host([hidden]) {
+  display: none;
+}
+
+:host([size='sm']) {
+  --_h: 14px;
+  --_fs: 10px;
+  --_dot: 6px;
+}
+:host([size='lg']) {
+  --_h: 22px;
+  --_fs: var(--xie-font-size-md, 14px);
+  --_dot: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: var(--_h);
+  height: var(--_h);
+  padding: 0 calc(var(--_h) * 0.28);
+  border-radius: var(--xie-radius-full, 9999px);
+  /* 中性缺省走反色实底（同 toast 中性条）：浅底页深徽标、深底页浅徽标，随主题联动 */
+  background: var(--xie-color-fg);
+  color: var(--xie-color-bg);
+  font-size: var(--_fs);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  text-align: center;
+}
+/* 作者 display 会盖掉 UA 的 [hidden]{display:none}，必须显式补回 */
+.badge[hidden] {
+  display: none;
+}
+
+/* 圆点模式：收成小圆，无文本无内边距 */
+:host([dot]) .badge {
+  width: var(--_dot);
+  min-width: 0;
+  height: var(--_dot);
+  padding: 0;
+}
+
+/* 锚定态：脱离文档流浮到内容四角，半格外偏；背景色环把徽标从所附内容上分隔出来（MUI 做法） */
+:host([data-anchored]) .badge {
+  position: absolute;
+  z-index: 1;
+  box-shadow: 0 0 0 2px var(--xie-color-bg);
+}
+:host([data-anchored][placement='top-right']) .badge {
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+}
+:host([data-anchored][placement='top-left']) .badge {
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+:host([data-anchored][placement='bottom-right']) .badge {
+  bottom: 0;
+  right: 0;
+  transform: translate(50%, 50%);
+}
+:host([data-anchored][placement='bottom-left']) .badge {
+  bottom: 0;
+  left: 0;
+  transform: translate(-50%, 50%);
+}
+
+/* 颜色轴：强调角色实底色 + 反色前景（与 avatar/toast 同源令牌）；default 即基座反色，无需规则 */
+:host([color='primary']) .badge { background: var(--xie-color-primary); color: var(--xie-color-primary-fg); }
+:host([color='secondary']) .badge { background: var(--xie-color-secondary); color: var(--xie-color-secondary-fg); }
+:host([color='success']) .badge { background: var(--xie-color-success); color: var(--xie-color-success-fg); }
+:host([color='warning']) .badge { background: var(--xie-color-warning); color: var(--xie-color-warning-fg); }
+:host([color='danger']) .badge { background: var(--xie-color-danger); color: var(--xie-color-danger-fg); }
+:host([color='info']) .badge { background: var(--xie-color-info); color: var(--xie-color-info-fg); }

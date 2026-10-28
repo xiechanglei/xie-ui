@@ -1,0 +1,65 @@
+/* x-tooltip —— 深色小气泡。宿主仅作定位参照（inline-block 包住触发内容），
+   气泡 absolute 挂在 shadow 内，四向落位全靠反射属性选择器 + transform 居中，无 JS 测量。
+   显隐只补 opacity（气泡 pointer-events:none，不需要 visibility 参与布局博弈）。 */
+:host {
+  display: inline-block;
+  position: relative;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.tip {
+  position: absolute;
+  z-index: 10; /* 局部层级：压过同排内容即可，全局浮层另见 toast(1100)/dialog(1000) */
+  /* 缺省 top：骑在内容上方水平居中 */
+  left: 50%;
+  bottom: calc(100% + var(--xie-space-2));
+  transform: translateX(-50%);
+  /* 绝对定位盒只锁一侧（left 或 right、另一侧 auto）时宽度按 shrink-to-fit 算，
+     可用宽=宿主宽−偏移会塌成一列竖字；显式 max-content 让气泡按内容撑开，再由 max-width 收口换行 */
+  width: max-content;
+  max-width: 240px;
+  padding: var(--xie-space-1) var(--xie-space-2);
+  border-radius: var(--xie-radius-sm);
+  /* 反色实底（同 badge/toast 中性条）：浅底页深气泡、深底页浅气泡 */
+  background: var(--xie-color-fg);
+  color: var(--xie-color-bg);
+  font-family: var(--xie-font-family), inherit;
+  font-size: var(--xie-font-size-sm);
+  font-weight: 400; /* 抵消宿主可能继承来的加粗，气泡以正文面目出现 */
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.tip[data-show] {
+  opacity: 1;
+}
+
+:host([placement='bottom']) .tip {
+  top: calc(100% + var(--xie-space-2));
+  bottom: auto;
+}
+:host([placement='left']) .tip {
+  left: auto;
+  right: calc(100% + var(--xie-space-2));
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+:host([placement='right']) .tip {
+  left: calc(100% + var(--xie-space-2));
+  right: auto;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tip {
+    transition: none;
+  }
+}

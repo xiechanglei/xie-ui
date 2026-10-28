@@ -22,7 +22,7 @@ export const MENU = [
       { id: 'text', label: 'Typography 排版', tag: 'x-text', status: 'done' },
       { id: 'logo', label: 'Logo 品牌标识', tag: 'x-logo', status: 'done' },
       { id: 'avatar', label: 'Avatar 头像', tag: 'x-avatar', status: 'done' },
-      { id: 'badge', label: 'Badge 徽标', tag: 'x-badge', status: 'planned' },
+      { id: 'badge', label: 'Badge 徽标', tag: 'x-badge', status: 'done' },
     ],
   },
   {
@@ -30,6 +30,7 @@ export const MENU = [
     label: '布局组件',
     items: [
       { id: 'flex', label: 'Flex 弹性布局', tag: 'x-flex', status: 'done' },
+      { id: 'box', label: 'Box 通用容器', tag: 'x-box', status: 'done' },
       { id: 'container', label: 'Container 布局容器', tag: 'x-container', status: 'done' },
     ],
   },
@@ -63,7 +64,7 @@ export const MENU = [
       { id: 'drawer', label: 'Drawer 抽屉', tag: 'x-drawer', status: 'done' },
       { id: 'dialog', label: 'Dialog 对话框', tag: 'x-dialog', status: 'done' },
       { id: 'toast', label: 'Toast 轻提示', tag: 'x-toast', status: 'done' },
-      { id: 'tooltip', label: 'Tooltip 文字提示', tag: 'x-tooltip', status: 'planned' },
+      { id: 'tooltip', label: 'Tooltip 文字提示', tag: 'x-tooltip', status: 'done' },
     ],
   },
 ];

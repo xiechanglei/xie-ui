@@ -160,7 +160,9 @@ template: {
 | Icon | `<x-icon>` | 🚧 开发中（M0，仅收录本库内部组件实际使用的图标，不派生更多） |
 | Typography | `<x-text>` | 🚧 开发中（M0，排版原子件：`variant` = title/subtitle/body/caption/muted，内部吃令牌、随主题联动） |
 | Avatar | `<x-avatar>` | 🚧 开发中（M0，头像/标识方块：内容优先级 `src` 图片 > `text` 文字 > `name` 第一个字 > 占位图标；`shape`/`size`/`color`，加载失败自动回退，logo 的 mark 即复用本组件） |
+| Badge | `<x-badge>` | 🚧 开发中（M0，徽标/角标：不塞内容即行内胶囊/圆点（独立态）、塞了子元素即浮到其四角（锚定态、带背景色环）；`value`+`max` 纯数字溢出折叠为 `${max}+`、`dot` 圆点、`show-zero`、`placement` 四角、`size` 三档、`color` 7 角色实底（default 中性反色）；锚定/独立由 slot 有无内容自动切换） |
 | Flex | `<x-flex>` | 🚧 开发中（M0，弹性布局原子：`direction`/`align`/`justify`/`wrap`/`inline`/`gap`（令牌别名） |
+| Box | `<x-box>` | 🚧 开发中（M0，通用视觉容器（表面件）：外观沿用 Button 双轴范式 `variant`（solid/outline/soft/ghost）×`color`（7 角色，缺省中性卡面随主题翻转）；`width` full 横向充满父元素/fit 只包住子元素；`padding`/`radius` 吃令牌别名或任意长度、`shadow` 三档、`hoverable` 悬停浮起可点暗示；外观全落宿主本身（shadow 只留 slot），直接 CSS 覆写无需 part；只管面不管排布（x-flex）与骨架（x-container）） |
 | Container | `<x-container>` | 🚧 开发中（M0，应用外壳：header/sidebar/main/footer + 侧栏折叠为窄栏 `rail`，rail 单源下沉给 logo/menu） |
 | Logo | `<x-logo>` | 🚧 开发中（M0，品牌标识：mark 复用 x-avatar，`mark`/`src`/`title`/`subtitle`，rail 窄栏只显首字母） |
 | Input | `<x-input>` | 🚧 开发中（M0，单行输入：内包原生 input；`variant`(outline/filled/flush) × `color`(6 角色) 双轴 + `size`，`clearable`/`show-password` 显密切换/`show-count`/前后缀插槽；逐字符 `x-input`、提交 `x-change`（可取消回退）；FCCE form 关联（`name`，required/type/maxlength 镜像内层原生 validity）） |
@@ -173,6 +175,7 @@ template: {
 | Form | `<x-form>` / `<x-form-item>` / `<x-form-footer>` | 🚧 开发中（M0，表单三件套：正交布局（`layout` 管输入项纵排（默认）/横排换行；`label-position` 管 label 在上/在左，默认 left，与 layout 无关；`label-width` 不写时自动测量最宽 label 回填对齐，`label-align` 管文本对齐；`gap` 间距默认 20px；`columns`=N 等宽 grid 列根治长短不齐（文本类控件拉满格宽，纵向可用双列表单）；footer `align` + `label-offset`，且无条件通栏沉底不参与流向）；字段统一在 x-form-item 声明（label/name/required/help，`name` 为权威绑定键强制下沉给控件）；x-form 统一遍历「最外层」控件、按公开值面聚合 `values`/`formData`（表单归属不跨 shadow，slot 进来的控件 `new FormData()` 收不到，故手动收集；控件自带 FCCE 仍在，直接放页面原生 form 可自动计入），`validate`/`submit`/`reset`/`setValues`，可取消 `x-submit`；提交入口不写监听——footer 里 `<x-button command="submit"|"reset">` 即就近交给本 form 认领（footer 须在 `<x-form>` 内：命令只沿祖先链上传）；`disabled` 显式下发各控件） |
 | Dialog | `<x-dialog>` + `<x-dialog-header>` / `<x-dialog-footer>` | 🚧 开发中（M0，与抽屉同模式的居中浮层：遮罩 + 面板、Esc 关闭、滚动锁（与抽屉共享计数与 Esc 栈，一次 Esc 只关最上层）；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位）；`closable=false` 一次性禁用遮罩点击/Esc/关闭按钮三条路径（footer 里的 `command="close"` 与 `hide()` 照旧可用）；`width` 默认 480px，内容超高只有中部滚动、header/footer 常驻） |
 | Toast | `<x-toast>` | 🚧 开发中（M0，轻提示容器：页面挂一个 `<x-toast>`（不占布局）、调 `add(文本, opts)` 即在其内堆叠；不锁滚动/不拦操作、`pointer-events` 只落条上；`color` 语义色自动配图标、`duration` 自动关（hover 暂停）、`closable` 手关、`placement` 六向（四角+顶/底居中）、`max` 堆叠上限；每条关闭前派发可取消 `x-close`；内容仅纯文本） |
+| Tooltip | `<x-tooltip>` | 🚧 开发中（M0，文字提示：包裹触发内容（同 x-badge 锚定态的包裹结构）、悬停/聚焦弹一枚深色小气泡；`content` 纯文本（空则不弹）、`placement` 四向、`delay` 显示延时（默认 150ms）、`open` 强制常开；气泡 `pointer-events:none` 不拦操作、shadow 内 absolute 定位（会被祖先 overflow 裁剪、与 x-select 同取舍）；反色实底随主题联动） |
 | Table | `<x-table>` | 📋 规划中（M4） |
 
 > 完整路线图见 [design.md](./design.md#7-组件路线图分期)。

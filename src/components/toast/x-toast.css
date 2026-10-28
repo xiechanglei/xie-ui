@@ -1,0 +1,144 @@
+/* x-toast —— 轻提示堆叠列。列与视口边缘 fixed 定位，故 :host 用 display:contents 不占布局。
+   整列 pointer-events:none 不拦页面，只有提示条本身可点（关闭钮/悬停暂停）。 */
+:host {
+  display: contents;
+}
+
+.list {
+  position: fixed;
+  top: var(--xie-space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100; /* 高于 dialog/drawer（1000/1001）：轻提示压在最上层 */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 各提示条按自身内容宽、互不拉伸（长内容不会把短提示撑宽） */
+  gap: var(--xie-space-2);
+  /* 列宽取最宽一条的 max-content；窄屏/超长文本时由 max-width 收口，条内文字 overflow-wrap 换行 */
+  width: max-content;
+  max-width: calc(100vw - var(--xie-space-4) * 2);
+  pointer-events: none;
+}
+
+/* 缺省（无 placement 属性 = top）：顶部居中，见上方 .list。
+   placement 为 reflect 属性，下方按六向只改需要偏离缺省的那几个轴：
+   横向居中靠 left:50% + translateX(-50%)，贴角则改锚 left/right 边缘并取消位移。 */
+:host([placement="top-left"]) .list {
+  left: var(--xie-space-4);
+  transform: none;
+  align-items: flex-start;
+}
+:host([placement="top-right"]) .list {
+  left: auto;
+  right: var(--xie-space-4);
+  transform: none;
+  align-items: flex-end;
+}
+:host([placement="bottom"]) .list {
+  top: auto;
+  bottom: var(--xie-space-4);
+}
+:host([placement="bottom-left"]) .list {
+  top: auto;
+  bottom: var(--xie-space-4);
+  left: var(--xie-space-4);
+  transform: none;
+  align-items: flex-start;
+}
+:host([placement="bottom-right"]) .list {
+  top: auto;
+  bottom: var(--xie-space-4);
+  left: auto;
+  right: var(--xie-space-4);
+  transform: none;
+  align-items: flex-end;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--xie-space-2);
+  box-sizing: border-box;
+  max-width: 100%; /* 不超列宽（列被 max-width 收口时，长文字在此换行），但不再 width:100% 撑满 */
+  padding: var(--xie-space-3) var(--xie-space-5);
+  border-radius: var(--xie-radius-md);
+  /* 中性条走反色（同 MUI Snackbar）：浅底页深条、深底页浅条，不吃边框，靠阴影浮起 */
+  background: var(--xie-color-fg);
+  color: var(--xie-color-bg);
+  box-shadow: var(--xie-shadow-3);
+  font-family: var(--xie-font-family), inherit;
+  font-size: var(--xie-font-size-md);
+  font-weight: 500;
+  line-height: 1.5;
+  pointer-events: auto;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+
+/* 移除时高度收起由 block 补间自动完成：堆叠不跳。
+   单独一条声明：老浏览器不认 block 关键字时只丢高度动画，不连坐 opacity/transform。 */
+.toast {
+  transition-property: opacity, transform, block;
+}
+
+.toast.entering,
+.toast.leaving {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+:host([placement^="bottom"]) .toast.entering,
+:host([placement^="bottom"]) .toast.leaving {
+  transform: translateY(8px);
+}
+
+.toast-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.toast-icon svg {
+  width: 1.3em;
+  height: 1.3em;
+}
+
+.toast-text {
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
+}
+
+.toast-close {
+  all: unset;
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 2px;
+  border-radius: var(--xie-radius-sm);
+  color: currentColor;
+  opacity: 0.65;
+  cursor: pointer;
+}
+.toast-close svg {
+  width: 1em;
+  height: 1em;
+}
+.toast-close:hover {
+  opacity: 1;
+  background: color-mix(in oklab, currentColor 18%, transparent);
+}
+.toast-close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+/* 颜色轴：强调角色整条走实底色 + 反色前景（MUI Alert 观感），图标/关闭钮吃 currentColor */
+.toast[data-color="primary"] { background: var(--xie-color-primary); color: var(--xie-color-primary-fg); }
+.toast[data-color="secondary"] { background: var(--xie-color-secondary); color: var(--xie-color-secondary-fg); }
+.toast[data-color="success"] { background: var(--xie-color-success); color: var(--xie-color-success-fg); }
+.toast[data-color="warning"] { background: var(--xie-color-warning); color: var(--xie-color-warning-fg); }
+.toast[data-color="danger"] { background: var(--xie-color-danger); color: var(--xie-color-danger-fg); }
+.toast[data-color="info"] { background: var(--xie-color-info); color: var(--xie-color-info-fg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition: none;
+  }
+}

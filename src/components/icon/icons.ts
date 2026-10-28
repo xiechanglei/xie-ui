@@ -20,6 +20,14 @@ export const ICONS: Record<string, string> = {
   'chevron-down': '<path d="M6 9l6 6 6-6" />',
   // 对勾（下拉选中项指示）
   'check': '<path d="M5 12l5 5L20 7" />',
+  // 对勾圆圈（轻提示 success）
+  'check-circle': '<circle cx="12" cy="12" r="9" /><path d="M8.5 12.2l2.4 2.4 4.8-5" />',
+  // 感叹号三角（轻提示 warning）
+  'alert-triangle': '<path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.7a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /><path d="M12 9v4M12 17h.01" />',
+  // 感叹号圆圈（轻提示 info）
+  'info': '<circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" />',
+  // 叉号圆圈（轻提示 danger）
+  'x-circle': '<circle cx="12" cy="12" r="9" /><path d="M9 9l6 6M15 9l-6 6" />',
   // 眼睛（密码可见切换）
   'eye': '<path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z" /><circle cx="12" cy="12" r="3" />',
   // 眼睛划斜线（密码隐藏态）

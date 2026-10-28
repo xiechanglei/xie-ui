@@ -172,7 +172,7 @@ template: {
 | Filter | `<x-filter>` / `<x-filter-item>` | 🚧 开发中（M0，筛选器：单选 chip 行，观感复用 x-button（未选 soft、选中 solid、重置钮 solid）；选中项保留、其余横向折叠退场（grid 0fr→1fr 动画 + inert）；行尾 × 重置钮展开；`value` 聚合、可取消 `x-change`；`color`/`size`/`disabled` 下沉；刻意不做 form 关联（视图过滤用） |
 | Form | `<x-form>` / `<x-form-item>` / `<x-form-footer>` | 🚧 开发中（M0，表单三件套：正交布局（`layout` 管输入项纵排（默认）/横排换行；`label-position` 管 label 在上/在左，默认 left，与 layout 无关；`label-width` 不写时自动测量最宽 label 回填对齐，`label-align` 管文本对齐；`gap` 间距默认 20px；`columns`=N 等宽 grid 列根治长短不齐（文本类控件拉满格宽，纵向可用双列表单）；footer `align` + `label-offset`，且无条件通栏沉底不参与流向）；字段统一在 x-form-item 声明（label/name/required/help，`name` 为权威绑定键强制下沉给控件）；x-form 统一遍历「最外层」控件、按公开值面聚合 `values`/`formData`（表单归属不跨 shadow，slot 进来的控件 `new FormData()` 收不到，故手动收集；控件自带 FCCE 仍在，直接放页面原生 form 可自动计入），`validate`/`submit`/`reset`/`setValues`，可取消 `x-submit`；提交入口不写监听——footer 里 `<x-button command="submit"|"reset">` 即就近交给本 form 认领（footer 须在 `<x-form>` 内：命令只沿祖先链上传）；`disabled` 显式下发各控件） |
 | Dialog | `<x-dialog>` + `<x-dialog-header>` / `<x-dialog-footer>` | 🚧 开发中（M0，与抽屉同模式的居中浮层：遮罩 + 面板、Esc 关闭、滚动锁（与抽屉共享计数与 Esc 栈，一次 Esc 只关最上层）；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位）；`closable=false` 一次性禁用遮罩点击/Esc/关闭按钮三条路径（footer 里的 `command="close"` 与 `hide()` 照旧可用）；`width` 默认 480px，内容超高只有中部滚动、header/footer 常驻） |
-| Toast | `<x-toast>` | 📋 规划中（M3） |
+| Toast | `<x-toast>` | 🚧 开发中（M0，轻提示容器：页面挂一个 `<x-toast>`（不占布局）、调 `add(文本, opts)` 即在其内堆叠；不锁滚动/不拦操作、`pointer-events` 只落条上；`color` 语义色自动配图标、`duration` 自动关（hover 暂停）、`closable` 手关、`placement` 六向（四角+顶/底居中）、`max` 堆叠上限；每条关闭前派发可取消 `x-close`；内容仅纯文本） |
 | Table | `<x-table>` | 📋 规划中（M4） |
 
 > 完整路线图见 [design.md](./design.md#7-组件路线图分期)。

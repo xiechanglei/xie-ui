@@ -104,5 +104,29 @@
         level: 2,
     });
 </script>
+
+<hr />
+<h3>Toast 轻提示</h3>
+<x-toast id="toast"></x-toast>
+<button id="t-basic">基础</button>
+<button id="t-color">语义色 success</button>
+<button id="t-sticky">常驻可关</button>
+<button id="t-preadd">游离容器上先 add（测首渲前排队）</button>
+<button id="t-clear">清空</button>
+<script>
+    const toast = document.getElementById('toast');
+    document.getElementById('t-basic').onclick = () => toast.add('已保存草稿，可随时恢复');
+    document.getElementById('t-color').onclick = () => toast.add('操作成功', { color: 'success' });
+    document.getElementById('t-sticky').onclick = () => toast.add('我不会自动关', { duration: 0, closable: true, color: 'warning' });
+    document.getElementById('t-clear').onclick = () => toast.clear();
+    // 升级时序：createElement 后尚未入文档就 add，应排队到首渲后弹出
+    document.getElementById('t-preadd').onclick = () => {
+        const fresh = document.createElement('x-toast');
+        fresh.setAttribute('placement', 'bottom');
+        const h = fresh.add('我是游离时就 add 的', { color: 'info', duration: 4000 });
+        document.body.appendChild(fresh);
+        setTimeout(() => h.close(), 0); // 句柄 close 应在挂载后仍能关掉它（此处立即关，验证改接生效）
+    };
+</script>
 </body>
 </html>

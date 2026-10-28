@@ -37,7 +37,10 @@
   box-sizing: border-box;
   flex: 0 0 auto;
   cursor: pointer;
-  display: inline-flex;
+  /* 显隐基线 inline-flex；宿主浮层（x-dialog）置 closable=false 时下发 --_overlay-close-display:none
+     抹掉关闭按钮——CSS 变量穿透 shadow，同 x-form 布局下发范式，不必让浮层反向操控子件属性。
+     抽屉不写这个变量，取缺省值故表现不变；show-close 未开时仍由下面的 [hidden] 兜底隐藏。 */
+  display: var(--_overlay-close-display, inline-flex);
   align-items: center;
   justify-content: center;
   width: 32px;

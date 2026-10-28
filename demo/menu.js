@@ -61,7 +61,7 @@ export const MENU = [
     label: '反馈与浮层',
     items: [
       { id: 'drawer', label: 'Drawer 抽屉', tag: 'x-drawer', status: 'done' },
-      { id: 'dialog', label: 'Dialog 对话框', tag: 'x-dialog', status: 'planned' },
+      { id: 'dialog', label: 'Dialog 对话框', tag: 'x-dialog', status: 'done' },
       { id: 'toast', label: 'Toast 轻提示', tag: 'x-toast', status: 'planned' },
       { id: 'tooltip', label: 'Tooltip 文字提示', tag: 'x-tooltip', status: 'planned' },
     ],

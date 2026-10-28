@@ -12,24 +12,14 @@
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
+// 滚动锁与 Esc 关闭栈与对话框共用（计数/栈必须在浮层之间唯一，见 core/overlay.ts）
+import { lockPageScroll, unlockPageScroll, popOverlayCloser, pushOverlayCloser } from '../../core/overlay.js';
 import '../../tokens/index.js';
 // 自动头部依赖 x-drawer-header（副作用注册）：其关闭按钮跳 shadow 上溯找到宿主 drawer 后 hide()
 import './x-drawer-header.js';
 import drawerStyles from './x-drawer.css?inline';
 
 export type DrawerPlacement = 'left' | 'right';
-
-/** 跨实例共享的滚动锁计数，避免多抽屉叠加时提前解锁 */
-let lockCount = 0;
-function lockBody(): void {
-  if (lockCount++ === 0) document.documentElement.style.overflow = 'hidden';
-}
-function unlockBody(): void {
-  if (--lockCount <= 0) {
-    lockCount = 0;
-    document.documentElement.style.overflow = '';
-  }
-}
 
 class XDrawer extends XBaseElement {
   static tag = 'x-drawer';
@@ -104,8 +94,7 @@ class XDrawer extends XBaseElement {
   }
 
   protected firstUpdated(): void {
-    this.shadowRoot!.querySelector('.scrim')!.addEventListener('click', () => this.hide());
-    document.addEventListener('keydown', this.__onKey);
+    this.__scrim().addEventListener('click', () => this.hide());
     // 监听默认插槽：显式 header 可能是后续动态插入的
     const slot = this.shadowRoot!.querySelector('slot')!;
     slot.addEventListener('slotchange', () => this.__syncHeader());
@@ -118,7 +107,7 @@ class XDrawer extends XBaseElement {
   }
 
   override disconnectedCallback(): void {
-    document.removeEventListener('keydown', this.__onKey);
+    popOverlayCloser(this.__closeByUser);
     this.__releaseLock();
     super.disconnectedCallback();
   }
@@ -142,9 +131,18 @@ class XDrawer extends XBaseElement {
     this.open ? this.hide() : this.show();
   }
 
-  private __onKey = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && this.open) this.hide();
+  /**
+   * 用户请求关闭的唯一入口（Esc 走浮层栈回调）。
+   * 抽屉没有 closable 旋钮，故等价于 hide()；抽出来是为了与对话框共用一套 Esc 栈。
+   */
+  private __closeByUser = (): void => {
+    this.hide();
   };
+
+  /** 取得 shadow 内的遮罩层 */
+  private __scrim(): HTMLElement {
+    return this.shadowRoot!.querySelector('.scrim')!;
+  }
 
   /** 登记 light DOM 里是否存在显式 header（信号驱动自动头部 hidden） */
   private __syncHeader(): void {
@@ -154,16 +152,19 @@ class XDrawer extends XBaseElement {
       .some((el) => el.tagName === 'X-DRAWER-HEADER');
   }
 
-  /** 依据 open / width 同步内联宽度变量与滚动锁 */
+  /** 依据 open / width 同步内联宽度变量、Esc 栈与滚动锁 */
   private __sync(): void {
     this.style.setProperty('--_drawer-width', this.width || '440px');
+    // 打开即入栈、关闭即出栈：一次 Esc 只关最上面那层浮层（入栈幂等，updated 多次调用无妨）
+    if (this.open) pushOverlayCloser(this.__closeByUser);
+    else popOverlayCloser(this.__closeByUser);
     if (!this.lockScroll) {
       this.__releaseLock();
       return;
     }
     if (this.open && !this.__locked) {
       this.__locked = true;
-      lockBody();
+      lockPageScroll();
     } else if (!this.open && this.__locked) {
       this.__releaseLock();
     }
@@ -172,7 +173,7 @@ class XDrawer extends XBaseElement {
   private __releaseLock(): void {
     if (this.__locked) {
       this.__locked = false;
-      unlockBody();
+      unlockPageScroll();
     }
   }
 }

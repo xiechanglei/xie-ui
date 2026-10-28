@@ -1,0 +1,76 @@
+/* x-dialog —— 视口中央的模态对话框。遮罩为 position:fixed 的 flex 居中容器，
+   面板是其子元素（点遮罩空白处即点中 .scrim 本身，无需坐标判断）。
+   两者都在视口层级，故 :host 用 display:contents 不占布局；open 反射属性驱动 CSS 过渡。 */
+:host {
+  display: contents;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  /* 上下留白：面板 max-height:100% 时不至贴住视口边缘 */
+  padding: var(--xie-space-5);
+  background: rgb(0 0 0 / 45%);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.24s ease, visibility 0.24s ease;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: var(--_dialog-width, 480px);
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--xie-color-bg);
+  color: var(--xie-color-fg);
+  border-radius: var(--xie-radius-lg);
+  box-shadow: var(--xie-shadow-3);
+  overflow: hidden;
+  /* 关闭态：轻微下沉 + 缩小，打开时归位（比抽屉的横向滑入更收敛，符合居中浮层的出现感） */
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
+  transition: transform 0.24s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.24s ease;
+}
+
+:host([open]) .scrim {
+  opacity: 1;
+  visibility: visible;
+}
+:host([open]) .panel {
+  opacity: 1;
+  transform: none;
+}
+:host(:not([open])) .panel {
+  pointer-events: none;
+}
+
+/* 面板为纵向 flex：header/footer 固定顶/底，其余内容占中部并滚动。
+   子元素均为 light DOM，用 ::slotted 定位；header/footer 自身已在组件 :host 中设 flex:0 0 auto，
+   此处再声明同值以避免 ::slotted 与 :host 的优先级冲突。header/footer 与内容之间不设分隔线。 */
+::slotted(x-dialog-header) {
+  flex: 0 0 auto;
+}
+::slotted(x-dialog-footer) {
+  flex: 0 0 auto;
+}
+::slotted(:not(x-dialog-header):not(x-dialog-footer)) {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: var(--xie-space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrim,
+  .panel {
+    transition: none;
+  }
+}

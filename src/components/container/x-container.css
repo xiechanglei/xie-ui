@@ -11,8 +11,9 @@
 
 .grid {
   display: grid;
-  grid-template-columns: var(--_side-w, 260px) 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: var(--_side-w, 260px) minmax(0, 1fr);
+  /* 中间行必须 minmax(0,1fr)：写成 1fr(=minmax(auto,1fr)) 时 auto 最小值会让该行长到内容高、撑破宿主→整页溢出生成滚动条 */
+  grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
     'header header'
     'sidebar main'
@@ -24,7 +25,7 @@
 
 /* 侧栏在右：交换两列与区域方位 */
 :host([side='right']) .grid {
-  grid-template-columns: 1fr var(--_side-w, 260px);
+  grid-template-columns: minmax(0, 1fr) var(--_side-w, 260px);
   grid-template-areas:
     'header header'
     'main sidebar'
@@ -54,6 +55,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0; /* 允许在 1fr 行内收缩到剩余空间，不被内容撑高 */
   border-inline-end: 1px solid var(--xie-color-border, #e4e4e7);
   background: var(--xie-color-bg);
 }
@@ -127,7 +129,36 @@
 .main {
   grid-area: main;
   min-width: 0;
+  min-height: 0; /* 同 sidebar：在 1fr 行内可收缩，overflow 才真正接管内部滚动 */
   overflow-y: auto;
+}
+
+/* —— 滚动条统一处理（.main 与 .sidebar__scroll 同套）——
+   scrollbar-gutter: stable 常驻预留轨道槽：内容在「超出/不超出」阈值间切换时不回流，杜绝布局抖动；
+   细窄样式吃主题令牌、随明暗联动。Firefox 走 scrollbar-width/color，Chromium·Safari 走 ::-webkit-scrollbar。 */
+.main,
+.sidebar__scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--xie-color-muted, #71717a) 40%, transparent) transparent;
+}
+.main::-webkit-scrollbar,
+.sidebar__scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.main::-webkit-scrollbar-track,
+.sidebar__scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.main::-webkit-scrollbar-thumb,
+.sidebar__scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--xie-color-muted, #71717a) 35%, transparent);
+  border-radius: 8px;
+}
+.main::-webkit-scrollbar-thumb:hover,
+.sidebar__scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--xie-color-muted, #71717a) 60%, transparent);
 }
 
 /* 尊重系统「减少动态效果」偏好 */

@@ -163,7 +163,7 @@ template: {
 | Badge | `<x-badge>` | 🚧 开发中（M0，徽标/角标：不塞内容即行内胶囊/圆点（独立态）、塞了子元素即浮到其四角（锚定态、带背景色环）；`value`+`max` 纯数字溢出折叠为 `${max}+`、`dot` 圆点、`show-zero`、`placement` 四角、`size` 三档、`color` 7 角色实底（default 中性反色）；锚定/独立由 slot 有无内容自动切换） |
 | Flex | `<x-flex>` | 🚧 开发中（M0，弹性布局原子：`direction`/`align`/`justify`/`wrap`/`inline`/`gap`（令牌别名） |
 | Box | `<x-box>` | 🚧 开发中（M0，通用视觉容器（表面件）：外观沿用 Button 双轴范式 `variant`（solid/outline/soft/ghost）×`color`（7 角色，缺省中性卡面随主题翻转）；`width` full 横向充满父元素/fit 只包住子元素；`padding`/`radius` 吃令牌别名或任意长度、`shadow` 三档、`hoverable` 悬停浮起可点暗示；外观全落宿主本身（shadow 只留 slot），直接 CSS 覆写无需 part；只管面不管排布（x-flex）与骨架（x-container）） |
-| Container | `<x-container>` | 🚧 开发中（M0，应用外壳：header/sidebar/main/footer + 侧栏折叠为窄栏 `rail`，rail 单源下沉给 logo/menu） |
+| Container | `<x-container>` | 🚧 开发中（M0，应用外壳：header/sidebar/main/footer + 侧栏折叠为窄栏 `rail`，rail 单源下沉给 logo/menu；**高度约定**：宿主 `height:100%` 吃满父元素（需祖先给确定高，如 `html,body{height:100%}`），内部 `minmax(0,1fr)` 把中间行锁在剩余空间、溢出全交给 main/侧栏内部滚（不外溢产生整页滚动条）；两处滚动条 `scrollbar-gutter:stable` 预留轨道槽防抖动 + 细窄主题化样式） |
 | Logo | `<x-logo>` | 🚧 开发中（M0，品牌标识：mark 复用 x-avatar，`mark`/`src`/`title`/`subtitle`，rail 窄栏只显首字母） |
 | Input | `<x-input>` | 🚧 开发中（M0，单行输入：内包原生 input；`variant`(outline/filled/flush) × `color`(6 角色) 双轴 + `size`，`clearable`/`show-password` 显密切换/`show-count`/前后缀插槽；逐字符 `x-input`、提交 `x-change`（可取消回退）；FCCE form 关联（`name`，required/type/maxlength 镜像内层原生 validity）） |
 | Textarea | `<x-textarea>` | 🚧 开发中（M0，多行文本域：与 Input 同源事件模型 + `variant`×`color` 双轴，`autosize`/`max-rows` 自适应高度、`resize`、`show-count`；FCCE form 关联） |

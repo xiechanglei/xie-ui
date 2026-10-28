@@ -21,6 +21,13 @@
  *
  * 方法：toggleRail(force?) 切换折叠；scrollContentTop() 主内容区回到顶部。
  * 事件：x-rail-change（detail:{ rail }，composed bubbles）供外部持久化。
+ *
+ * 高度约定：宿主 `height:100%` 吃满父元素，要求祖先链给出确定高度（应用外壳典型做法：
+ * `html,body{height:100%}`，或把容器放进定高的 grid/flex 区域）。内部用
+ * `grid-template-rows: auto minmax(0,1fr) auto` 把中间行严格锁在剩余空间——若写成 `1fr`
+ * （= minmax(auto,1fr)），auto 最小值会让该行长到内容高、撑破宿主产生整页滚动条；
+ * 溢出全部交给 .main / .sidebar__scroll 内部滚动。两处滚动条用 `scrollbar-gutter: stable`
+ * 常驻预留轨道槽，内容在可滚/不可滚阈值间切换时不回流、不抖动。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';

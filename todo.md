@@ -4,5 +4,5 @@
 - table组件，如何设计
 - 日期选择组件,input组件里面type=date已经实现，是需要重新实现还是权衡框架的大小
 - from的校验规则只有简单的required吗，
-- docs中sidebar组件现在内容区域已经超过了屏幕高度，页面整体出现了滚动条了，如何在容器组件中处理滚动条的样式
 - menu组件怎么默认全部展开了，这个怎设计
+- https://flyonui.com/docs/third-party-plugins/notyf/

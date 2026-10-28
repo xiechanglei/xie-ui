@@ -2,8 +2,8 @@
 
 基于原生 Web Components 实现的 UI 组件库，零框架依赖，可在任意框架或裸 HTML 中使用。
 
-> ⚠️ 项目处于 **M0 地基阶段**，组件 API 已按规划约定，实际可用性以各组件文档为准。
-> 全局架构与规划设计见 [design.md](./design.md)。
+> 当前进度：**M0–M3 已基本落地**（25 个组件，覆盖基础/布局/表单/导航/反馈五分类），M4 进行中（已交付 menu 三件套），M5 工程化仅文档站。
+> 全局架构与规划设计见 [design.md](./design.md)，下一阶段优先序与决策倾向见 [plan.md](./plan.md)。
 
 ## 特性
 
@@ -14,6 +14,19 @@
 - **入口只做注册**：`import` 一次即可直接用标签，无需具名导入任何组件
 
 ## 安装
+
+> 📦 **尚未发布到 npm**（规划 P3：P0 技术债清理 + 部分 P1 完成后发第一个 beta）。当前接入方式：本地构建后通过 npm `file:` 协议或 `npm link` 引用。
+
+```bash
+# 仓库内构建产物
+yarn build
+
+# 消费项目本地引用（二选一）
+yarn add file:/path/to/xie-ui
+npm link ./path/to/xie-ui   # 开发调试期
+```
+
+发布后可直接：
 
 ```bash
 yarn add @xie-work/xie-ui
@@ -59,15 +72,26 @@ const btn = document.querySelector('x-button')!;
 btn.addEventListener('x-click', (e) => console.log(e.detail));
 ```
 
-### Input（规划中）
+### Form + Input
 
 ```html
-<x-input name="username" placeholder="请输入用户名" required></x-input>
+<x-form layout="vertical">
+  <x-form-item label="用户名" name="username" required help="1-20 个字符">
+    <x-input name="username" placeholder="请输入用户名" required maxlength="20"></x-input>
+  </x-form-item>
+  <x-form-footer>
+    <x-button command="submit" variant="solid" color="primary">提交</x-button>
+    <x-button command="reset" variant="ghost">重置</x-button>
+  </x-form-footer>
+</x-form>
 ```
 
 ```ts
-const input = document.querySelector('x-input')!;
-input.addEventListener('x-change', (e) => console.log(e.detail.value));
+const form = document.querySelector('x-form')!;
+form.addEventListener('x-submit', (e) => {
+  e.preventDefault(); // 校验已通过，e.detail.values 是聚合值
+  console.log(e.detail.values);
+});
 ```
 
 ## 通用 API 约定
@@ -145,7 +169,7 @@ template: {
 自定义元素的 property 与事件无法直接通过 JSX 传递，推荐两种方式：
 
 1. 通过 `ref` 设置属性、`useEffect` 绑定事件
-2. 使用官方提供的 React 包装组件（M5 阶段提供，计划中）
+2. 使用官方提供的 React 包装组件（规划 P3，`createElement`/`defineComponent` 一行封装，beta 前后提供）
 
 ## 组件列表
 
@@ -176,9 +200,9 @@ template: {
 | Dialog | `<x-dialog>` + `<x-dialog-header>` / `<x-dialog-footer>` | 🚧 开发中（M0，与抽屉同模式的居中浮层：遮罩 + 面板、Esc 关闭、滚动锁（与抽屉共享计数与 Esc 栈，一次 Esc 只关最上层）；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位）；`closable=false` 一次性禁用遮罩点击/Esc/关闭按钮三条路径（footer 里的 `command="close"` 与 `hide()` 照旧可用）；`width` 默认 480px，内容超高只有中部滚动、header/footer 常驻） |
 | Toast | `<x-toast>` | 🚧 开发中（M0，轻提示容器：页面挂一个 `<x-toast>`（不占布局）、调 `add(文本, opts)` 即在其内堆叠；不锁滚动/不拦操作、`pointer-events` 只落条上；`color` 语义色自动配图标、`duration` 自动关（hover 暂停）、`closable` 手关、`placement` 六向（四角+顶/底居中）、`max` 堆叠上限；每条关闭前派发可取消 `x-close`；内容仅纯文本） |
 | Tooltip | `<x-tooltip>` | 🚧 开发中（M0，文字提示：包裹触发内容（同 x-badge 锚定态的包裹结构）、悬停/聚焦弹一枚深色小气泡；`content` 纯文本（空则不弹）、`placement` 四向、`delay` 显示延时（默认 150ms）、`open` 强制常开；气泡 `pointer-events:none` 不拦操作、shadow 内 absolute 定位（会被祖先 overflow 裁剪、与 x-select 同取舍）；反色实底随主题联动） |
-| Table | `<x-table>` | 📋 规划中（M4） |
+| Table | `<x-table>` | 📋 规划中（M4，动手前先纸面钉死 API 面：数据驱动 vs slot 驱动、受控性、行内编辑依赖校验引擎，见 [plan.md](./plan.md)） |
 
-> 完整路线图见 [design.md](./design.md#7-组件路线图分期)。
+> 完整路线图见 [design.md](./design.md#7-组件路线图分期)，下一阶段优先序与决策倾向见 [plan.md](./plan.md)。
 
 ## License
 

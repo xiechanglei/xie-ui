@@ -62,7 +62,7 @@ export function render(el) {
       code: `<x-logo mark="xie-ui" title="xie-ui" subtitle="v0.0.1" rail></x-logo>`,
     }),
 
-    rich('说明：rail 通常<b>不由手写</b>，而由父级 <code>x-container</code> 在侧栏折叠时自动下沉；单独使用时手动加 <code>rail</code> 属性即可预览效果。'),
+    rich('说明：rail 通常<b>不由手写</b>，而由父级 <code>x-container</code> 在侧栏折叠时自动下沉；单独使用时手动加 <code>rail</code> 属性即可预览效果。折叠动画期内侧栏轨道宽度是缓动的，而文字块的显隐是一帧切换的（展开首帧轨道仍很窄），因此 title/subtitle <b>固定单行不折行</b>、文字块 <code>overflow:hidden</code> 随轨道宽裁切——若不这样，窄轨道会把文字挤成一列逐字排开、行高瞬时翻倍，整块上下跳动。'),
 
     h('h2', null, 'API'),
     h('h3', null, '属性 Attributes'),

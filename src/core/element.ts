@@ -3,6 +3,8 @@
  *
  * 职责：
  *  1. attribute 观察：attribute <-> property <-> signal 三向桥接，支持类型转换与 reflect
+ *     （布尔属性沿用原生「出现即真」，并额外承认字面量假值 flag="false"——此类写入会把 attribute 摘除规范化，
+ *      使 :host([attr]) 存在性选择器与属性值始终一致；否则默认值为 true 的开关在 HTML 里写不出 false）
  *  2. 统一更新调度：signal 变更 → microtask 合并 → 一次 update()
  *  3. 共享样式：CSSStyleSheet 实例在同类实例间通过 adoptedStyleSheets 复用
  *  4. 细粒度渲染：html 模板的文本/属性插值绑定到信号，变更时就地更新 DOM，无需整树 diff
@@ -314,6 +316,10 @@ export abstract class XBaseElement extends HTMLElement {
     const meta = this.__metaForAttribute(name);
     if (!meta) return;
     const parsed = this.__parseAttr(value, meta.type);
+    // 布尔属性写了字面量假值（flag="false"）时把 attribute 摘掉规范化：全库大量样式走 :host([attr])
+    // 存在性选择器（disabled/expanded/wrap/rail…），“值为假但属性仍在 DOM”会让这些件视觉上依旧为真。
+    // 摘除会同步再回调一次（value=null → 仍为假），信号值未变即早退，不成环；与 reflect 的布尔写法同口径。
+    if (meta.type === 'Boolean' && value !== null && parsed === false) this.removeAttribute(name);
     // 来自 attribute 的写入不 reflect 回去，避免回环
     this.__setSignal(meta.property, parsed, /* fromAttr */ true);
   }
@@ -326,7 +332,9 @@ export abstract class XBaseElement extends HTMLElement {
   }
 
   private __parseAttr(value: string | null, type: PropType): unknown {
-    if (type === 'Boolean') return value !== null;
+    // Boolean：「出现即真」仍成立（flag / flag=""），但额外承认字面量假值 flag="false"——
+    // 否则默认值为 true 的开关（x-container.collapsible、x-alert.icon）在 HTML 里根本写不出 false。
+    if (type === 'Boolean') return value !== null && !isFalseWord(value);
     if (value === null) return undefined;
     if (type === 'Number') return value === '' ? undefined : Number(value);
     return value;
@@ -485,6 +493,11 @@ export abstract class XBaseElement extends HTMLElement {
 /** camelCase -> kebab-case */
 export function kebab(s: string): string {
   return s.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+}
+
+/** 布尔属性的显式假值写法：仅认字面量 "false"（空白/大小写不敏感），与原生枚举型属性的关键字判定同口径 */
+function isFalseWord(value: string): boolean {
+  return value.trim().toLowerCase() === 'false';
 }
 
 /** 注册自定义元素（幂等），返回类本身 */

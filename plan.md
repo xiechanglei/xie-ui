@@ -54,7 +54,8 @@
 | `x-alert` ✅ | feedback | 已交（P1 第三批）：toast 常驻版，双轴 variant×color + title 分层 + 富内容插槽 + closable（x-close 同 x-tag 契约），图标名跟随 color 同表 |
 | `x-tabs` ✅ | nav | 已交（P1 第四批）：标签页三件套 x-tabs/x-tab/x-tab-panel，按 value 配对单选；tab 自动挂 slot=tab（同 dropdown-content）、panel 显隐由根挂/摘 hidden；键盘 roving+方向键漫游即时激活、fill 等分；初次协调靠 slotchange（解析期反应队列父先于子，微任务会落空） |
 | `x-accordion` ✅ | nav/layout | 已交（P1 第四批）：x-accordion + x-accordion-item，折叠复用 x-menu-group 的 grid 0fr↔1fr；根协调单开互斥（multiple 可关）+ 派发 x-change，item 可独立使用；程序化改 expanded 不触发互斥/事件 |
-| `x-breadcrumb` / `x-pagination` | nav | 配合未来 table 使用 |
+| `x-breadcrumb` ✅ | nav | 已交（P1 第五批）：x-breadcrumb + x-breadcrumb-item 两件套。根单源下沉 `separator`（slash/chevron/none，chevron 复用内部 chevron-right）+ 末项回写 `current`；`max-items` 收纳长路径（首项与末项恒在、中间折成「…」挂到第一个被折叠项、点它全展开并派发 `x-toggle`）；item 写了 `href` 即真链接，点击先派可取消 `x-select`（`preventDefault()` 即换前端路由） |
+| `x-pagination` | nav | 配合未来 table 使用 |
 | `x-popover` / `x-dropdown` ✅ | feedback | 已交（P1 第二批）：新增 `core/anchor.ts` 落位公用（fixed 面板四向/翻转/夹紧），popover 吃 P0-1 焦点陷阱 + Esc 栈，dropdown 继承 popover 只覆盖四旋钮；可反哺 select 弹层的通用化（待做） |
 
 ## P2 · 攻坚件（先纸面设计、后开发——沿用 x-form「先讨论后写」的成功经验）

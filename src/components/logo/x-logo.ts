@@ -10,6 +10,10 @@
  * mark 只显示首个字母（大写并居中），适配侧栏折叠为窄栏的场景。
  *
  * 定制：暴露 part="mark"（内嵌 x-avatar）/ part="text" / part="title" / part="subtitle"。
+ *
+ * 折叠/展开动画：侧栏轨道宽度缓动与 rail 显隐切换不同步（展开首帧文字块已可见、轨道仍窄），
+ * 因此文字固定单行 + 文字块裁切（与 x-menu-item / x-filter-item 同族做法），
+ * 不然会瞬时报出多行、把行高撑起来致整块跳动。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';

@@ -1,5 +1,5 @@
 <!doctype html>
-<html data-xie-theme="dark" data-xie-radius="none" data-xie-size="compact" data-xie-shadow="strong">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
@@ -13,16 +13,10 @@
         <x-text variant="title">Title 区块主标题</x-text>
     </x-box>
     <div slot="sidebar" style="padding:0">
-
         <x-box>
             <x-logo mark="X" title="Xie-ui" subtitle="Admin"></x-logo>
         </x-box>
-
         <x-menu>
-            <x-menu-group label="概览" collapsible>
-                <x-menu-item value="dash">仪表盘</x-menu-item>
-                <x-menu-item value="stat">数据统计</x-menu-item>
-            </x-menu-group>
             <x-menu-group label="概览" collapsible>
                 <x-menu-item value="dash">仪表盘</x-menu-item>
                 <x-menu-item value="stat">数据统计</x-menu-item>
@@ -30,7 +24,16 @@
         </x-menu>
     </div>
     <x-box>
-        here is content
+        <x-breadcrumb separator="chevron" max-items="3" label="订单路径">
+            <x-breadcrumb-item href="/">工作台</x-breadcrumb-item>
+            <x-breadcrumb-item href="/orders">订单管理</x-breadcrumb-item>
+            <x-breadcrumb-item href="/orders/9527">订单详情</x-breadcrumb-item>
+            <x-breadcrumb-item href="/refund">退款审批</x-breadcrumb-item>
+            <x-breadcrumb-item>审批记录</x-breadcrumb-item>
+        </x-breadcrumb>
+        <x-alert color="warning" title="部署即将开始">
+            服务将在 5 分钟后重启，请保存好工作。
+        </x-alert>
     </x-box>
 </x-container>
 </body>

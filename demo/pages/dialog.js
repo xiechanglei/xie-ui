@@ -33,7 +33,7 @@ function makeDialog(opts) {
   const d = document.createElement('x-dialog');
   if (opts.label) d.setAttribute('label', opts.label);
   if (opts.width) d.setAttribute('width', opts.width);
-  if (opts.closable === false) d.closable = false; // Boolean 属性“写了就是 true”，置 false 走 property
+  if (opts.closable === false) d.closable = false; // 布尔属性认字面量假值，写 closable="false" 也关；这里走 property 同样成立
 
   // 快捷用法：只给 title/subtitle，不放 header 子元素 —— 对话框自动生成带关闭按钮的头部
   if (opts.quick) {
@@ -202,7 +202,7 @@ export function render(el) {
         `  <div>正文…</div>\n` +
         `  <x-dialog-footer><x-button command="close" variant="solid">我已阅读并同意</x-button></x-dialog-footer>\n` +
         `</x-dialog>\n` +
-        `<script>dialog.closable = false; // Boolean 属性写了即 true，故置 false 走 property</script>`,
+        `<script>// 布尔属性除「写了即 true」还认字面量假值：closable="false" 即关，等价于 dialog.closable = false</script>`,
     }),
     demoCard({
       title: '长内容 + 自定义宽度',
@@ -240,7 +240,7 @@ export function render(el) {
       [
         ['open', '是否展开（反射属性）', 'boolean', 'false'],
         ['width', '面板宽度（面板内超高由中部滚动消化）', 'string (CSS 长度)', "'480px'"],
-        ['closable', '是否允许用户关闭：点遮罩 / 按 Esc / 头部关闭按钮一并生效；hide() 不受限制（反射属性；本库 Boolean 属性“写了即 true”，故置 false 需用 property）', 'boolean', 'true'],
+        ['closable', '是否允许用户关闭：点遮罩 / 按 Esc / 头部关闭按钮一并生效；hide() 不受限制（反射属性；写了即 true，同时承认字面量假值 <code>closable="false"</code>）', 'boolean', 'true'],
         ['lock-scroll', '展开时锁定页面滚动', 'boolean', 'true'],
         ['label', '无障碍名称（aria-label：屏幕阅读器朗读标题，无视觉表现）；留空时回退用 title', 'string', "''"],
         ['title', '快捷头部主标题：无显式 header 时自动生成带头部；属性会被转入 property（不留原生 title attribute，避免浏览器 tooltip 泄漏）', 'string', "''"],

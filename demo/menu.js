@@ -61,6 +61,7 @@ export const MENU = [
       { id: 'menu', label: 'Menu 菜单', tag: 'x-menu', status: 'done' },
       { id: 'tabs', label: 'Tabs 标签页', tag: 'x-tabs', status: 'done' },
       { id: 'accordion', label: 'Accordion 折叠面板', tag: 'x-accordion', status: 'done' },
+      { id: 'breadcrumb', label: 'Breadcrumb 面包屑', tag: 'x-breadcrumb', status: 'done' },
     ],
   },
   {

@@ -17,7 +17,8 @@
  *  - side          侧栏方位（'left' | 'right'，默认 left，反射）
  *  - sidebarWidth  展开宽度（默认 '260px'）
  *  - railWidth     折叠宽度（默认 '68px'）
- *  - collapsible   是否显示内置折叠按钮（Boolean 反射，默认 true）
+ *  - collapsible   是否显示内置折叠按钮（Boolean 反射，默认 true；写 collapsible="false" 即关，
+ *                  只隐按钮——rail 属性与 toggleRail() 照常可用）
  *
  * 方法：toggleRail(force?) 切换折叠；scrollContentTop() 主内容区回到顶部。
  * 事件：x-rail-change（detail:{ rail }，composed bubbles）供外部持久化。

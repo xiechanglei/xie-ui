@@ -118,8 +118,8 @@ export function render(el) {
       title: '关掉图标',
       desc: 'icon 默认开；置 false 纯文字',
       build: (c) => c.append(noIconWrap),
-      code: `// 布尔属性「存在即 true」，写 icon="false" 也是开；关图标走 property
-alertEl.icon = false;`,
+      code: `<x-alert icon="false" color="success">只留文字</x-alert>
+<!-- 布尔属性「存在即 true」，并额外承认字面量假值 icon="false"；JS 侧写 alertEl.icon = false 等价 -->`,
     }),
     demoCard({
       title: '可关闭 closable',

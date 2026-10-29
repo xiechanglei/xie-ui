@@ -1,0 +1,35 @@
+/* x-breadcrumb —— 面包屑根：只管列表排布与尺寸下发，格内视觉全在 x-breadcrumb-item。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  /* 尺寸轴只下发两个局部变量给后代（默认 md 不反射，故缺省值写在基座兜底） */
+  --_bc-fs: var(--xie-font-size-md);
+  --_bc-gap: var(--xie-space-2);
+}
+:host([hidden]) {
+  display: none;
+}
+:host([size="sm"]) {
+  --_bc-fs: var(--xie-font-size-sm);
+  --_bc-gap: var(--xie-space-1);
+}
+:host([size="lg"]) {
+  --_bc-fs: var(--xie-font-size-lg);
+  --_bc-gap: var(--xie-space-3);
+}
+
+.nav {
+  font-family: var(--xie-font-family);
+}
+
+/* flex 挂在含 slot 的内层容器（不是 :host）；路径过长靠换行，格内文字各自 nowrap 不折字。
+   列间距与格内「分隔符↔文字」间距同源，保证 A ·/· B 两侧留白对称。 */
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--xie-space-1) var(--_bc-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

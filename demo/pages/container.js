@@ -21,7 +21,9 @@ function group(label, items) {
 /** 组装一个内嵌演示用 x-container */
 function buildShell(opts = {}) {
   const c = document.createElement('x-container');
-  c.setAttribute('collapsible', '');
+  // 布尔属性写 "false" 即关（基座认字面量假值），与不写该属性等价于默认真不同
+  if (opts.collapsible === false) c.setAttribute('collapsible', 'false');
+  else c.setAttribute('collapsible', '');
   if (opts.side) c.setAttribute('side', opts.side);
   if (opts.sidebarWidth) c.setAttribute('sidebar-width', opts.sidebarWidth);
   c.style.height = '340px';
@@ -52,7 +54,7 @@ function buildShell(opts = {}) {
     'div',
     { style: 'padding:24px;min-height:100%' },
     h('h3', { style: 'margin:0 0 8px' }, '主内容区'),
-    h('p', { style: 'margin:0 0 16px;color:var(--xie-color-muted)' }, '点左下角按钮折叠侧栏：logo 只剩首字母、菜单项文字隐去（无图标者显首字）。滚动区在容器内。'),
+    h('p', { style: 'margin:0 0 16px;color:var(--xie-color-muted)' }, '点侧栏右上角骑跨分隔线的小钮折叠侧栏：logo 只剩首字母、菜单项文字隐去（无图标者显首字）。滚动区在容器内。'),
     h('p', { style: 'line-height:1.8' }, '向下滚动验证容器内滚动 + 独立区域。'.repeat(1) + ' 内容内容内容 '.repeat(40)),
   );
   c.append(main);
@@ -127,6 +129,25 @@ export function render(el) {
 </x-container>`,
     }),
 
+    demoCard({
+      title: '不要内置折叠钮：collapsible="false"',
+      desc: '布尔属性除「出现即真」还认字面量假值：<code>collapsible="false"</code> 即隐藏小钮；折叠能力没消失，用 <code>rail</code> 属性或 <code>toggleRail()</code> 由宿主自己接管（比如把按钮放到 header 里）。',
+      build: (c) => {
+        c.style.width = '100%';
+        const shell = buildShell({ collapsible: false });
+        const btn = h('x-button', { size: 'sm', style: 'margin-top:12px' }, '宿主自己的折叠钮');
+        btn.addEventListener('click', () => shell.toggleRail());
+        c.append(shell, btn);
+      },
+      code: `<x-container collapsible="false">
+  <div slot="sidebar">…</div>
+  <div>主内容区…</div>
+</x-container>
+
+<!-- 想要折叠但不用内置钮：自己调方法（或直接写 rail 属性） -->
+<button onclick="container.toggleRail()">折叠</button>`,
+    }),
+
     rich('交互：容器底部内置折叠按钮（<code>collapsible</code> 时显示），点击切换 rail 并派发 <code>x-rail-change</code>。rail 会被容器下沉给子树里的 <code>x-logo</code> 与 <code>x-menu</code>，菜单再扇出到每一项。选中态仍由 <code>x-menu</code> 负责，容器不含路由/菜单逻辑。'),
 
     h('h2', null, 'API'),
@@ -138,7 +159,7 @@ export function render(el) {
         ['side', '侧栏方位', "'left' | 'right'", "'left'"],
         ['sidebar-width', '侧栏展开宽度（attribute: sidebar-width）', 'CSS 长度', "'260px'"],
         ['rail-width', '侧栏折叠宽度（attribute: rail-width）', 'CSS 长度', "'68px'"],
-        ['collapsible', '是否显示内置折叠按钮', 'boolean', 'true'],
+        ['collapsible', '是否显内置折叠按钮；写 <code>"false"</code> 即关（只影响按钮显隐，<code>rail</code>/<code>toggleRail()</code> 仍可用）', 'boolean', 'true'],
       ],
     ),
     h('h3', null, '方法 Methods'),

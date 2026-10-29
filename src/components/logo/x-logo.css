@@ -16,18 +16,24 @@
   font-weight: 700;
 }
 
+/* 窄栏折叠动画期：侧栏轨道宽度缓动与 rail 显隐切换不同步（展开首帧文字块已可见、轨道仍窄），
+   对策与 x-menu-item / x-filter-item 同族：不换行 + 溢出裁切，让文字被平滑裁切而非瞬时报出多行致行高跳动。 */
 .title {
   font-weight: 650;
   font-size: 16px;
   line-height: 1.2;
   color: var(--xie-color-fg);
+  white-space: nowrap;
 }
 .subtitle {
   font-size: 12px;
   color: var(--xie-color-muted);
+  white-space: nowrap;
 }
 
-/* 文字块作为 .row 的弹性项，允许长标题收缩（对齐旧 .txt 的 min-width:0） */
+/* 文字块作为 .row 的弹性项，允许长标题收缩（对齐旧 .txt 的 min-width:0）；
+   overflow 交给它裁：nowrap 的文本不会收缩，不裁就会探出盒子（放在 header 等无裁切容器里时尤其明显） */
 .text {
   min-width: 0;
+  overflow: hidden;
 }

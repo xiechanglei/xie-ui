@@ -1,0 +1,102 @@
+/* x-breadcrumb-item —— 一格路径：前置分隔符 + 链接/文本 +（折叠时）「…」按钮。
+   字号与间距不吃组件自身属性，而是消费 x-breadcrumb 下发的 --_bc-fs / --_bc-gap（自定义属性沿扁平树继承透传）。 */
+:host {
+  display: inline-flex;
+  box-sizing: border-box;
+  align-items: center;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.base {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--_bc-gap, var(--xie-space-2));
+  font-family: var(--xie-font-family);
+  font-size: var(--_bc-fs, var(--xie-font-size-md));
+  line-height: 1.4;
+}
+
+/* 分隔符：与链接同档 muted（不再叠 opacity——叠过一层在浅底上会淡到近乎消失），
+   层级靠「它是个细墨迹的符号、不可点」来体现；当前页另用 fg 拉开。首项前不留。 */
+.sep {
+  color: var(--xie-color-muted);
+  flex: 0 0 auto;
+}
+.sep[hidden] {
+  display: none;
+}
+:host(:first-child) .sep {
+  display: none;
+}
+/* chevron 图标的墨迹只占 24 视框的 x8..16（含 stroke 半宽），左右各 ~0.3em 空白；
+   不回收的话尖角与文字的实际间距会明显大于 slash 形态，故按墨迹内缩留边（em 随 size 下发自动缩放） */
+.sep-icon {
+  margin-inline: -0.3em;
+}
+
+/* 同一个 <a> 兼任链接与纯文本：没挂上 href 就是占位锚（不可点、不进 Tab 序），故按 [href] 分档。
+   inline-flex 是为了给「图标 + 文字」的格内组合留间距（文字节点在 flex 下也是匿名项，gap 统一生效，同 x-button .label） */
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--xie-space-1);
+  color: var(--xie-color-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: default;
+  border-radius: var(--xie-radius-sm);
+  transition: color 0.15s ease;
+}
+.crumb[href] {
+  cursor: pointer;
+}
+.crumb[href]:hover {
+  color: var(--xie-color-fg);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.crumb:focus-visible {
+  outline: 2px solid var(--xie-color-primary);
+  outline-offset: 2px;
+}
+/* 当前页：回到正文墨色并略提权重（不可点，href 已被摘掉） */
+:host([current]) .crumb {
+  color: var(--xie-color-fg);
+  font-weight: 500;
+}
+
+/* 折叠占位：原 label 让位给「…」 */
+:host([ellipsis]) .crumb {
+  display: none;
+}
+.more {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2px;
+  font: inherit;
+  color: var(--xie-color-muted);
+  cursor: pointer;
+  border-radius: var(--xie-radius-sm);
+  transition: color 0.15s ease;
+}
+.more[hidden] {
+  display: none;
+}
+.more:hover {
+  color: var(--xie-color-fg);
+}
+.more:focus-visible {
+  outline: 2px solid var(--xie-color-primary);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crumb,
+  .more {
+    transition: none;
+  }
+}

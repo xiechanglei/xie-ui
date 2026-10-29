@@ -1,7 +1,7 @@
 # xie-ui 后续规划（plan）
 
-> 盘点时点：2026-10-28（最近更新 2026-10-29：P0-1/P0-2 完成、P1 已交 spinner/tag + popover/dropdown + progress/divider/alert 三批）。已完成 33 个组件（basic 9 / layout 4 / form 10 / nav 3 / feedback 9 + theme-panel + spinner），
-> M0–M3 基本落地，M4 仅 menu，M5 仅文档站；包体积基线 **175.80 kB / gzip 37.62 kB**。
+> 盘点时点：2026-10-28（最近更新 2026-10-29：P0-1/P0-2 完成、P1 已交 spinner/tag + popover/dropdown + progress/divider/alert + tabs/accordion 四批）。已完成 38 个组件（basic 9 / layout 4 / form 10 / nav 8 / feedback 9 + theme-panel + spinner），
+> M0–M3 基本落地，M4 仅 menu + tabs + accordion（table 未做），M5 仅文档站；包体积基线 **185.06 kB / gzip 38.94 kB**。
 > 本文是下一阶段的候选规划，按「先还债、再补全、后攻坚」排序，动哪个以当期讨论为准。
 
 ## 现状快照
@@ -12,7 +12,7 @@
 | M1 基础（input/textarea/checkbox/radio/badge/avatar） | 🔶 spinner ✅、tag ✅、progress ✅（P1 第三批）；缺 space |
 | M2 表单系统（form/select/switch/slider/upload + FCCE） | ✅ 完成（date-picker 未做、校验规则面窄） |
 | M3 反馈与浮层（dialog/toast/tooltip/drawer） | 🔶 alert ✅（P1 第三批）、popover/dropdown ✅（P1 第二批，首吃 P0-1 基建）；焦点管理 ✅（P0-1 已做）；divider ✅ |
-| M4 导航与数据展示（menu） | 🔶 仅 menu 三件套，tabs/table 等全缺 |
+| M4 导航与数据展示（menu/tabs/accordion） | 🔶 menu 三件套 ✅、tabs 三件套 ✅、accordion 两件 ✅（P1 第四批）；缺 table |
 | M5 工程化 | 🔶 仅文档站；无 CI / 自动化测试 / 发布流程 |
 
 ## P0 · 收尾性技术债（优先，拖越久返工越大）
@@ -52,8 +52,8 @@
 | `x-divider` ✅ | layout | 已交（P1 第三批）：横/纵 + 插槽文字断线（label-placement 锚位）+ dashed；纵线 align-self:stretch 吃父高，虚线用 background 渐变保两段相位一致 |
 | `x-tag` ✅ | basic | 已交（P1 首批）：双轴范式直接套（variant × color）+ size/round/closable |
 | `x-alert` ✅ | feedback | 已交（P1 第三批）：toast 常驻版，双轴 variant×color + title 分层 + 富内容插槽 + closable（x-close 同 x-tag 契约），图标名跟随 color 同表 |
-| `x-tabs` | nav | 后台三件套之一 |
-| `x-accordion` | nav/layout | 折叠面板，可复用 x-menu-group 的折叠动画经验 |
+| `x-tabs` ✅ | nav | 已交（P1 第四批）：标签页三件套 x-tabs/x-tab/x-tab-panel，按 value 配对单选；tab 自动挂 slot=tab（同 dropdown-content）、panel 显隐由根挂/摘 hidden；键盘 roving+方向键漫游即时激活、fill 等分；初次协调靠 slotchange（解析期反应队列父先于子，微任务会落空） |
+| `x-accordion` ✅ | nav/layout | 已交（P1 第四批）：x-accordion + x-accordion-item，折叠复用 x-menu-group 的 grid 0fr↔1fr；根协调单开互斥（multiple 可关）+ 派发 x-change，item 可独立使用；程序化改 expanded 不触发互斥/事件 |
 | `x-breadcrumb` / `x-pagination` | nav | 配合未来 table 使用 |
 | `x-popover` / `x-dropdown` ✅ | feedback | 已交（P1 第二批）：新增 `core/anchor.ts` 落位公用（fixed 面板四向/翻转/夹紧），popover 吃 P0-1 焦点陷阱 + Esc 栈，dropdown 继承 popover 只覆盖四旋钮；可反哺 select 弹层的通用化（待做） |
 

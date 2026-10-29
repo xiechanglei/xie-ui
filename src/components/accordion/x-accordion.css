@@ -1,0 +1,15 @@
+/* x-accordion —— 折叠面板根容器：仅做纵向堆叠，各项外观由 x-accordion-item 自绘。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  border-radius: var(--xie-radius-md);
+  overflow: hidden;
+  font-family: var(--xie-font-family);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.accordion {
+  display: block;
+}

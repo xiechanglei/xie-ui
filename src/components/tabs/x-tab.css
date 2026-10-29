@@ -1,0 +1,70 @@
+/* x-tab —— 选项卡按钮：文字 + 激活下划线（::after scaleX，不量几何）。 */
+:host {
+  /* fill 模式由 x-tabs 下发 --_tab-flex 控制等分（缺省随内容宽） */
+  display: inline-flex;
+  box-sizing: border-box;
+  flex: var(--_tab-flex, 0 0 auto);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.base {
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--xie-space-2);
+  width: 100%;
+  padding: 10px 16px;
+  font-family: var(--xie-font-family);
+  font-size: var(--xie-font-size-md);
+  font-weight: 500;
+  color: var(--xie-color-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.base:hover {
+  color: var(--xie-color-fg);
+}
+.base:focus-visible {
+  outline: 2px solid var(--xie-color-primary);
+  outline-offset: -2px;
+  border-radius: var(--xie-radius-sm);
+}
+:host([disabled]) .base {
+  color: var(--xie-color-border);
+  cursor: not-allowed;
+}
+:host([disabled]) .base:hover {
+  color: var(--xie-color-border);
+}
+
+/* 激活下划线：scaleX 进场（各管各的，无跨 tab 位移测量） */
+.base::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--xie-color-primary);
+  transform: scaleX(0);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+:host([active]) .base {
+  color: var(--xie-color-primary);
+}
+:host([active]) .base::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .base::after {
+    transition: none;
+  }
+}

@@ -6,7 +6,9 @@
   font-size: var(--xie-font-size-md);
   font-weight: 400;
   line-height: 1.5;
-  color: var(--xie-color-fg);
+  /* 颜色默认继承父级（页面正文色即 --xie-color-fg；嵌入 x-box 等着色容器时随其 fg），
+     仅 caption/muted 变体锁定弱化色。 */
+  color: inherit;
 }
 :host([inline]) {
   display: inline;

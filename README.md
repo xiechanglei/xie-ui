@@ -2,7 +2,7 @@
 
 基于原生 Web Components 实现的 UI 组件库，零框架依赖，可在任意框架或裸 HTML 中使用。
 
-> 当前进度：**M0–M3 已基本落地**（33 个组件，覆盖基础/布局/表单/导航/反馈五分类，P1 已交 spinner/tag、popover/dropdown、progress/divider/alert 三批），M4 进行中（已交付 menu 三件套），M5 工程化仅文档站。
+> 当前进度：**M0–M3 已基本落地**（38 个组件，覆盖基础/布局/表单/导航/反馈五分类，P1 已交 spinner/tag、popover/dropdown、progress/divider/alert、tabs/accordion 四批），M4 进行中（已交付 menu 三件套 + tabs/accordion），M5 工程化仅文档站。
 > 全局架构与规划设计见 [design.md](./design.md)，下一阶段优先序与决策倾向见 [plan.md](./plan.md)。
 
 ## 特性
@@ -179,6 +179,8 @@ template: {
 | Switch | `<x-switch>` | 🚧 开发中（M0，二元开关：`<button role=switch>` 受控切换；FCCE form 关联（`name`/`required`，勾选才计入 FormData）） |
 | Slider | `<x-slider>` | 🚧 开发中（M0，离散选项滑块，档位吸附拖动；已用于主题面板圆角/尺寸/阴影；FCCE form 关联（`name`，提交当前档位标签）） |
 | Menu | `<x-menu>` / `<x-menu-group>` / `<x-menu-item>` | 🚧 开发中（M0，导航菜单三件套） |
+| Tabs | `<x-tabs>` / `<x-tab>` / `<x-tab-panel>` | 🚧 开发中（P1，标签页三件套：`x-tabs` 按 `value` 一对一协调单选、`x-tab` 连接时自动挂 `slot=tab` 进卡条（同 x-dropdown-content 套路）、`x-tab-panel` 显隐由根挂/摘 `hidden`（内容惰性保留状态不丢）；`value` 程序化设置只同步不高亮不派发避回环，用户切换派发 `x-select`（detail:{value}）；`fill` 等分铺满、`tab disabled` 跳过；ARIA tablist/tab/tabpanel 齐备 + roving tabindex + ←→/↑↓/Home/End 键盘漫游即时激活；激活下划线 `::after scaleX` 动画不量几何） |
+| Accordion | `<x-accordion>` + `<x-accordion-item>` | 🚧 开发中（P1，折叠面板：`x-accordion-item` 是「标题栏 + 可折叠内容」，`expanded`（反射）驱动 grid `0fr↔1fr` 高度自适应动画（复用 x-menu-group 经验，常驻内边距落在裁切区更内一层——放轨道项上会抬高 0fr 下限致收起回不了零、随状态跳变则动画起收帧突变）、标题区两段式（`label` 快捷单行省略 / `slot=header` 任意复杂呈现样式自控、图标也在其中自摆，不设专用 icon 插槽）、`disabled`；`x-accordion` 协调单开互斥（`multiple` 关闭互斥可同时展开），用户切换后派发 `x-change`（detail:{value,expanded,values}）、`getValues()`；程序化改 `expanded` 不触发互斥与事件；item 可脱离根单独使用） |
 | Drawer | `<x-drawer>` + `<x-drawer-header>` / `<x-drawer-footer>` | 🚧 开发中（M0；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位），footer 自动贴底、按钮写 `command="close"` 即可关本抽屉；与内容无分隔线；Esc 走与对话框共享的浮层栈，只关最上层） |
 | ThemePanel | `<x-theme-panel>` | 🚧 开发中（M0，基于抽屉的右侧设置面板） |
 | Icon | `<x-icon>` | 🚧 开发中（M0，仅收录本库内部组件实际使用的图标，不派生更多） |
@@ -189,7 +191,7 @@ template: {
 | Tag | `<x-tag>` | 🚧 开发中（P1，标签：与 x-button 同源双轴 `variant`（soft/solid/outline/ghost）×`color`（7 角色，正交任意组合）+ `size` 三档；`round` 胶囊、`closable` 显关闭钮（点它派发可取消 `x-close`，组件不自删、由宿主决定移除）；纯展示件，文字过长省略号截断） |
 | Progress | `<x-progress>` | 🚧 开发中（P1，线性进度条：与 spinner 分工——知道完成度用它、只知道「在忙」用 spinner；`value` 0–100 越界自动夹紧，不写 value（或 `indeterminate`）即不确定模式小条扫动；`color` 7 角色、`size` 任意长度（纯数字按 px）轨道圆角随高度联动；填充条宽靠细粒度 style 绑定直写；`role=progressbar` + aria 全套，reduced-motion 停为静态半条；单色逃生舱 `--_pg-color`） |
 | Flex | `<x-flex>` | 🚧 开发中（M0，弹性布局原子：`direction`/`align`/`justify`/`wrap`/`inline`/`gap`（令牌别名） |
-| Box | `<x-box>` | 🚧 开发中（M0，通用视觉容器（表面件）：外观沿用 Button 双轴范式 `variant`（solid/outline/soft/ghost）×`color`（7 角色，缺省中性卡面随主题翻转）；`width` full 横向充满父元素/fit 只包住子元素；`padding`/`radius` 吃令牌别名或任意长度、`shadow` 三档、`hoverable` 悬停浮起可点暗示；外观全落宿主本身（shadow 只留 slot），直接 CSS 覆写无需 part；只管面不管排布（x-flex）与骨架（x-container）） |
+| Box | `<x-box>` | 🚧 开发中（M0，通用视觉容器（表面件）：外观沿用 Button 双轴范式 `variant`（ghost 缺省全透明/solid/outline/soft）×`color`（7 角色，两轴正交——写 color 不反推 variant，要实底卡面显式 `variant="solid"`）；`width` full 横向充满父元素/fit 只包住子元素；`padding`/`radius` 吃令牌别名或任意长度、`shadow` 三档、`hoverable` 悬停浮起可点暗示；外观全落宿主本身（shadow 只留 slot），直接 CSS 覆写无需 part；只管面不管排布（x-flex）与骨架（x-container）） |
 | Container | `<x-container>` | 🚧 开发中（M0，应用外壳：header/sidebar/main/footer + 侧栏折叠为窄栏 `rail`，rail 单源下沉给 logo/menu；**高度约定**：宿主 `height:100%` 吃满父元素（需祖先给确定高，如 `html,body{height:100%}`），内部 `minmax(0,1fr)` 把中间行锁在剩余空间、溢出全交给 main/侧栏内部滚（不外溢产生整页滚动条）；两处滚动条 `scrollbar-gutter:stable` 预留轨道槽防抖动 + 细窄主题化样式） |
 | Divider | `<x-divider>` | 🚧 开发中（P1，分割线：横（默认）/`direction=vertical` 纵，纵线 `align-self:stretch` 吃 flex 父项高；可选文字—往默认插槽放内容即断线，`label-placement` start/center/end；`dashed` 虚线用 background 渐变平铺画段（不用 border-style:dashed，两段相位不连续）；线色吃 `--xie-color-border` 随主题联动） |
 | Logo | `<x-logo>` | 🚧 开发中（M0，品牌标识：mark 复用 x-avatar，`mark`/`src`/`title`/`subtitle`，rail 窄栏只显首字母） |

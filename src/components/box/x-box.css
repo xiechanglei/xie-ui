@@ -1,5 +1,7 @@
 /* x-box —— 视觉表面容器。外观全部落在宿主本身（消费者可直接 `x-box{}` 覆写），
-   双轴走 x-button 同款「颜色轴设变量、形态轴消费」范式。 */
+   双轴走 x-button 同款「颜色轴设变量、形态轴消费」范式。
+   形态缺省 ghost（全透明，只留间距/圆角/尺寸）：容器大多只需要一层壳，要实底色面显式写 variant="solid"。
+   坑：String 反射属性的初始默认值不写 attribute，故缺省态样式必须落在 :host 基座兜底，不建 [variant='ghost'] 规则。 */
 :host {
   display: block;
   box-sizing: border-box;
@@ -10,9 +12,9 @@
   --_accent-soft: var(--xie-color-surface);
   --_line: var(--xie-color-border);
 
-  /* 形态轴（默认 solid）：实底色面 */
-  background: var(--_accent);
-  color: var(--_accent-fg);
+  /* 形态轴缺省 = ghost：全透明底 + 正文色，显式写 variant="ghost" 也走这条基座规则 */
+  background: transparent;
+  color: var(--xie-color-fg);
   /* 描边恒占 1px（不显描边的形态置 transparent），防 variant 切换时尺寸跳动 */
   border: 1px solid transparent;
 
@@ -33,7 +35,11 @@
 :host([color='danger'])    { --_accent: var(--xie-color-danger);    --_accent-fg: var(--xie-color-danger-fg);    --_accent-soft: var(--xie-color-danger-soft);    --_line: var(--xie-color-danger); }
 :host([color='info'])      { --_accent: var(--xie-color-info);      --_accent-fg: var(--xie-color-info-fg);      --_accent-soft: var(--xie-color-info-soft);      --_line: var(--xie-color-info); }
 
-/* —— 形态轴：面容器里内容多为任意子树，除 solid 外不强染文字色（吃正文色） —— */
+/* —— 形态轴：实底色面吃角色反色；soft/outline 卡内内容多为任意子树，不强染文字色 —— */
+:host([variant='solid']) {
+  background: var(--_accent);
+  color: var(--_accent-fg);
+}
 :host([variant='soft']) {
   background: var(--_accent-soft);
   color: var(--xie-color-fg);
@@ -42,10 +48,6 @@
   background: transparent;
   color: var(--xie-color-fg);
   border-color: var(--_line);
-}
-:host([variant='ghost']) {
-  background: transparent;
-  color: var(--xie-color-fg);
 }
 
 /* —— 横向尺寸：full 即 block 天然充满；fit 只包住子元素 —— */

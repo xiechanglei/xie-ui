@@ -148,3 +148,15 @@
   --xie-color-surface: var(--xie-gray-700);
   --xie-shadow-strength: 1.6;
 }
+
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  font-family: var(--xie-font-family, inherit);
+}

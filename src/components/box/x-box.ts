@@ -3,11 +3,12 @@
  *
  * 表面件：只负责「一块有外观的面」——背景/描边/圆角/内边距/阴影；内部排布交给 x-flex、
  * 页面骨架交给 x-container，三者边界清晰互不代职。外观沿用 x-button 的双轴范式：
- * `variant`（填充形态）× `color`（语义色）正交组合；缺省 solid + default 即中性卡片面
- *（surface 底 + 正文色，随明暗主题翻转）。
+ * `variant`（填充形态）× `color`（语义色）正交组合；缺省 ghost + default 即全透明的壳（只吃
+ * 间距/圆角/宽度），需要可见卡面请显式写 `variant="solid"`（中性实底）或 soft/outline。
+ * 两轴不互相窥探：写了 color 不会把 variant 推导成 solid。
  *
  * 属性：
- *  - variant    solid(默认，实底色面) | outline(透明+描边) | soft(淡底) | ghost(全透明，只留间距)（反射）
+ *  - variant    solid(实底色面) | outline(透明+描边) | soft(淡底) | ghost(默认，全透明只留间距)（反射）
  *  - color      default(默认，中性卡面) | primary | secondary | success | warning | danger | info（反射）
  *  - width      full(默认：block 横向充满父元素) | fit(只包住子元素)（反射）
  *  - padding    内边距：令牌别名 none|xs|sm|md|lg|xl 或任意 CSS 长度（默认 lg=16px）
@@ -16,7 +17,8 @@
  *  - hoverable  可点暗示：cursor:pointer + 悬停浮起（阴影升档 + 微位移）（反射）
  *
  * 文字色规则：solid 用角色反色 fg（实底上白/深字），其余形态一律吃正文色——soft/outline 卡内
- * 常放任意内容，不强染子树文字色。描边恒占 1px（无描边形态置 transparent）防形态切换跳动。
+ * 常放任意内容，不强染子树文字色；ghost 不写规则、样式落在 :host 基座（默认值不反射成 attribute）。
+ * 描边恒占 1px（无描边形态置 transparent）防形态切换跳动。
  *
  * 定制：外观全部落在宿主元素本身，消费者直接 `x-box { ... }` 覆写即可（无 shadow 内部件可拆）。
  */
@@ -57,7 +59,7 @@ class XBox extends XBaseElement {
   static tag = 'x-box';
 
   static properties: Record<string, PropertyOptions> = {
-    variant: { type: 'String', reflect: true, default: 'solid' },
+    variant: { type: 'String', reflect: true, default: 'ghost' },
     color: { type: 'String', reflect: true, default: 'default' },
     width: { type: 'String', reflect: true, default: 'full' },
     padding: { type: 'String', default: 'lg' },

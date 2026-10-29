@@ -1,0 +1,15 @@
+/* x-tab-panel —— 面板容器：hidden 即整块收起（由 x-tabs 回写）。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.panel {
+  padding-top: var(--xie-space-4);
+  font-family: var(--xie-font-family);
+  color: var(--xie-color-fg);
+  line-height: 1.6;
+}

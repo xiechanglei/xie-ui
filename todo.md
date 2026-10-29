@@ -5,3 +5,5 @@
 - 日期选择组件,input组件里面type=date已经实现，是需要重新实现还是权衡框架的大小
 - 按钮
 - https://flyonui.com/docs/third-party-plugins/notyf/
+- logo 在展开的时候文字换行了
+- x-container collapsible设置为false没有作用

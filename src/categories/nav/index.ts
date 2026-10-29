@@ -8,7 +8,14 @@
  */
 import '../../tokens/index.js';
 import '../../components/menu/index.js';
+import '../../components/tabs/index.js';
+import '../../components/accordion/index.js';
 
 export type { XMenu } from '../../components/menu/x-menu.js';
 export type { XMenuGroup } from '../../components/menu/x-menu-group.js';
 export type { XMenuItem } from '../../components/menu/x-menu-item.js';
+export type { XTabs } from '../../components/tabs/x-tabs.js';
+export type { XTab } from '../../components/tabs/x-tab.js';
+export type { XTabPanel } from '../../components/tabs/x-tab-panel.js';
+export type { XAccordion } from '../../components/accordion/x-accordion.js';
+export type { XAccordionItem } from '../../components/accordion/x-accordion-item.js';

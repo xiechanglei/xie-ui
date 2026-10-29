@@ -1,0 +1,30 @@
+/* x-tabs —— 选项卡条 + 面板容器。卡条底部一条基线，激活下划线由各 x-tab 自绘（::after）。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.tablist {
+  display: flex;
+  align-items: stretch;
+  gap: var(--xie-space-1);
+  border-bottom: 1px solid var(--xie-color-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tablist::-webkit-scrollbar {
+  display: none;
+}
+
+/* fill 等分：下发 --_tab-flex 让每张 tab 平分宽度（x-tab 的 :host flex 消费它） */
+:host([fill]) {
+  --_tab-flex: 1 1 auto;
+}
+
+.panels {
+  display: block;
+}

@@ -1,4 +1,4 @@
-/** Box 通用容器文档：视觉表面件——variant×color 双轴、full/fit 宽度、padding/radius/shadow、hoverable */
+/** Box 通用容器文档：视觉表面件——variant×color 双轴（缺省 ghost 全透明）、full/fit 宽度、padding/radius/shadow、hoverable */
 import { h, demoCard, apiTable, rich } from '/demo/render.js';
 
 function box(attrs, ...children) {
@@ -13,14 +13,14 @@ function text(str) {
 }
 
 export function render(el) {
-  /* —— 1. 形态四式 —— */
+  /* —— 1. 形态四式（缺省即 ghost：不写属性只有一层透明的壳） —— */
   const variants = h(
     'x-flex',
     { gap: 'md', wrap: true },
-    box({}, h('strong', null, 'Solid'), h('p', { style: 'margin:6px 0 0' }, '缺省即中性卡面：surface 底 + 正文色，随主题翻转')),
+    box({ variant: 'solid' }, h('strong', null, 'Solid'), h('p', { style: 'margin:6px 0 0' }, '显式写 solid：中性卡面 surface 底 + 正文色，随主题翻转')),
     box({ variant: 'soft' }, h('strong', null, 'Soft'), h('p', { style: 'margin:6px 0 0' }, '淡色底，适合次级分区')),
     box({ variant: 'outline' }, h('strong', null, 'Outline'), h('p', { style: 'margin:6px 0 0' }, '透明底 + 描边，经典线框卡')),
-    box({ variant: 'ghost' }, h('strong', null, 'Ghost'), h('p', { style: 'margin:6px 0 0' }, '全透明，只保留内边距与圆角')),
+    box({}, h('strong', null, '缺省'), h('p', { style: 'margin:6px 0 0' }, '不写 variant 即 ghost：全透明，只保留内边距与圆角')),
   );
   variants.style.flex = '1 1 100%';
 
@@ -29,7 +29,7 @@ export function render(el) {
   const colorRow = h(
     'x-flex',
     { gap: 'sm', wrap: true, align: 'center' },
-    ...colors.map((c) => box({ color: c, width: 'fit', padding: 'sm' }, text(c))),
+    ...colors.map((c) => box({ color: c, variant: 'solid', width: 'fit', padding: 'sm' }, text(c))),
   );
   const softRow = h(
     'x-flex',
@@ -41,8 +41,8 @@ export function render(el) {
   const widthWrap = h(
     'x-flex',
     { direction: 'column', gap: 'md' },
-    box({}, text('width="full"（缺省）：block 横向充满父元素')),
-    box({ width: 'fit' }, text('width="fit"：只包住子元素')),
+    box({ variant: 'solid' }, text('width="full"（缺省）：block 横向充满父元素')),
+    box({ variant: 'solid', width: 'fit' }, text('width="fit"：只包住子元素')),
   );
 
   /* —— 4. padding / radius / shadow —— */
@@ -59,31 +59,31 @@ export function render(el) {
   const radRow = h(
     'x-flex',
     { gap: 'sm', wrap: true, align: 'center' },
-    box({ radius: 'none', color: 'primary', width: 'fit', padding: 'sm' }, text('none')),
-    box({ radius: 'sm', color: 'primary', width: 'fit', padding: 'sm' }, text('sm')),
-    box({ radius: 'md', color: 'primary', width: 'fit', padding: 'sm' }, text('md（默认）')),
-    box({ radius: 'lg', color: 'primary', width: 'fit', padding: 'sm' }, text('lg')),
-    box({ radius: 'full', color: 'primary', width: 'fit', padding: 'sm' }, text('full 胶囊')),
+    box({ radius: 'none', color: 'primary', variant: 'solid', width: 'fit', padding: 'sm' }, text('none')),
+    box({ radius: 'sm', color: 'primary', variant: 'solid', width: 'fit', padding: 'sm' }, text('sm')),
+    box({ radius: 'md', color: 'primary', variant: 'solid', width: 'fit', padding: 'sm' }, text('md（默认）')),
+    box({ radius: 'lg', color: 'primary', variant: 'solid', width: 'fit', padding: 'sm' }, text('lg')),
+    box({ radius: 'full', color: 'primary', variant: 'solid', width: 'fit', padding: 'sm' }, text('full 胶囊')),
   );
   const shadowRow = h(
     'x-flex',
     { gap: 'lg', wrap: true, align: 'center' },
     box({ shadow: 'none', width: 'fit', padding: 'sm', variant: 'outline' }, text('none')),
-    box({ shadow: 'sm', width: 'fit', padding: 'sm' }, text('sm')),
-    box({ shadow: 'md', width: 'fit', padding: 'sm' }, text('md')),
-    box({ shadow: 'lg', width: 'fit', padding: 'sm' }, text('lg')),
+    box({ shadow: 'sm', width: 'fit', padding: 'sm', variant: 'solid' }, text('sm')),
+    box({ shadow: 'md', width: 'fit', padding: 'sm', variant: 'solid' }, text('md')),
+    box({ shadow: 'lg', width: 'fit', padding: 'sm', variant: 'solid' }, text('lg')),
   );
 
   /* —— 5. hoverable —— */
   const hoverWrap = h(
     'x-flex',
     { gap: 'md', wrap: true },
-    box({ hoverable: true, shadow: 'sm', width: 'fit', padding: 'md' }, h('strong', null, '悬停我'), h('p', { style: 'margin:6px 0 0' }, '阴影升档 + 微浮起，可点暗示')),
+    box({ hoverable: true, variant: 'solid', shadow: 'sm', width: 'fit', padding: 'md' }, h('strong', null, '悬停我'), h('p', { style: 'margin:6px 0 0' }, '阴影升档 + 微浮起，可点暗示')),
     box({ hoverable: true, variant: 'outline', color: 'primary', width: 'fit', padding: 'md' }, text('outline + hoverable')),
   );
 
   /* —— 6. 组合卡：box 出面、flex 排布、text 排版 —— */
-  const combo = box({ shadow: 'md', padding: 'xl' },
+  const combo = box({ variant: 'solid', shadow: 'md', padding: 'xl' },
     h('x-flex', { align: 'center', gap: 'sm' },
       h('x-avatar', { initials: '张' }),
       h('x-flex', { direction: 'column', gap: 'xs' },
@@ -103,7 +103,7 @@ export function render(el) {
     h(
       'p',
       { class: 'lead' },
-      '一块「有外观的面」：背景、描边、圆角、内边距、阴影。外观沿用 Button 的双轴范式（variant × color 正交），横向可选充满父元素或只包住子元素。它不管内部怎么排（交给 x-flex）、不当页面骨架（交给 x-container），只负责把内容包成一张卡。',
+      '一块「有外观的面」：背景、描边、圆角、内边距、阴影。外观沿用 Button 的双轴范式（variant × color 正交），横向可选充满父元素或只包住子元素。缺省形态是 <code>ghost</code>（全透明），因为多数时候你只要一层壳（间距/圆角/宽度），要可见卡面请显式写 <code>variant="solid"</code>。它不管内部怎么排（交给 x-flex）、不当页面骨架（交给 x-container）。',
     ),
 
     h('h2', null, '引入'),
@@ -112,18 +112,18 @@ export function render(el) {
     h('h2', null, '代码演示'),
     demoCard({
       title: '形态 variant',
-      desc: 'solid（默认实底色面）/ soft（淡底）/ outline（描边）/ ghost（全透明只留间距），缺省即中性卡片',
+      desc: 'ghost（缺省，全透明只留间距）/ solid（实底色面）/ soft（淡底）/ outline（描边）；缺省不染色，要卡面显式写 variant',
       build: (c) => c.append(variants),
-      code: `<x-box>Solid 中性卡面</x-box>
+      code: `<x-box>缺省即 ghost：只留间距与圆角</x-box>
+<x-box variant="solid">Solid 中性卡面</x-box>
 <x-box variant="soft">Soft 淡底</x-box>
-<x-box variant="outline">Outline 描边</x-box>
-<x-box variant="ghost">Ghost 透明</x-box>`,
+<x-box variant="outline">Outline 描边</x-box>`,
     }),
     demoCard({
       title: '语义色 color',
-      desc: 'default（缺省中性）+ 6 强调角色，与形态正交；solid 面自动配反色文字，soft/outline 卡内文字保持正文色',
+      desc: 'default（缺省中性）+ 6 强调角色，与形态正交；color 不会反推 variant——要实底面得同时写 variant="solid"。solid 面自动配反色文字，soft/outline 卡内文字保持正文色',
       build: (c) => c.append(h('x-flex', { direction: 'column', gap: 'md' }, colorRow, softRow)),
-      code: `<x-box color="primary">实底蓝面（白字）</x-box>
+      code: `<x-box color="primary" variant="solid">实底蓝面（白字）</x-box>
 <x-box color="success" variant="soft">绿色淡底（正文色）</x-box>
 <x-box color="danger" variant="outline">红色描边卡</x-box>`,
     }),
@@ -131,30 +131,30 @@ export function render(el) {
       title: '宽度：充满 / 包住内容',
       desc: 'width="full"（默认）block 横向充满父元素；width="fit" 只包住子元素',
       build: (c) => c.append(widthWrap),
-      code: `<x-box>我横向充满父元素（默认 full）</x-box>
-<x-box width="fit">我只包住子元素</x-box>`,
+      code: `<x-box variant="solid">我横向充满父元素（默认 full）</x-box>
+<x-box variant="solid" width="fit">我只包住子元素</x-box>`,
     }),
     demoCard({
       title: '内边距 / 圆角 / 阴影',
       desc: 'padding、radius 吃令牌别名或任意 CSS 长度；shadow 三档吃全局阴影令牌（强度旋钮/主题联动）',
       build: (c) => c.append(h('x-flex', { direction: 'column', gap: 'md' }, padRow, radRow, shadowRow)),
-      code: `<x-box padding="none">padding 别名 none|xs|sm|md|lg|xl 或 "28px"</x-box>
-<x-box radius="full">胶囊面</x-box>
-<x-box shadow="md">二级阴影</x-box>`,
+      code: `<x-box variant="outline" padding="none">padding 别名 none|xs|sm|md|lg|xl 或 "28px"</x-box>
+<x-box variant="solid" color="primary" radius="full">胶囊面</x-box>
+<x-box variant="solid" shadow="md">二级阴影</x-box>`,
     }),
     demoCard({
       title: '可点暗示 hoverable',
       desc: '悬停浮起（阴影升档 + 微位移）并置 cursor:pointer；只给视觉，点击语义/键盘可达仍由消费者自理',
       build: (c) => c.append(hoverWrap),
-      code: `<x-box hoverable shadow="sm">
+      code: `<x-box variant="solid" hoverable shadow="sm">
   <strong>悬停我</strong>
 </x-box>`,
     }),
     demoCard({
       title: '组合：面 + 排布 + 排版',
-      desc: '典型分工：x-box 出面，x-flex 排布，x-text/x-avatar/x-button 填内容',
+      desc: '典型分工：x-box 出面（要卡面显式 solid），x-flex 排布，x-text/x-avatar/x-button 填内容；x-text 默认继承宿主文字色，在实底卡上自动变反色',
       build: (c) => c.append(combo),
-      code: `<x-box shadow="md" padding="xl">
+      code: `<x-box variant="solid" shadow="md" padding="xl">
   <x-flex align="center" gap="sm">
     <x-avatar initials="张"></x-avatar>
     <x-flex direction="column" gap="xs">
@@ -176,8 +176,8 @@ export function render(el) {
     apiTable(
       ['属性', '说明', '类型', '默认值'],
       [
-        ['variant', '形态（填充样式，反射）', "'solid' | 'outline' | 'soft' | 'ghost'", "'solid'"],
-        ['color', '语义色（与形态正交，反射）；default 为中性卡面', "'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info'", "'default'"],
+        ['variant', '形态（填充样式，反射）；缺省不写即 ghost', "'ghost' | 'solid' | 'outline' | 'soft'", "'ghost'"],
+        ['color', '语义色（与形态正交，反射）；default 为中性，仅 solid/soft/outline 下看得出差异', "'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info'", "'default'"],
         ['width', '横向尺寸（反射）：full 充满父元素 / fit 只包住子元素', "'full' | 'fit'", "'full'"],
         ['padding', '内边距：令牌别名或任意 CSS 长度', "'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | <length>", "'lg'（16px）"],
         ['radius', '圆角：别名或任意长度；默认吃 --xie-radius 旋钮，随主题面板联动', "'none' | 'sm' | 'md' | 'lg' | 'full' | <length>", "'md'"],
@@ -192,7 +192,7 @@ export function render(el) {
     ),
     h('h3', null, '设计要点'),
     rich(
-      '外观全部落在宿主元素本身（shadow 里只有一个 slot），所以消费者直接 <code>x-box {{...}}</code> 就能覆写，无需 part 穿透；组件不会往你的内容里塞任何 DOM。描边恒占 1px（不显描边的形态置 transparent），variant 切换不跳尺寸。',
+      '外观全部落在宿主元素本身（shadow 里只有一个 slot），所以消费者直接 <code>x-box {{...}}</code> 就能覆写，无需 part 穿透；组件不会往你的内容里塞任何 DOM。描边恒占 1px（不显描边的形态置 transparent），variant 切换不跳尺寸。两轴保持正交：写了 <code>color</code> 不会把 <code>variant</code> 推导成 solid（否则想写 <code>variant="ghost" color="primary"</code> 时分不清是意图还是笔误），代价是实底卡要多写一个属性。',
     ),
   );
 }

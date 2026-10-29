@@ -8,168 +8,17 @@
     <script src="/dist/index.js"></script>
 </head>
 <body>
-
 <x-form>
-    <x-form-item label="姓名" name="name" required>
-        <x-input placeholder="请输入姓名"></x-input>
+    <x-form-item label="用户名" name="username" required help="请输入您的用户名">
+        <x-input placeholder="请输入用户名"></x-input>
     </x-form-item>
-
-    <x-form-item label="邮箱" name="email">
-        <x-input type="email" placeholder="you@example.com"></x-input>
+    <x-form-item label="邮箱" name="email" help="不会公开显示">
+        <x-input type="email"></x-input>
     </x-form-item>
-
-    <x-form-item label="密码" name="pwd">
-        <x-input type="password" show-password></x-input>
-    </x-form-item>
-
-    <x-form-item label="简介" name="bio">
-        <x-textarea placeholder="多行文本" autosize maxlength="200" show-count></x-textarea>
-    </x-form-item>
-
-    <x-form-item label="城市" name="city">
-        <x-select placeholder="选择一个">
-            <option value="bj">北京</option>
-            <option value="sh">上海</option>
-            <option value="gz">广州</option>
-            <option value="sz">深圳</option>
-        </x-select>
-    </x-form-item>
-
-    <x-form-item label="爱好" name="hobbies">
-        <x-select multiple placeholder="选择多个">
-            <option value="code">编程</option>
-            <option value="music">音乐</option>
-            <option value="read">阅读</option>
-            <option value="run">跑步</option>
-        </x-select>
-    </x-form-item>
-
-    <x-form-item label="性别" name="sex">
-        <x-radio-group direction="row">
-            <x-radio-item value="male" label="男"></x-radio-item>
-            <x-radio-item value="female">女</x-radio-item>
-            <x-radio-item value="secret">保密</x-radio-item>
-        </x-radio-group>
-    </x-form-item>
-
-
-    <x-form-item label="订阅" name="sub">
-        <x-switch></x-switch>
-    </x-form-item>
-
-    <x-form-item label="音量" name="level">
-        <x-slider options="静音,低,中,高"></x-slider>
-    </x-form-item>
-
-    <x-form-item label="附件" name="file">
-        <x-file-input multiple></x-file-input>
-    </x-form-item>
-
-    <x-form-footer align="start">
+    <x-form-footer>
         <x-button command="submit">提交</x-button>
         <x-button command="reset" variant="outline">重置</x-button>
-        <x-button id="disable" variant="ghost">切换禁用</x-button>
     </x-form-footer>
 </x-form>
-<pre id="out"></pre>
-<script>
-    const form = document.querySelector('x-form');
-    const out = document.getElementById('out');
-
-    // 字段级校验失败（required/type/pattern）会在对应 x-form-item 下方显示错误；
-    // 提交/重置直接由 x-button 的 command=submit|reset 递交给本 form（无需手写 click 派发），values 实时打印在下方
-    form.addEventListener('x-submit', (e) => {
-        out.innerText = '校验通过 ✓\n' + JSON.stringify(e.detail.values, null, 2);
-    });
-    form.addEventListener('x-invalid', () => {
-        out.innerText = '存在未通过校验的字段，见红色提示';
-    });
-    document.getElementById('disable').addEventListener('click', () => {
-        form.disabled = !form.disabled;
-    });
-
-    form.addEventListener('x-change', (e) => {
-        out.innerText = JSON.stringify(form.values, null, 2);
-    });
-
-    // set init values
-    form.setValues({
-        name: '张三',
-        city: 'sh',
-        hobbies: ['code', 'music'],
-        sex: 'female',
-        tags: ['a', 'c'],
-        agree: true,
-        sub: true,
-        level: 2,
-    });
-</script>
-
-<hr />
-<h3>Toast 轻提示</h3>
-<x-toast id="toast"></x-toast>
-<button id="t-basic">基础</button>
-<button id="t-color">语义色 success</button>
-<button id="t-sticky">常驻可关</button>
-<button id="t-preadd">游离容器上先 add（测首渲前排队）</button>
-<button id="t-clear">清空</button>
-<script>
-    const toast = document.getElementById('toast');
-    document.getElementById('t-basic').onclick = () => toast.add('已保存草稿，可随时恢复');
-    document.getElementById('t-color').onclick = () => toast.add('操作成功', { color: 'success' });
-    document.getElementById('t-sticky').onclick = () => toast.add('我不会自动关', { duration: 0, closable: true, color: 'warning' });
-    document.getElementById('t-clear').onclick = () => toast.clear();
-    // 升级时序：createElement 后尚未入文档就 add，应排队到首渲后弹出
-    document.getElementById('t-preadd').onclick = () => {
-        const fresh = document.createElement('x-toast');
-        fresh.setAttribute('placement', 'bottom');
-        const h = fresh.add('我是游离时就 add 的', { color: 'info', duration: 4000 });
-        document.body.appendChild(fresh);
-        setTimeout(() => h.close(), 0); // 句柄 close 应在挂载后仍能关掉它（此处立即关，验证改接生效）
-    };
-</script>
-
-<hr />
-<h3>Badge 徽标</h3>
-<x-badge value="5"></x-badge>
-<x-badge value="120" max="99"></x-badge>
-<x-badge value="0"></x-badge>
-<x-badge value="0" show-zero></x-badge>
-<x-badge dot></x-badge>
-<x-badge value="9" color="danger">
-    <x-avatar text="X" color="primary" shape="rounded"></x-avatar>
-</x-badge>
-<x-badge value="new" color="info" placement="bottom-left">
-    <x-icon name="settings" size="24px"></x-icon>
-</x-badge>
-<button id="b-inc">给第一个徽标加计数</button>
-<script>
-    document.getElementById('b-inc').onclick = () => {
-        const b = document.querySelector('x-badge');
-        b.value = String(Number(b.value || 0) + 1);
-    };
-</script>
-
-<hr />
-<h3>Tooltip 文字提示</h3>
-<x-tooltip content="顶部提示（默认）"><button>top</button></x-tooltip>
-<x-tooltip content="底部提示" placement="bottom"><button>bottom</button></x-tooltip>
-<x-tooltip content="左侧提示" placement="left"><button>left</button></x-tooltip>
-<x-tooltip content="右侧提示" placement="right"><button>right</button></x-tooltip>
-<x-tooltip content="0ms 立即弹" delay="0"><button>delay=0</button></x-tooltip>
-<x-tooltip content="open 强制常开" open><button>open</button></x-tooltip>
-<x-tooltip content=" " ><button>空 content 不弹</button></x-tooltip>
-
-<hr />
-<h3>Box 通用容器</h3>
-<x-box>默认中性卡面（solid + default，横向充满）</x-box>
-<br />
-<x-box variant="soft" color="info">soft + info 淡底</x-box>
-<br />
-<x-box variant="outline" color="danger">outline + danger 描边</x-box>
-<br />
-<x-box width="fit" shadow="md" hoverable>fit + shadow md + hoverable（悬停浮起）</x-box>
-<br />
-<x-box color="primary" radius="full" padding="sm" width="fit">胶囊面</x-box>
 </body>
 </html>

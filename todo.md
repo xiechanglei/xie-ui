@@ -4,5 +4,5 @@
 - table组件，如何设计
 - 日期选择组件,input组件里面type=date已经实现，是需要重新实现还是权衡框架的大小
 - from的校验规则只有简单的required吗，
-- menu组件怎么默认全部展开了，这个怎设计
+- 按钮
 - https://flyonui.com/docs/third-party-plugins/notyf/

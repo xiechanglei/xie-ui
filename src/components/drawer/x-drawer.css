@@ -11,7 +11,8 @@
   background: rgb(0 0 0 / 45%);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.28s ease, visibility 0.28s ease;
+  /* 与 x-dialog 同规则：visibility 不做渐变，关闭态延迟至淡出结束后隐藏，打开态立即显形 */
+  transition: opacity 0.28s ease, visibility 0s linear 0.28s;
 }
 
 .panel {
@@ -41,6 +42,7 @@
 :host([open]) .scrim {
   opacity: 1;
   visibility: visible;
+  transition: opacity 0.28s ease, visibility 0s;
 }
 :host([open]) .panel {
   transform: translateX(0);

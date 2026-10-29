@@ -41,7 +41,7 @@ function buildMenu() {
         item.label,
       );
     });
-    menuEl.append(h('x-menu-group', { label: group.label, collapsible: true }, ...items));
+    menuEl.append(h('x-menu-group', { label: group.label, collapsible: true,collapsed:false }, ...items));
   }
   navEl.append(menuEl);
   // 选中菜单项 → 驱动 hash 路由

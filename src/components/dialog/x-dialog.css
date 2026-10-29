@@ -18,7 +18,10 @@
   background: rgb(0 0 0 / 45%);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.24s ease, visibility 0.24s ease;
+  /* visibility 不参与渐变：关闭态延迟到淡出结束（.24s）后才隐藏；打开态靠下方 [open] 规则立即显形。
+     若像 opacity 那样对 visibility 做 0.24s 过渡，开浮层的首帧元素仍属 visibility:hidden、
+     不可聚焦，会拖掉焦点陷阱的自动聚焦（即使延后一帧也可能处于隐藏期）。 */
+  transition: opacity 0.24s ease, visibility 0s linear 0.24s;
 }
 
 .panel {
@@ -42,6 +45,8 @@
 :host([open]) .scrim {
   opacity: 1;
   visibility: visible;
+  /* 打开时 visibility 无延迟、立即变可见（使面板内元素马上可聚焦） */
+  transition: opacity 0.24s ease, visibility 0s;
 }
 :host([open]) .panel {
   opacity: 1;

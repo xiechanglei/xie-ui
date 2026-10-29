@@ -11,18 +11,26 @@
 | M0 地基（core/tokens/demo/button/icon） | ✅ 完成 |
 | M1 基础（input/textarea/checkbox/radio/badge/avatar） | 🔶 缺 spinner、divider、space |
 | M2 表单系统（form/select/switch/slider/upload + FCCE） | ✅ 完成（date-picker 未做、校验规则面窄） |
-| M3 反馈与浮层（dialog/toast/tooltip/drawer） | 🔶 缺 alert、popover、dropdown、progress；焦点管理未做 |
+| M3 反馈与浮层（dialog/toast/tooltip/drawer） | 🔶 缺 alert、popover、dropdown、progress；焦点管理 ✅（P0-1 已做）|
 | M4 导航与数据展示（menu） | 🔶 仅 menu 三件套，tabs/table 等全缺 |
 | M5 工程化 | 🔶 仅文档站；无 CI / 自动化测试 / 发布流程 |
 
 ## P0 · 收尾性技术债（优先，拖越久返工越大）
 
-### P0-1 浮层焦点管理统一策略
+### P0-1 浮层焦点管理统一策略 ✅（已完成）
 - 从 toast 交付起挂账：dialog/drawer 无焦点陷阱（Tab 可跑出弹层）、关闭后不归还焦点；tooltip 无 Esc 关闭。
 - `core/overlay.ts` 已有滚动锁 + Esc 栈，补齐另外一半：
   - 打开时记录来源焦点 → Tab 循环锁在面板内（首个/末个可聚焦件衔接）→ 关闭归还焦点；
   - Esc 统一经 overlay 栈判定（一次只关最上层）；
   - 一套基建 dialog / drawer 共享，popover / dropdown / date-picker / table 行内编辑全部踩在这个地基上，先行 = 后面零返工。
+- **落地要点**：
+  - `overlay.ts` 新增 `trapFocus(panel, scope)` / `releaseFocus(scope)`，可聚焦集合按「组合序」递归穿透 shadow
+    （面板件 + slot 分布进来的 light DOM 件 + 内嵌组件 shadow 里的真实原生件），与 `document.activeElement` 用同口径
+    的 deepActiveElement 比对定位首/末，故 x-button 这类「宿主包内层 button」不会漏判；
+  - dialog/drawer 在 `__sync` 里随 open 幂等激活/释放（与 Esc 栈同一入口），面板补 `tabindex=-1` 作无内件套时的兑底；
+  - 踩坑：dialog 面板居于 visibility 渐变的 `.scrim` 内，开浮层首帧 visibility 仍 hidden 致自动聚焦静默落空——
+    修正浮层 CSS 为「开即显、关延迟隐」（visibility 不参渐变，只 opacity 渐变），dialog/drawer 同步修；
+  - tooltip 补 Esc 关闭并置压制态（移开/失焦前不再重弹）；无头探针（.tmp-check/focus.html + cdp-probe.mjs）8 条断言全绿。
 
 ### P0-2 表单校验规则引擎（todo.md 第 6 条）
 - 现状：校验以控件原生约束为权威，只有 required/type/maxlength，缺声明式规则面。

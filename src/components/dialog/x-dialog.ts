@@ -12,12 +12,20 @@
  * 快捷用法：只写 `title` / `subtitle`（不放 header 子元素）时，对话框自动生成一个带关闭按钮的
  * `<x-dialog-header>`；一旦 light DOM 里出现了显式 `<x-dialog-header>`，自动头部让位（hidden）。
  *
- * 与 x-drawer 共享浮层基建（core/overlay.ts）：滚动锁跨实例计数、Esc 只关最上面那层浮层。
+ * 与 x-drawer 共享浮层基建（core/overlay.ts）：滚动锁跨实例计数、Esc 只关最上面那层浮层、
+ * 焦点陷阱（打开时 Tab 锁在面板内并自动聚焦，关闭时焦点归还打开前的来源元素）。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
-// 滚动锁与 Esc 关闭栈与抽屉共用（计数/栈必须在浮层之间唯一，见 core/overlay.ts）
-import { lockPageScroll, unlockPageScroll, popOverlayCloser, pushOverlayCloser } from '../../core/overlay.js';
+// 滚动锁、Esc 关闭栈与焦点陷阱与抽屉共用（计数/栈/陷阱必须在浮层之间唯一，见 core/overlay.ts）
+import {
+  lockPageScroll,
+  unlockPageScroll,
+  popOverlayCloser,
+  pushOverlayCloser,
+  releaseFocus,
+  trapFocus,
+} from '../../core/overlay.js';
 import '../../tokens/index.js';
 // 自动头部依赖 x-dialog-header（副作用注册）：其关闭按钮向上递交 close 命令、由本件认领后 hide()
 import './x-dialog-header.js';
@@ -74,6 +82,7 @@ class XDialog extends XBaseElement {
         part="panel"
         role="dialog"
         aria-modal="true"
+        tabindex="-1"
         aria-label=${this.derive(() => this.label || this.title || undefined)}
       >
         <x-dialog-header
@@ -126,6 +135,7 @@ class XDialog extends XBaseElement {
   override disconnectedCallback(): void {
     popOverlayCloser(this.__closeByUser);
     this.__releaseLock();
+    releaseFocus(this);
     super.disconnectedCallback();
   }
 
@@ -162,6 +172,11 @@ class XDialog extends XBaseElement {
     return this.shadowRoot!.querySelector('.scrim')!;
   }
 
+  /** 取得 shadow 内的面板（焦点陷阱的聚焦兑底对象，tabindex=-1） */
+  private __panel(): HTMLElement {
+    return this.shadowRoot!.querySelector('.panel')!;
+  }
+
   /** 登记 light DOM 里是否存在显式 header（信号驱动自动头部 hidden） */
   private __syncHeader(): void {
     const slot = this.shadowRoot!.querySelector('slot')!;
@@ -177,8 +192,14 @@ class XDialog extends XBaseElement {
     if (this.closable) this.style.removeProperty('--_overlay-close-display');
     else this.style.setProperty('--_overlay-close-display', 'none');
     // 打开即入栈、关闭即出栈：一次 Esc 只关最上面那层浮层（入栈幂等，updated 多次调用无妨）
-    if (this.open) pushOverlayCloser(this.__closeByUser);
-    else popOverlayCloser(this.__closeByUser);
+    if (this.open) {
+      pushOverlayCloser(this.__closeByUser);
+      // 焦点陷阱同样幂等，由 overlay 内部按实例去重；打开锁 Tab + 自动聚焦，关闭归还来源焦点
+      trapFocus(this.__panel(), this);
+    } else {
+      popOverlayCloser(this.__closeByUser);
+      releaseFocus(this);
+    }
     if (!this.lockScroll) {
       this.__releaseLock();
       return;

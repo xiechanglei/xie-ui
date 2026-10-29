@@ -14,6 +14,8 @@ import '../../components/icon/index.js';
 import '../../components/text/index.js';
 import '../../components/avatar/index.js';
 import '../../components/badge/index.js';
+import '../../components/spinner/index.js';
+import '../../components/tag/index.js';
 import '../../components/logo/index.js';
 import '../../components/theme/index.js';
 
@@ -33,6 +35,13 @@ export type {
   BadgePlacement,
   BadgeSize,
 } from '../../components/badge/x-badge.js';
+export type { XSpinner, SpinnerColor } from '../../components/spinner/x-spinner.js';
+export type {
+  XTag,
+  TagVariant,
+  TagColor,
+  TagSize,
+} from '../../components/tag/x-tag.js';
 export type { XLogo } from '../../components/logo/x-logo.js';
 export type {
   XThemePanel,

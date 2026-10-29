@@ -2,7 +2,7 @@
 
 基于原生 Web Components 实现的 UI 组件库，零框架依赖，可在任意框架或裸 HTML 中使用。
 
-> 当前进度：**M0–M3 已基本落地**（25 个组件，覆盖基础/布局/表单/导航/反馈五分类），M4 进行中（已交付 menu 三件套），M5 工程化仅文档站。
+> 当前进度：**M0–M3 已基本落地**（27 个组件，覆盖基础/布局/表单/导航/反馈五分类，P1 已交首批 spinner/tag），M4 进行中（已交付 menu 三件套），M5 工程化仅文档站。
 > 全局架构与规划设计见 [design.md](./design.md)，下一阶段优先序与决策倾向见 [plan.md](./plan.md)。
 
 ## 特性
@@ -185,6 +185,8 @@ template: {
 | Typography | `<x-text>` | 🚧 开发中（M0，排版原子件：`variant` = title/subtitle/body/caption/muted，内部吃令牌、随主题联动） |
 | Avatar | `<x-avatar>` | 🚧 开发中（M0，头像/标识方块：内容优先级 `src` 图片 > `text` 文字 > `name` 第一个字 > 占位图标；`shape`/`size`/`color`，加载失败自动回退，logo 的 mark 即复用本组件） |
 | Badge | `<x-badge>` | 🚧 开发中（M0，徽标/角标：不塞内容即行内胶囊/圆点（独立态）、塞了子元素即浮到其四角（锚定态、带背景色环）；`value`+`max` 纯数字溢出折叠为 `${max}+`、`dot` 圆点、`show-zero`、`placement` 四角、`size` 三档、`color` 7 角色实底（default 中性反色）；锚定/独立由 slot 有无内容自动切换） |
+| Spinner | `<x-spinner>` | 🚧 开发中（P1，旋转加载指示器：圆环缺一段匀速旋转，库里所有「等待中」视觉的收敛点（x-button 的 loading 内嵌即它）；`size`/`stroke`/`speed` 走宿主局部变量（纯数字补 px/s，缺省 1em/2px/.6s）、`color` 7 角色（default=currentColor 随上下文联动）、`label` 无障碍名（空则退为 aria-hidden 纯装饰）；`prefers-reduced-motion` 停转补成静态圆环；单一非角色色用 `--_sp-color` 逃生舱） |
+| Tag | `<x-tag>` | 🚧 开发中（P1，标签：与 x-button 同源双轴 `variant`（soft/solid/outline/ghost）×`color`（7 角色，正交任意组合）+ `size` 三档；`round` 胶囊、`closable` 显关闭钮（点它派发可取消 `x-close`，组件不自删、由宿主决定移除）；纯展示件，文字过长省略号截断） |
 | Flex | `<x-flex>` | 🚧 开发中（M0，弹性布局原子：`direction`/`align`/`justify`/`wrap`/`inline`/`gap`（令牌别名） |
 | Box | `<x-box>` | 🚧 开发中（M0，通用视觉容器（表面件）：外观沿用 Button 双轴范式 `variant`（solid/outline/soft/ghost）×`color`（7 角色，缺省中性卡面随主题翻转）；`width` full 横向充满父元素/fit 只包住子元素；`padding`/`radius` 吃令牌别名或任意长度、`shadow` 三档、`hoverable` 悬停浮起可点暗示；外观全落宿主本身（shadow 只留 slot），直接 CSS 覆写无需 part；只管面不管排布（x-flex）与骨架（x-container）） |
 | Container | `<x-container>` | 🚧 开发中（M0，应用外壳：header/sidebar/main/footer + 侧栏折叠为窄栏 `rail`，rail 单源下沉给 logo/menu；**高度约定**：宿主 `height:100%` 吃满父元素（需祖先给确定高，如 `html,body{height:100%}`），内部 `minmax(0,1fr)` 把中间行锁在剩余空间、溢出全交给 main/侧栏内部滚（不外溢产生整页滚动条）；两处滚动条 `scrollbar-gutter:stable` 预留轨道槽防抖动 + 细窄主题化样式） |

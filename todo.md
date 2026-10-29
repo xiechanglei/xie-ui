@@ -1,4 +1,4 @@
-- 内置一些动画，比如旋转，
+- 内置一些动画，比如旋转（✅ x-spinner 已交付：旋转加载指示器，x-button loading 已改为内嵌它）
 - x-container 对外提供一个方法，loadMenuMode（menudata，pageloader），用于自动生成左侧菜单，右侧页面的页面。menudata给一些约定。还是说放在menu组件上
 - 然后给我的docs页面的菜单全部安排上icon，这些icon属于应用级别的icon而不是框架级别的icon不需要放在库里面，放在docs下面的代码中就可以了
 - table组件，如何设计

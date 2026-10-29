@@ -1,0 +1,47 @@
+/* x-spinner —— 圆环缺一段、匀速旋转。几何全走 --_sp-* 变量（组件 updated 写在宿主 inline style 上），
+   尺寸默认 em 故随字号缩放，颜色缺省 currentColor 随上下文文字色 / 主题自动联动。 */
+:host {
+  --_sp-color: currentColor; /* 缺省中性：随上下文文字色/主题联动（与 badge 「default 不强行染角色」同源） */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+/* 作者 display 会盖掉 UA 的 [hidden]{display:none}，必须显式补回 */
+:host([hidden]) {
+  display: none;
+}
+
+.spinner {
+  display: block;
+  box-sizing: border-box;
+  width: var(--_sp-size, 1em);
+  height: var(--_sp-size, 1em);
+  border: var(--_sp-stroke, 2px) solid var(--_sp-color, currentColor);
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: x-spin var(--_sp-duration, 0.6s) linear infinite;
+}
+
+@keyframes x-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 颜色轴：强调角色吃各自语义色；default 即基座 currentColor，无需规则（与 avatar/badge 同一范式） */
+:host([color='primary']) { --_sp-color: var(--xie-color-primary); }
+:host([color='secondary']) { --_sp-color: var(--xie-color-secondary); }
+:host([color='success']) { --_sp-color: var(--xie-color-success); }
+:host([color='warning']) { --_sp-color: var(--xie-color-warning); }
+:host([color='danger']) { --_sp-color: var(--xie-color-danger); }
+:host([color='info']) { --_sp-color: var(--xie-color-info); }
+
+/* 降低动效偏好：停转并把缺口补满 —— 静态圆环同样表示「进行中」，不靠旋转传达状态 */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-right-color: var(--_sp-color, currentColor);
+  }
+}

@@ -1,7 +1,7 @@
 # xie-ui 后续规划（plan）
 
-> 盘点时点：2026-10-28。已完成 25 个组件（basic 6 / layout 3 / form 10 / nav 3 / feedback 5 + theme-panel），
-> M0–M3 基本落地，M4 仅 menu，M5 仅文档站；包体积基线 **151.28 kB / gzip 32.55 kB**。
+> 盘点时点：2026-10-28（最近更新 2026-10-29：P0-1/P0-2 完成、P1 首批 spinner/tag 交）。已完成 27 个组件（basic 8 / layout 3 / form 10 / nav 3 / feedback 5 + theme-panel），
+> M0–M3 基本落地，M4 仅 menu，M5 仅文档站；包体积基线 **160.24 kB / gzip 34.47 kB**。
 > 本文是下一阶段的候选规划，按「先还债、再补全、后攻坚」排序，动哪个以当期讨论为准。
 
 ## 现状快照
@@ -9,7 +9,7 @@
 | 路线图 | 状态 |
 | --- | --- |
 | M0 地基（core/tokens/demo/button/icon） | ✅ 完成 |
-| M1 基础（input/textarea/checkbox/radio/badge/avatar） | 🔶 缺 spinner、divider、space |
+| M1 基础（input/textarea/checkbox/radio/badge/avatar） | 🔶 spinner ✅（P1 首批）、tag ✅；缺 divider、space |
 | M2 表单系统（form/select/switch/slider/upload + FCCE） | ✅ 完成（date-picker 未做、校验规则面窄） |
 | M3 反馈与浮层（dialog/toast/tooltip/drawer） | 🔶 缺 alert、popover、dropdown、progress；焦点管理 ✅（P0-1 已做）|
 | M4 导航与数据展示（menu） | 🔶 仅 menu 三件套，tabs/table 等全缺 |
@@ -47,10 +47,10 @@
 
 | 组件 | 分类 | 说明 |
 | --- | --- | --- |
-| `x-spinner` | basic | x-button 内部已有 spinner CSS，抽出即得（顺带兑现 todo-1「内置动画」） |
+| `x-spinner` ✅ | basic | 已交（P1 首批）：x-button 内部 spinner CSS 抽出即得（顺带兑现 todo-1「内置动画」），x-button loading 改内嵌 `<x-spinner>` |
 | `x-progress` | basic/feedback | 与 spinner 同族，条状 |
 | `x-divider` | layout | M1 遗留，横/纵 + 可选文字 |
-| `x-tag` | basic | 双轴范式直接套（variant × color） |
+| `x-tag` ✅ | basic | 已交（P1 首批）：双轴范式直接套（variant × color）+ size/round/closable |
 | `x-alert` | feedback | 与 toast 同源配色（实底语义色），常驻版 |
 | `x-tabs` | nav | 后台三件套之一 |
 | `x-accordion` | nav/layout | 折叠面板，可复用 x-menu-group 的折叠动画经验 |

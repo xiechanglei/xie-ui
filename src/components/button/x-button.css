@@ -95,15 +95,5 @@
   gap: var(--xie-space-2);
 }
 
-.spinner {
-  width: 1em;
-  height: 1em;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: x-button-spin .6s linear infinite;
-}
-
-@keyframes x-button-spin {
-  to { transform: rotate(360deg); }
-}
+/* 加载态的转圈由内嵌 <x-spinner> 负责（自带 shadow 样式，缺省 currentColor 自动吃 .base 的 --_fg），
+   此处不再定义 spinner 图形。 */

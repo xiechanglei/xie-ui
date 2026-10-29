@@ -9,6 +9,7 @@
 import { XBaseElement, html, define, type PropertyOptions } from '../../core/element.js';
 import { dispatchCommand } from '../../core/command.js';
 import '../../tokens/index.js';
+import '../spinner/x-spinner.js';
 import buttonStyles from './x-button.css?inline';
 
 /** 形态（外观/填充）轴 */
@@ -57,7 +58,7 @@ class XButton extends XBaseElement {
       type="button"
       disabled=${innerDisabled}
       aria-busy=${this.derive(() => String(!!this.prop('loading')))}
-    ><span class="spinner" part="spinner" hidden=${showSpinner}></span><span class="label" part="label"><slot></slot></span></button>`;
+    ><x-spinner part="spinner" label="" hidden=${showSpinner}></x-spinner><span class="label" part="label"><slot></slot></span></button>`;
   }
 
   protected firstUpdated(): void {

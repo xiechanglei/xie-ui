@@ -27,7 +27,7 @@
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
 import '../../tokens/index.js';
 import './x-form-item.js';
-import { FORM_CONTROL_SELECTOR, type XFormItem, type FormLabelPosition, type FormLabelAlign } from './x-form-item.js';
+import { FORM_CONTROL_SELECTOR, type XFormItem, type FormLabelPosition, type FormLabelAlign, type ValidateRules } from './x-form-item.js';
 import type { XFormFooter } from './x-form-footer.js';
 import formStyles from './x-form.css?inline';
 
@@ -89,6 +89,10 @@ class XForm extends XBaseElement {
   private readonly __initial = new Map<ControlLike, unknown>();
   /** form 级 disabled 强制下发的控件集合（释放时只清「确实是 form 逼禁的」那些） */
   private readonly __forceDisabled = new WeakSet<ControlLike>();
+  /** 最近一次 validate(rules) 传入的断言表：命令式提交（command=submit / x-button type=submit）复用同一套 */
+  private __rules?: ValidateRules;
+  /** 异步校验窗口内的防重入标志 */
+  private __submitting = false;
 
   constructor() {
     super();
@@ -349,14 +353,22 @@ class XForm extends XBaseElement {
 
   /* ------------------------------- 校验/提交 ------------------------------- */
 
-  /** 校验全部字段；失败时聚焦第一个非法项并派发 x-invalid。返回是否通过。 */
-  validate(): boolean {
+  /**
+   * 校验全部字段（异步）。`rules` 形如 `{ username: (value, values) => true|非空错误串 }`：
+   * 命中字段名的项在原生校验通过后再跑该断言。不传 = 仅原生约束。传入的表会被记住，
+   * 后续命令式 submit()/内部提交与实时消错都复用。失败时聚焦第一个非法项并派发 x-invalid。返回是否通过。
+   */
+  async validate(rules?: ValidateRules): Promise<boolean> {
+    if (rules) this.__rules = rules;
+    const active = this.__rules;
+    const items = this.items;
+    const results = await Promise.all(items.map((it) => it.validate(active?.[it.fieldName])));
     let ok = true;
     let firstInvalid: XFormItem | null = null;
-    for (const it of this.items) {
-      if (!it.validate()) {
+    for (let i = 0; i < results.length; i++) {
+      if (!results[i]) {
         ok = false;
-        if (!firstInvalid) firstInvalid = it;
+        if (!firstInvalid) firstInvalid = items[i];
       }
     }
     if (!ok) {
@@ -386,17 +398,25 @@ class XForm extends XBaseElement {
     this.__emitChange();
   }
 
-  private __onSubmit = (event: Event): void => {
-    event.preventDefault(); // 绝不真正导航/刷新
-    if (!this.validate()) return;
-    this.dispatchEvent(
-      new CustomEvent('x-submit', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: { values: this.values },
-      }),
-    );
+  private __onSubmit = async (event: Event): Promise<void> => {
+    event.preventDefault(); // 绝不真正导航/刷新（必须同步先行，异步后无法再取消）
+    if (this.__submitting) return; // 异步校验窗口内防重入
+    this.__submitting = true;
+    try {
+      // 不传 rules：复用最近一次 validate(rules)/实时消错的表（无则仅原生约束）
+      const ok = await this.validate();
+      if (!ok) return;
+      this.dispatchEvent(
+        new CustomEvent('x-submit', {
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+          detail: { values: this.values },
+        }),
+      );
+    } finally {
+      this.__submitting = false;
+    }
   };
 
   /**

@@ -11,7 +11,8 @@
  * 值/校验：控件仍是数据的权威来源（各控件自带 FCCE，被页面原生 `<form>` 直接包裹时能自动计入；x-form 因 shadow 隔离收不到，改手动聚合）。
  * item 是「字段声明处」：label/name/required/help 都写在 item 上，`name` 为权威绑定键，强制下沉给控件（覆盖控件自写的），
  * 控件自己的 name 仅在 item 未写时生效（脱离 form-item 单独用控件时照常工作）。
- * item 只做「读取 + 展示」：`validate()` 调控件的原生 checkValidity（与 form 归属无关），把错误信息渲染到下方；
+ * item 只做「读取 + 展示」：`validate(validator?)` 先取控件原生 checkValidity（与 form 归属无关），
+ * 再可选地叠加一层自定义断言函数（异步容忍），把首个失败信息渲染到下方；
  * 用户显式写过 `required` 会下沉给控件、并显示必填星号；`label` 会推进控件的 aria-label 做无障碍关联。
  */
 
@@ -26,6 +27,19 @@ export const FORM_CONTROL_SELECTOR =
 
 export type FormLabelPosition = 'top' | 'left';
 export type FormLabelAlign = 'start' | 'end' | 'center';
+
+/**
+ * 字段级自定义断言：返回 `true`/`undefined`/`null`/空串 视为通过；返回**非空字符串**视为不通过，
+ * 该串直接作为错误消息渲染。结果可为 Promise（异步容忍，如唯一性/远程查重）。
+ * 第二参 `values` 为整表单聚合值，供跨字段校验（如两次密码一致）。
+ */
+export type FieldValidator = (
+  value: unknown,
+  values: Record<string, unknown>,
+) => boolean | undefined | null | string | Promise<boolean | undefined | null | string>;
+
+/** 校验规则表：键 = 字段名（item.fieldName），值 = 该字段的断言函数 */
+export type ValidateRules = Record<string, FieldValidator>;
 
 /** 控件的公共可读面（各 FCCE 控件均具备 value/checked 之一，以及校验只读接口） */
 type ControlLike = HTMLElement & {
@@ -67,6 +81,12 @@ class XFormItem extends XBaseElement {
   private __message!: Signal<string>;
   private __tone!: Signal<'error' | 'help'>;
   private __labelSlotted!: Signal<boolean>;
+  /** 自定义断言失败时的消息（与原生 validationMessage 互斥占位，原生失败优先展示） */
+  private __ruleMessage!: Signal<string>;
+  /** 最近一次 validate 传入的断言函数：供「已错则边改边消错」的实时重校验复用 */
+  private __validator?: FieldValidator;
+  /** 异步竞态序号：settle 时非最新则丢弃写入，防陈旧结果覆盖 */
+  private __seq = 0;
 
   constructor() {
     super();
@@ -75,6 +95,7 @@ class XFormItem extends XBaseElement {
     this.__message = this.__signal('');
     this.__tone = this.__signal('help');
     this.__labelSlotted = this.__signal(false);
+    this.__ruleMessage = this.__signal('');
   }
 
   protected render(): TemplateResult {
@@ -145,27 +166,45 @@ class XFormItem extends XBaseElement {
   }
 
   /**
-   * 校验本字段：调控件原生 checkValidity（各 FCCE 控件已镜像 required/type/pattern 等约束）。
-   * 无控件时按 required 兜底判空。结果渲染到下方消息，返回是否通过。
+   * 校验本字段（异步）：先走控件原生 checkValidity（各 FCCE 控件已镜像 required/type/pattern 等约束），
+   * 原生通过后再跑自定义断言：传入 `validator` 则记住它（后续实时消错复用），返回非空字符串即失败、
+   * 该串作为错误消息。异步防抖：重入时旧 settle 丢弃写入，但返回值仍如实。
+   * 无控件时按 required 兑底判空。返回是否通过。
    */
-  validate(): boolean {
-    if (this.error) {
-      this.__invalid.value = true;
-      this.__syncMessage();
-      return false;
+  async validate(validator?: FieldValidator): Promise<boolean> {
+    if (validator) this.__validator = validator;
+    const fn = this.__validator;
+    const seq = ++this.__seq;
+
+    let ok: boolean;
+    let ruleMsg = '';
+    if (fn) {
+      const c = this.control;
+      // 第一层：原生约束（或无控件时的 required 兑底），失败即短路，自定义不再跑
+      ok = c && typeof c.checkValidity === 'function' ? c.checkValidity() : !this.required || !this.__isEmpty(this.value);
+      if (ok) {
+        const values = (this.closest('x-form') as { values?: Record<string, unknown> } | null)?.values ?? {};
+        const result = await fn(this.value, values);
+        ruleMsg = typeof result === 'string' && result ? result : result === true || result == null || result === '' ? '' : '校验未通过';
+        ok = ruleMsg === '';
+      }
+    } else {
+      const c = this.control;
+      ok = c && typeof c.checkValidity === 'function' ? c.checkValidity() : !this.required || !this.__isEmpty(this.value);
     }
-    const c = this.control;
-    let ok = true;
-    if (c && typeof c.checkValidity === 'function') ok = c.checkValidity();
-    else if (this.required) ok = !this.__isEmpty(this.value);
+
+    // 更新的校验已发起（连打/异步交叠）：不写状态，返回值仍如实
+    if (seq !== this.__seq) return ok;
+    this.__ruleMessage.value = ruleMsg;
     this.__invalid.value = !ok;
     this.__syncMessage();
     return ok;
   }
 
-  /** 清除错误态（不校验） */
+  /** 清除错误态（不校验）；连同自定义断言失败消息一起清 */
   clearValidate(): void {
     this.__invalid.value = false;
+    this.__ruleMessage.value = '';
     this.__syncMessage();
   }
 
@@ -233,7 +272,7 @@ class XFormItem extends XBaseElement {
     this.toggleAttribute('data-horizontal', position !== 'top');
   }
 
-  /** 消息优先级：手动 error > 校验失败信息 > help 帮助文本 */
+  /** 消息优先级：手动 error > 校验失败信息（原生 validationMessage 优先，再自定义断言消息）> help 帮助文本 */
   private __syncMessage(): void {
     if (this.error) {
       this.__message.value = this.error;
@@ -242,7 +281,8 @@ class XFormItem extends XBaseElement {
     }
     if (this.__invalid.value) {
       const c = this.control;
-      this.__message.value = c?.validationMessage || '此项为必填或格式不正确';
+      // 原生 valid 时 validationMessage 为空串，自然落到自定义断言消息；两者皆空才是兑底文案
+      this.__message.value = c?.validationMessage || this.__ruleMessage.value || '此项为必填或格式不正确';
       this.__tone.value = 'error';
       return;
     }

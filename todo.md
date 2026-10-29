@@ -3,6 +3,5 @@
 - 然后给我的docs页面的菜单全部安排上icon，这些icon属于应用级别的icon而不是框架级别的icon不需要放在库里面，放在docs下面的代码中就可以了
 - table组件，如何设计
 - 日期选择组件,input组件里面type=date已经实现，是需要重新实现还是权衡框架的大小
-- from的校验规则只有简单的required吗，
 - 按钮
 - https://flyonui.com/docs/third-party-plugins/notyf/

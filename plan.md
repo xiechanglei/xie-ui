@@ -32,11 +32,16 @@
     修正浮层 CSS 为「开即显、关延迟隐」（visibility 不参渐变，只 opacity 渐变），dialog/drawer 同步修；
   - tooltip 补 Esc 关闭并置压制态（移开/失焦前不再重弹）；无头探针（.tmp-check/focus.html + cdp-probe.mjs）8 条断言全绿。
 
-### P0-2 表单校验规则引擎（todo.md 第 6 条）
-- 现状：校验以控件原生约束为权威，只有 required/type/maxlength，缺声明式规则面。
-- 方案倾向：规则挂在 `x-form-item`（与 label/name/required/help 同级）——`pattern` / `min` / `max` / `minlength` / `maxlength` / `validator(fn)`；
-  错误消息走 `internals.setValidity` 复用现有 help/error 渲染链；不引入规则对象库（体积考量）。
-- 定位：form 闭环的前置件，也是 table 行内编辑的依赖。
+### P0-2 表单自定义校验规则 ✅（已完成）
+- 原倾向的「声明式规则引擎」（`x-form-item.rules` + 内建 min/max/pattern + validate-on 状态机）经讨论认为与本库
+  「简单化」定位相冲，**最终改为函数式 `form.validate(rules)`，非声明式规则引擎**。
+- **落地要点**：
+  - `validate(rules?)` 接「字段名 → 断言函数」：`(value, values) => true/undefined 通过 | 非空 string 不通过（即错误消息）`，
+    第二参 `values` 为整表单聚合值→跨字段校验；结果可为 Promise；
+  - **破坏性契约**：`validate()` 由 `boolean` 改 `Promise<boolean>`，`__onSubmit` 改 `await validate()` 后才派发 `x-submit`（加 `__submitting` 防重入）；
+  - 流水线：手动 `error` > 控件原生 `checkValidity()`（required/type/maxlength 镜像保留）> `rules[name]`；原生失败时自定义不跑；
+  - item 只加 `validate(validator?)` 可选入参 + 记住函数供实时消错 + `__seq` 防竞态 + 新信号 `__ruleMessage`，不改属性面、不回写 internals；
+  - 无头 Chrome CDP 探针（.tmp-check/validation.html + cdp-validation.mjs）9 条断言全绿；gzip 33.47→33.77 kB。
 
 ## P1 · 低成本高频小件（清 M1/M3/M4 尾巴，单件半天内）
 

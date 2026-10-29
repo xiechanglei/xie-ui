@@ -43,7 +43,7 @@ export function render(el) {
     h(
       'p',
       { class: 'lead' },
-      'x-form 是布局编排 + 数据收集 + 校验调度的容器，x-form-item 把「label + 控件 + 错误/帮助文本」组成可统一排布的单元，x-form-footer 放操作按钮。布局属性两两正交：layout 管输入项之间怎么排（vertical 纵列（默认）/ horizontal 横排换行），label-position 管 label 在控件上还是左（默认左，与 layout 无关），label-width 不写时自动测量最宽 label 对齐各行控件，gap 管间距；footer 不参与流向、永远独立沉底一行。数据收集由 x-form 统一遍历内部控件、按各自公开的值面聚合出 values（重复键自动收数组）；校验走控件原生约束（required / type / pattern），错误信息渲染到字段下方。',
+      'x-form 是布局编排 + 数据收集 + 校验调度的容器，x-form-item 把「label + 控件 + 错误/帮助文本」组成可统一排布的单元，x-form-footer 放操作按钮。布局属性两两正交：layout 管输入项之间怎么排（vertical 纵列（默认）/ horizontal 横排换行），label-position 管 label 在控件上还是左（默认左，与 layout 无关），label-width 不写时自动测量最宽 label 对齐各行控件，gap 管间距；footer 不参与流向、永远独立沉底一行。数据收集由 x-form 统一遍历内部控件、按各自公开的值面聚合出 values（重复键自动收数组）；校验走控件原生约束（required / type / pattern），并可叠加函数式自定义规则 validate(rules)（返回非空字符串即错误消息、支持异步），错误信息渲染到字段下方。',
     ),
 
     h('h2', null, '引入'),
@@ -170,26 +170,44 @@ export function render(el) {
 
     demoCard({
       title: '校验与提交',
-      desc: 'required 必填 + type=email/pattern 正则走原生约束；footer 里 <x-button command="submit"> 即触发提交，校验通过派发可取消的 x-submit（detail.values 为聚合值）',
+      desc: '两层校验：底层走控件原生约束（required / type=email / maxlength），叠加层用 validate(rules) 传「字段名 → 断言函数」做自定义规则（返回非空字符串即错误消息，支持异步、第二参拿整表单 values 做跨字段）；validate() 统一返回 Promise<boolean>，命令式提交复用最近一次 rules',
       build: (c) => {
-        const f = form({ 'label-width': '80px', 'label-align': 'end' });
-        const out = h('p', { class: 'demo-card__title' }, '点“提交”试试：留空 / 非法邮箱会被拦下');
+        const f = form({ 'label-width': '90px', 'label-align': 'end' });
+        const out = h('p', { class: 'demo-card__title' }, '留空被原生 required 拦下；填了值再走自定义规则（账号≥ 3 位、邮箱合法、验证码异步校验试 123456）');
         f.append(
-          fi('账号', { name: 'acc', required: '' }, ctl('x-input', { placeholder: '必填' })),
-          fi('邮箱', { name: 'mail', required: '' }, ctl('x-input', { type: 'email', placeholder: '需合法邮箱' })),
-          fi('验证码', { name: 'code', error: '' }, ctl('x-input', { maxlength: '6', placeholder: '最多 6 位' })),
-          footer({ 'label-offset': '' }, btn('提交', { command: 'submit' }), btn('清空', { command: 'reset', variant: 'outline' })),
+          fi('账号', { name: 'acc', required: '' }, ctl('x-input', { placeholder: '必填且≥ 3 位' })),
+          fi('邮箱', { name: 'mail' }, ctl('x-input', { type: 'email', placeholder: '选填，填了需合法' })),
+          fi('验证码', { name: 'code' }, ctl('x-input', { placeholder: '异步校验，输 123456' })),
+          footer({ 'label-offset': '' }, btn('校验并提交', { color: 'primary' }), btn('清空', { command: 'reset', variant: 'outline' })),
         );
-        f.addEventListener('x-submit', (e) => (out.textContent = '校验通过 · values = ' + JSON.stringify(e.detail.values)));
-        f.addEventListener('x-invalid', () => (out.textContent = '存在未通过校验的字段'));
+        const rules = {
+          acc: (v) => v.length >= 3 || '账号至少 3 位',
+          mail: (v) => !v || /.+@.+\..+/.test(v) || '邮箱格式不正确',
+          code: async (v) => {
+            await new Promise((r) => setTimeout(r, 500));
+            return v === '123456' || '验证码错误（试试 123456）';
+          },
+        };
+        // 手动调 validate(rules)：命中字段名的项在原生校验通过后再跑断言，非空返回串即字段下方错误消息
+        f.querySelectorAll('x-button')[0].addEventListener('click', async () => {
+          out.textContent = '校验中…';
+          const ok = await f.validate(rules);
+          out.textContent = ok ? '通过 · values = ' + JSON.stringify(f.values) : '未通过，见字段下方提示';
+        });
         c.append(f, out);
       },
-      code: `form.addEventListener('x-submit', (e) => {
-  console.log(e.detail.values); // 校验通过后的聚合值
+      code: `// 声明式自定义规则：validate(rules) 传「字段名 → 断言函数」
+//   返回 true/undefined 通过；返回非空字符串 = 不通过，该串即错误消息；第二参为整表单 values
+//   结果可为 Promise（异步校验）；validate 统一返回 Promise<boolean>
+const ok = await form.validate({
+  username: (v) => v.length >= 3 || '至少 3 个字符',      // 长度
+  code:     async (v) => (await checkSms(v)) || '验证码错误', // 异步
+  pwd2:     (v, values) => v === values.pwd || '两次密码不一致', // 跨字段
 });
-<x-button command="submit">提交</x-button>  <!-- 放在任意 form（含 x-form）内即自动提交，无需手写 click -->
-form.submit();       // 也可命令式触发：通过则派发 x-submit，失败聚焦首个非法项并派发 x-invalid
-form.validate();     // 仅校验返回 boolean
+
+<x-button command="submit">提交</x-button>  <!-- 内部 await validate()（复用最近一次 rules）后才派发可取消的 x-submit -->
+form.addEventListener('x-submit', (e) => console.log(e.detail.values));
+form.validate();     // 不传 = 仅原生约束（required/type/maxlength），返回 Promise<boolean>
 form.values;         // 当前聚合值（不校验）
 form.reset();        // 还原到初始快照 + 清错误态`,
     }),
@@ -198,7 +216,7 @@ form.reset();        // 还原到初始快照 + 清错误态`,
     rich('布局属性两两正交、各管一轴：<code>layout</code> 只管输入项之间（vertical 纵列（默认）/ horizontal 横排换行）；<code>label-position</code> 只管 label 与控件（top / left，默认左，与 layout 无关）；<code>label-width</code> 定 label 列宽——<b>不写时 x-form 自动测量最宽 label 回填</b>（等全部 item 首渲染就绪后测自然宽，动态增删字段会重测收敛），<code>label-align</code> 定 label 文本对齐（仅 left 模式有意义）；<code>gap</code> 管间距（默认 20px）；轴3 按钮区（<code>x-form-footer</code> 的 <code>align</code> + <code>label-offset</code>）。开箱即单列桌面表单（label 在左自动对齐）；加 layout=horizontal 得筛选栏，label-position=top 得 label 在上形态。<code>columns</code>=N 时 item 改走 grid 等宽分发（长短不齐的根治方案）：文本类控件自动拉满格宽，纵向用它得双列表单，横排用它得 N 列筛选栏。footer 不参与流向：无论 flex/grid、横排/纵排，<code>x-form-footer</code> 永远无条件通栏、独立在表单最下面一行（它是全表单的动作区，不是又一个输入项）。'),
     rich('字段信息集中在 <code>x-form-item</code>：label / <code>name</code> / required / help 都写在 item 上，一个字段一个声明处。<code>name</code> 是权威绑定键，自动下沉给内部控件（覆盖控件自写的）；控件自己的 name 仅在 item 未写时生效，所以把控件脱离 form-item 放进页面原生 <code>&lt;form&gt;</code> 时照常工作。'),
     rich('数据收集：x-form 统一遍历「最外层」控件，按各控件公开的值面（<code>value</code>/<code>checked</code>/<code>files</code>/<code>values</code>）聚合出 <code>values</code> / <code>formData()</code>，重复键自动收数组、禁用项与未勾选不计入。为何不靠 <code>new FormData()</code>：表单归属是「节点树」概念，x-form shadow 内的 <code>&lt;form&gt;</code> 关联不到被 slot 投影进来的控件（实测连原生 <code>&lt;input&gt;</code> 也不行）；而控件自带的 FCCE 仍在——你把它们直接放进页面原生 <code>&lt;form&gt;</code> 时仍能自动计入。<code>disabled</code> 同样因跨树无法靠 <code>&lt;fieldset&gt;</code> 原生下发，改由 x-form 显式置各控件。'),
-    rich('校验以控件原生约束为权威：item 的 <code>required</code> 会下沉给控件，<code>validate()</code> 调控件 <code>checkValidity()</code> 并把 <code>validationMessage</code> 渲染到字段下方；手动 <code>error</code> 属性可强制显示自定义错误。'),
+    rich('校验双层：底层以控件原生约束为权威——item 的 <code>required</code> 会下沉给控件，<code>validate()</code> 调控件 <code>checkValidity()</code> 并把 <code>validationMessage</code> 渲染到字段下方；叠加层是函数式自定义规则——<code>form.validate(rules)</code> 传「字段名 → 断言函数」，函数返回 <b>true/undefined 通过、非空字符串不通过（该串即错误消息）</b>，第二参拿到整表单 <code>values</code>（跨字段校验如两次密码一致）；结果可为 Promise，故 <code>validate()</code> 统一返回 <code>Promise<boolean></code>。原生失败时自定义不再跑（原生优先）；无控件时按 required 兑底判空；手动 <code>error</code> 属性优先级最高。'),
     rich('提交入口不写监听：footer 里放 <code>&lt;x-button command="submit"&gt;</code> / <code>command="reset"</code> 即可，<b>不需要手写 click 派发</b>。机制：表单归属按节点树算、跳不过 shadow 边界（实测 x-button 内部那颗原生 button 的 <code>.form</code> 为 null），所以 x-button 不自己去拿 form，而是把意图包成 <code>x-command</code> 事件向上递交（composed 才跳得出 shadow），由链上<b>第一个认领者</b>接走——x-form 声明了认领 <code>submit</code>/<code>reset</code>，就近优先（内层先认领，外层自动让路，所以对话框里的 form 不会误打到页面 form）。链上无人认领时退回最近的页面原生 <code>&lt;form&gt;</code> 代为 <code>requestSubmit()</code>/<code>reset()</code>，走的仍是原生事件链路；不在任何 form 里则什么都不做（<code>x-click</code> 被 <code>preventDefault</code> 可阻断递交，等价原生）。<b>命令只沿祖先链上传</b>，所以按钮必须是 form 的后代：把它放在 <code>&lt;x-form&gt;</code> 外面的兄弟节点上是打不到它的（对话框里要把 footer 放进 form 内，同此理）。'),
 
     h('h2', null, 'API · x-form'),
@@ -221,7 +239,7 @@ form.reset();        // 还原到初始快照 + 清错误态`,
         ['values（读）', '聚合值对象；重复键（多选/复选组/多文件）自动收数组'],
         ['formData()', '原始 FormData（含 File 条目）'],
         ['setValues(obj)', '按 name 批量写入控件值（程序化、不派发）'],
-        ['validate(): boolean', '校验全部字段，失败聚焦首个非法项并派发 x-invalid'],
+        ['validate(rules?): Promise<boolean>', '校验全部字段（异步）；rules 为「字段名→断言函数」（返回非空字符串即错误消息，可异步），不传=仅原生约束；失败聚焦首个非法项并派发 x-invalid'],
         ['submit()', '触发提交：校验通过派发可取消的 x-submit（默认不导航）'],
         ['x-button command="submit" / "reset"', '放在本 form（或任意 <code>&lt;form&gt;</code>）内即自动提交/重置，无需手写 click 派发'],
         ['reset() / clearValidate()', '还原到初始快照（各控件首次登记时的值，动态追加的字段也算）并清错误态 / 仅清错误态'],
@@ -248,7 +266,7 @@ form.reset();        // 还原到初始快照 + 清错误态`,
       ['名称', '说明'],
       [
         ['control（读）/ value（读）/ fieldName（读）', '内部受控控件 / 其值 / 生效的绑定键'],
-        ['validate(): boolean', '校验本字段（走控件原生 checkValidity），渲染错误'],
+        ['validate(validator?): Promise<boolean>', '校验本字段（异步）：先走控件原生 checkValidity，原生通过后再跑可选的自定义断言函数'],
         ['clearValidate()', '清除本字段错误态'],
       ],
     ),

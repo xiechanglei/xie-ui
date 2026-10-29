@@ -20,5 +20,13 @@
         <x-button command="reset" variant="outline">重置</x-button>
     </x-form-footer>
 </x-form>
+<script>
+    const form = document.querySelector('x-form');
+    form.addEventListener('x-submit', (event) => {
+        event.preventDefault();
+        console.log('表单提交', form.values);
+        form.validate({"username":v=>v.length>=10 || "必须超过10"});
+    });
+</script>
 </body>
 </html>

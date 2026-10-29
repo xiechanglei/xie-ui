@@ -1,0 +1,104 @@
+/* x-divider —— 一条线 + 可选标签。
+   纯线：.line 直接用 border 画；带标签：线改由 ::before/::after 两段在标签两侧断开。
+   虚线统一用 background 渐变画（border-style: dashed 的明暗在两段间不连续，渐变段保证左右一致）。 */
+:host {
+  --_dv-color: var(--xie-color-border);
+  --_dv-thickness: 1px;
+
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family);
+  color: var(--xie-color-muted);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: var(--xie-space-3);
+  margin: var(--xie-space-4) 0;
+  border: 0;
+  border-top: var(--_dv-thickness) solid var(--_dv-color);
+}
+:host([dashed]) .line:not(.labeled) {
+  border-top: 0;
+  background: linear-gradient(
+    to right,
+    var(--_dv-color) 0 calc(var(--xie-space-1) - 1px),
+    transparent var(--xie-space-1) var(--xie-space-1)
+  );
+  background-size: var(--xie-space-1) var(--_dv-thickness);
+  background-repeat: repeat-x;
+  min-height: var(--_dv-thickness);
+}
+
+/* 带标签：本体 border 收起，两段 ::before/::after 撑开断线 */
+.line.labeled {
+  border-top: 0;
+  min-height: 1lh;
+}
+.line.labeled::before,
+.line.labeled::after {
+  content: '';
+  flex: auto;
+  min-width: 5%;
+  border-top: var(--_dv-thickness) solid var(--_dv-color);
+}
+:host([dashed]) .line.labeled::before,
+:host([dashed]) .line.labeled::after {
+  border-top: 0;
+  background: linear-gradient(
+    to right,
+    var(--_dv-color) 0 calc(var(--xie-space-1) - 1px),
+    transparent var(--xie-space-1) var(--xie-space-1)
+  );
+  background-size: var(--xie-space-1) var(--_dv-thickness);
+  background-repeat: repeat-x;
+  height: var(--_dv-thickness);
+  align-self: center;
+}
+
+.label {
+  flex: none;
+  padding: 0 var(--xie-space-1);
+  font-size: var(--xie-font-size-sm);
+  white-space: nowrap;
+}
+/* 反射 attribute 为 kebab(label-placement)，选择器须与之一致（同库其它多词属性） */
+:host([label-placement="start"]) .line.labeled::before {
+  flex: none;
+  min-width: var(--xie-space-3);
+}
+:host([label-placement="end"]) .line.labeled::after {
+  flex: none;
+  min-width: var(--xie-space-3);
+}
+
+/* 纵向：整根改竖画，靠 align-self:stretch 吃 flex 父项高度（孤立摆放退化为 1em 高） */
+:host([direction="vertical"]) {
+  display: inline-flex;
+  vertical-align: middle;
+  align-self: stretch;
+  height: auto;
+  min-height: 1em;
+}
+:host([direction="vertical"]) .line {
+  flex-direction: column;
+  margin: 0 var(--xie-space-2);
+  border-top: 0;
+  border-left: var(--_dv-thickness) solid var(--_dv-color);
+}
+:host([direction="vertical"][dashed]) .line:not(.labeled) {
+  border-left: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--_dv-color) 0 calc(var(--xie-space-1) - 1px),
+    transparent var(--xie-space-1) var(--xie-space-1)
+  );
+  background-size: var(--_dv-thickness) var(--xie-space-1);
+  background-repeat: repeat-y;
+  width: var(--_dv-thickness);
+  min-height: unset;
+}

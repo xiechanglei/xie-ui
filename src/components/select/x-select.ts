@@ -20,6 +20,7 @@
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
 import type { Signal } from '../../core/signals.js';
+import { scrollTargetsFor } from '../../core/overlay.js';
 import '../../tokens/index.js';
 import '../icon/x-icon.js';
 import selectStyles from './x-select.css?inline';
@@ -81,6 +82,8 @@ class XSelect extends XBaseElement {
   /** 多选选中集（信号数组，仅 multiple 模式有意义；单多选互转时在 updated 里搬迁） */
   private __multiSel!: Signal<string[]>;
   private __wasMultiple?: boolean;
+  /** 本次打开挂上的滚动监听目标集（window + 铺平树祖先 shadow roots，卸载时原样回收） */
+  private __scrollTargets: EventTarget[] = [];
 
   constructor() {
     super();
@@ -303,7 +306,9 @@ class XSelect extends XBaseElement {
     const selKey = this.multiple ? this.__multiSel.value[0] : this.value;
     this.__highlight(this.__items.findIndex((o) => o.value === selKey && !o.disabled));
     document.addEventListener('pointerdown', this.__onDocPointer, true);
-    window.addEventListener('scroll', this.__reposition, true);
+    // 滚动重定位：scroll 不跨 shadow 边界，只挂 window capture 听不到外层组件内部滚动（见 scrollTargetsFor 注释）
+    this.__scrollTargets = scrollTargetsFor(this);
+    for (const t of this.__scrollTargets) t.addEventListener('scroll', this.__reposition, true);
     window.addEventListener('resize', this.__reposition);
   }
 
@@ -317,7 +322,8 @@ class XSelect extends XBaseElement {
 
   private __teardownDoc(): void {
     document.removeEventListener('pointerdown', this.__onDocPointer, true);
-    window.removeEventListener('scroll', this.__reposition, true);
+    for (const t of this.__scrollTargets) t.removeEventListener('scroll', this.__reposition, true);
+    this.__scrollTargets = [];
     window.removeEventListener('resize', this.__reposition);
   }
 

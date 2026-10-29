@@ -1,0 +1,58 @@
+/* x-progress —— 轨道 + 填充条。几何吃宿主局部变量（--_pg-*），颜色走全局语义令牌。 */
+:host {
+  --_pg-color: var(--xie-color-primary);
+  --_pg-height: 8px;
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.track {
+  height: var(--_pg-height);
+  overflow: hidden;
+  border-radius: calc(var(--_pg-height) / 2);
+  background: var(--xie-color-surface);
+}
+
+.fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: var(--_pg-color);
+  transition: width 0.25s ease;
+}
+
+/* 颜色轴：与 tag/spinner 同一套 7 角色（default = 中性前景） */
+:host([color="default"]) .track { --_pg-color: var(--xie-color-fg); }
+:host([color="primary"]) .track { --_pg-color: var(--xie-color-primary); }
+:host([color="secondary"]) .track { --_pg-color: var(--xie-color-secondary); }
+:host([color="success"]) .track { --_pg-color: var(--xie-color-success); }
+:host([color="warning"]) .track { --_pg-color: var(--xie-color-warning); }
+:host([color="danger"]) .track { --_pg-color: var(--xie-color-danger); }
+:host([color="info"]) .track { --_pg-color: var(--xie-color-info); }
+
+/* 不确定模式：40% 宽的小条来回扫动（MUI 式两段行程，扫动轨迹覆盖全轨道） */
+.fill.indeterminate {
+  width: 40%;
+  animation: x-pg-sweep 1.4s ease-in-out infinite;
+}
+@keyframes x-pg-sweep {
+  0% { transform: translateX(-100%); }
+  54% { transform: translateX(160%); }
+  100% { transform: translateX(250%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill {
+    transition: none;
+  }
+  .fill.indeterminate {
+    animation: none;
+    width: 100%;
+    opacity: 0.5;
+  }
+}

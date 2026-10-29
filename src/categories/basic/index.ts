@@ -15,6 +15,7 @@ import '../../components/text/index.js';
 import '../../components/avatar/index.js';
 import '../../components/badge/index.js';
 import '../../components/spinner/index.js';
+import '../../components/progress/index.js';
 import '../../components/tag/index.js';
 import '../../components/logo/index.js';
 import '../../components/theme/index.js';
@@ -36,6 +37,7 @@ export type {
   BadgeSize,
 } from '../../components/badge/x-badge.js';
 export type { XSpinner, SpinnerColor } from '../../components/spinner/x-spinner.js';
+export type { XProgress, ProgressColor } from '../../components/progress/x-progress.js';
 export type {
   XTag,
   TagVariant,

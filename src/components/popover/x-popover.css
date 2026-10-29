@@ -1,0 +1,54 @@
+/* x-popover —— 气泡卡片。宿主 inline-block 包住触发内容（默认插槽），
+   面板为 shadow 内 position:fixed 浮层（脱离祖先 overflow 裁剪），坐标由 core/anchor.ts 算出。
+   注意：初始默认值不反射，缺省态样式写在基座；面板显隐走 hidden 属性绑定。 */
+:host {
+  display: inline-block;
+  position: relative;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.anchor {
+  display: contents;
+}
+
+.panel {
+  position: fixed;
+  z-index: 1000; /* 与 select 弹层/dialog 同层：组件浮层互叠、后者压前者 */
+  box-sizing: border-box;
+  padding: var(--xie-space-3);
+  background: var(--xie-color-bg);
+  border: 1px solid var(--xie-color-border);
+  border-radius: var(--xie-radius-lg);
+  box-shadow: var(--xie-shadow-3);
+  color: var(--xie-color-fg);
+  font-family: var(--xie-font-family, inherit);
+  font-size: var(--xie-font-size-md);
+  text-align: start;
+}
+.panel[hidden] {
+  display: none;
+}
+.panel[tabindex] {
+  outline: none; /* 面板自身可聚焦（陷阱兜底）但不画焦点环 */
+}
+:host([open]:not([trigger='hover'])) .panel {
+  animation: x-popover-in 0.16s ease;
+}
+@keyframes x-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}

@@ -2,7 +2,7 @@
 
 基于原生 Web Components 实现的 UI 组件库，零框架依赖，可在任意框架或裸 HTML 中使用。
 
-> 当前进度：**M0–M3 已基本落地**（27 个组件，覆盖基础/布局/表单/导航/反馈五分类，P1 已交首批 spinner/tag），M4 进行中（已交付 menu 三件套），M5 工程化仅文档站。
+> 当前进度：**M0–M3 已基本落地**（33 个组件，覆盖基础/布局/表单/导航/反馈五分类，P1 已交 spinner/tag、popover/dropdown、progress/divider/alert 三批），M4 进行中（已交付 menu 三件套），M5 工程化仅文档站。
 > 全局架构与规划设计见 [design.md](./design.md)，下一阶段优先序与决策倾向见 [plan.md](./plan.md)。
 
 ## 特性
@@ -187,9 +187,11 @@ template: {
 | Badge | `<x-badge>` | 🚧 开发中（M0，徽标/角标：不塞内容即行内胶囊/圆点（独立态）、塞了子元素即浮到其四角（锚定态、带背景色环）；`value`+`max` 纯数字溢出折叠为 `${max}+`、`dot` 圆点、`show-zero`、`placement` 四角、`size` 三档、`color` 7 角色实底（default 中性反色）；锚定/独立由 slot 有无内容自动切换） |
 | Spinner | `<x-spinner>` | 🚧 开发中（P1，旋转加载指示器：圆环缺一段匀速旋转，库里所有「等待中」视觉的收敛点（x-button 的 loading 内嵌即它）；`size`/`stroke`/`speed` 走宿主局部变量（纯数字补 px/s，缺省 1em/2px/.6s）、`color` 7 角色（default=currentColor 随上下文联动）、`label` 无障碍名（空则退为 aria-hidden 纯装饰）；`prefers-reduced-motion` 停转补成静态圆环；单一非角色色用 `--_sp-color` 逃生舱） |
 | Tag | `<x-tag>` | 🚧 开发中（P1，标签：与 x-button 同源双轴 `variant`（soft/solid/outline/ghost）×`color`（7 角色，正交任意组合）+ `size` 三档；`round` 胶囊、`closable` 显关闭钮（点它派发可取消 `x-close`，组件不自删、由宿主决定移除）；纯展示件，文字过长省略号截断） |
+| Progress | `<x-progress>` | 🚧 开发中（P1，线性进度条：与 spinner 分工——知道完成度用它、只知道「在忙」用 spinner；`value` 0–100 越界自动夹紧，不写 value（或 `indeterminate`）即不确定模式小条扫动；`color` 7 角色、`size` 任意长度（纯数字按 px）轨道圆角随高度联动；填充条宽靠细粒度 style 绑定直写；`role=progressbar` + aria 全套，reduced-motion 停为静态半条；单色逃生舱 `--_pg-color`） |
 | Flex | `<x-flex>` | 🚧 开发中（M0，弹性布局原子：`direction`/`align`/`justify`/`wrap`/`inline`/`gap`（令牌别名） |
 | Box | `<x-box>` | 🚧 开发中（M0，通用视觉容器（表面件）：外观沿用 Button 双轴范式 `variant`（solid/outline/soft/ghost）×`color`（7 角色，缺省中性卡面随主题翻转）；`width` full 横向充满父元素/fit 只包住子元素；`padding`/`radius` 吃令牌别名或任意长度、`shadow` 三档、`hoverable` 悬停浮起可点暗示；外观全落宿主本身（shadow 只留 slot），直接 CSS 覆写无需 part；只管面不管排布（x-flex）与骨架（x-container）） |
 | Container | `<x-container>` | 🚧 开发中（M0，应用外壳：header/sidebar/main/footer + 侧栏折叠为窄栏 `rail`，rail 单源下沉给 logo/menu；**高度约定**：宿主 `height:100%` 吃满父元素（需祖先给确定高，如 `html,body{height:100%}`），内部 `minmax(0,1fr)` 把中间行锁在剩余空间、溢出全交给 main/侧栏内部滚（不外溢产生整页滚动条）；两处滚动条 `scrollbar-gutter:stable` 预留轨道槽防抖动 + 细窄主题化样式） |
+| Divider | `<x-divider>` | 🚧 开发中（P1，分割线：横（默认）/`direction=vertical` 纵，纵线 `align-self:stretch` 吃 flex 父项高；可选文字—往默认插槽放内容即断线，`label-placement` start/center/end；`dashed` 虚线用 background 渐变平铺画段（不用 border-style:dashed，两段相位不连续）；线色吃 `--xie-color-border` 随主题联动） |
 | Logo | `<x-logo>` | 🚧 开发中（M0，品牌标识：mark 复用 x-avatar，`mark`/`src`/`title`/`subtitle`，rail 窄栏只显首字母） |
 | Input | `<x-input>` | 🚧 开发中（M0，单行输入：内包原生 input；`variant`(outline/filled/flush) × `color`(6 角色) 双轴 + `size`，`clearable`/`show-password` 显密切换/`show-count`/前后缀插槽；逐字符 `x-input`、提交 `x-change`（可取消回退）；FCCE form 关联（`name`，required/type/maxlength 镜像内层原生 validity）） |
 | Textarea | `<x-textarea>` | 🚧 开发中（M0，多行文本域：与 Input 同源事件模型 + `variant`×`color` 双轴，`autosize`/`max-rows` 自适应高度、`resize`、`show-count`；FCCE form 关联） |
@@ -201,7 +203,10 @@ template: {
 | Form | `<x-form>` / `<x-form-item>` / `<x-form-footer>` | 🚧 开发中（M0，表单三件套：正交布局（`layout` 管输入项纵排（默认）/横排换行；`label-position` 管 label 在上/在左，默认 left，与 layout 无关；`label-width` 不写时自动测量最宽 label 回填对齐，`label-align` 管文本对齐；`gap` 间距默认 20px；`columns`=N 等宽 grid 列根治长短不齐（文本类控件拉满格宽，纵向可用双列表单）；footer `align` + `label-offset`，且无条件通栏沉底不参与流向）；字段统一在 x-form-item 声明（label/name/required/help，`name` 为权威绑定键强制下沉给控件）；x-form 统一遍历「最外层」控件、按公开值面聚合 `values`/`formData`（表单归属不跨 shadow，slot 进来的控件 `new FormData()` 收不到，故手动收集；控件自带 FCCE 仍在，直接放页面原生 form 可自动计入），`validate`/`submit`/`reset`/`setValues`，可取消 `x-submit`；校验以控件原生约束为底层（required/type/pattern），叠加函数式自定义规则 `validate(rules?)`——rules 为「字段名→断言函数」（返回 `true/undefined` 通过、非空字符串即错误消息，第二参拿整表单 `values` 做跨字段、可异步），`validate()` 统一返回 `Promise<boolean>`；提交入口不写监听——footer 里 `<x-button command="submit"|"reset">` 即就近交给本 form 认领（footer 须在 `<x-form>` 内：命令只沿祖先链上传）；`disabled` 显式下发各控件） |
 | Dialog | `<x-dialog>` + `<x-dialog-header>` / `<x-dialog-footer>` | 🚧 开发中（M0，与抽屉同模式的居中浮层：遮罩 + 面板、Esc 关闭、滚动锁（与抽屉共享计数与 Esc 栈，一次 Esc 只关最上层）；快捷用法只给 `title`/`subtitle` 即自动生成带关闭按钮的头部（显式 header 时让位）；`closable=false` 一次性禁用遮罩点击/Esc/关闭按钮三条路径（footer 里的 `command="close"` 与 `hide()` 照旧可用）；`width` 默认 480px，内容超高只有中部滚动、header/footer 常驻） |
 | Toast | `<x-toast>` | 🚧 开发中（M0，轻提示容器：页面挂一个 `<x-toast>`（不占布局）、调 `add(文本, opts)` 即在其内堆叠；不锁滚动/不拦操作、`pointer-events` 只落条上；`color` 语义色自动配图标、`duration` 自动关（hover 暂停）、`closable` 手关、`placement` 六向（四角+顶/底居中）、`max` 堆叠上限；每条关闭前派发可取消 `x-close`；内容仅纯文本） |
+| Alert | `<x-alert>` | 🚧 开发中（P1，警告提示：toast 的常驻版，页面内联不自消失；双轴 `variant`（soft 淡底/solid 实底）×`color`（7 角色）；图标名跟随 color 自动配（与 toast 同表，default/primary 无图标自动收起）、`icon=false` 可关；`title` 属性起标题层 + 默认插槽放富内容；`closable` 派发可取消 `x-close` 组件不自删（与 x-tag 同契约）；`role=alert` 出现即播报） |
 | Tooltip | `<x-tooltip>` | 🚧 开发中（M0，文字提示：包裹触发内容（同 x-badge 锚定态的包裹结构）、悬停/聚焦弹一枚深色小气泡；`content` 纯文本（空则不弹）、`placement` 四向、`delay` 显示延时（默认 150ms）、`open` 强制常开；气泡 `pointer-events:none` 不拦操作、shadow 内 absolute 定位（会被祖先 overflow 裁剪、与 x-select 同取舍）；反色实底随主题联动） |
+| Popover | `<x-popover>` | 🚧 开发中（P1，气泡卡片：包裹结构（默认插槽触发件 + `slot=content` 面板内容），面板为 shadow 内 `position:fixed` 实底卡片（不受祖先 overflow 裁剪），坐标由 `core/anchor.ts` 按 `placement` 四向算出（主轴空间不足自动翻转、交叉轴居中后视口夹紧）；`trigger` click/hover（hover 移开 150ms 延时收、不设陷阱）；click 模式吃 P0-1 基建：打开即聚焦、Tab 锁面板内、关闭归还来源，Esc 走全局浮层栈只关最上层，面板外 pointerdown 即关；滚动/缩放跟随重定位；`show()/hide()/toggle()` 与反射 `open` 等价；认领 `close` 命令） |
+| Dropdown | `<x-dropdown>` + `<x-dropdown-content>` | 🚧 开发中（P1，下拉菜单：x-popover 的菜单化子类（只覆盖四个旋钮：起边对齐、面板 minWidth 跟触发件宽、点内容行即关、haspopup=menu），开合/Esc 栈/外部点关/焦点归还/fixed 落位零重复实现；菜单行用配套部件 `<x-dropdown-content>` 归组（自动挂 slot="content"、默认纵排铺满，行与触发件不再平铺成兄弟；轻量也可直接多元素挂 slot="content"），点行派发 `x-select`（detail:{item} = 被点的行）；超高 320px 滚动） |
 | Table | `<x-table>` | 📋 规划中（M4，动手前先纸面钉死 API 面：数据驱动 vs slot 驱动、受控性、行内编辑依赖校验引擎，见 [plan.md](./plan.md)） |
 
 > 完整路线图见 [design.md](./design.md#7-组件路线图分期)，下一阶段优先序与决策倾向见 [plan.md](./plan.md)。

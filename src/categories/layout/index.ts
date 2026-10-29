@@ -11,7 +11,9 @@ import '../../tokens/index.js';
 import '../../components/flex/index.js';
 import '../../components/box/index.js';
 import '../../components/container/index.js';
+import '../../components/divider/index.js';
 
 export type { XFlex, FlexDirection } from '../../components/flex/x-flex.js';
 export type { XBox, BoxVariant, BoxColor, BoxWidth, BoxShadow } from '../../components/box/x-box.js';
 export type { XContainer, ContainerSide } from '../../components/container/x-container.js';
+export type { XDivider, DividerDirection, LabelPlacement } from '../../components/divider/x-divider.js';

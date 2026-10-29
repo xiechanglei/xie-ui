@@ -24,6 +24,7 @@ export const MENU = [
       { id: 'avatar', label: 'Avatar 头像', tag: 'x-avatar', status: 'done' },
       { id: 'badge', label: 'Badge 徽标', tag: 'x-badge', status: 'done' },
       { id: 'spinner', label: 'Spinner 加载中', tag: 'x-spinner', status: 'done' },
+      { id: 'progress', label: 'Progress 进度条', tag: 'x-progress', status: 'done' },
       { id: 'tag', label: 'Tag 标签', tag: 'x-tag', status: 'done' },
     ],
   },
@@ -34,6 +35,7 @@ export const MENU = [
       { id: 'flex', label: 'Flex 弹性布局', tag: 'x-flex', status: 'done' },
       { id: 'box', label: 'Box 通用容器', tag: 'x-box', status: 'done' },
       { id: 'container', label: 'Container 布局容器', tag: 'x-container', status: 'done' },
+      { id: 'divider', label: 'Divider 分割线', tag: 'x-divider', status: 'done' },
     ],
   },
   {
@@ -66,7 +68,10 @@ export const MENU = [
       { id: 'drawer', label: 'Drawer 抽屉', tag: 'x-drawer', status: 'done' },
       { id: 'dialog', label: 'Dialog 对话框', tag: 'x-dialog', status: 'done' },
       { id: 'toast', label: 'Toast 轻提示', tag: 'x-toast', status: 'done' },
+      { id: 'alert', label: 'Alert 警告提示', tag: 'x-alert', status: 'done' },
       { id: 'tooltip', label: 'Tooltip 文字提示', tag: 'x-tooltip', status: 'done' },
+      { id: 'popover', label: 'Popover 气泡卡片', tag: 'x-popover', status: 'done' },
+      { id: 'dropdown', label: 'Dropdown 下拉菜单', tag: 'x-dropdown', status: 'done' },
     ],
   },
 ];

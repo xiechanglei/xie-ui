@@ -1,0 +1,7 @@
+/* x-dropdown-content —— 下拉菜单行容器：纵向排列、逐行铺满。
+   行本身样式由行元素自定（对齐/图标/色），容器只管「一行一个、竖着排」。 */
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}

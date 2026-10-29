@@ -8,6 +8,74 @@
     <script src="/dist/index.js"></script>
 </head>
 <body>
+<!-- spinner 烟雾：尺寸/色/转速 + 随文字色联动 -->
+<section style="display:flex;align-items:center;gap:16px;padding:16px;flex-wrap:wrap">
+    <x-spinner></x-spinner>
+    <x-spinner size="24" stroke="3" color="primary"></x-spinner>
+    <x-spinner size="32" stroke="4" speed="1.2" color="danger"></x-spinner>
+    <x-spinner color="success"></x-spinner>
+    <span style="color:#0891b2;font-size:26px;display:inline-flex;align-items:center;gap:6px"><x-spinner></x-spinner>随文字色</span>
+</section>
+<!-- tag 烟雾：双轴矩阵 + 尺寸/胶囊/可关闭 -->
+<section id="tags" style="display:flex;align-items:center;gap:10px;padding:16px;flex-wrap:wrap">
+    <x-tag>default soft</x-tag>
+    <x-tag color="primary">primary soft</x-tag>
+    <x-tag variant="solid" color="success">solid success</x-tag>
+    <x-tag variant="outline" color="danger">outline danger</x-tag>
+    <x-tag variant="ghost" color="info">ghost info</x-tag>
+    <x-tag round color="secondary">胶囊</x-tag>
+    <x-tag size="lg" color="warning">大号</x-tag>
+    <x-tag closable color="danger">可关闭</x-tag>
+    <x-tag closable variant="solid">点我关</x-tag>
+</section>
+<!-- divider 烟雾：纯线/带字/虚线/纵向 -->
+<section style="padding:16px">
+    <x-divider></x-divider>
+    <x-divider>或</x-divider>
+    <x-divider dashed label-placement="start">虚线居左</x-divider>
+    <div style="display:flex;align-items:center;gap:8px">
+        <x-button size="sm" variant="ghost">编辑</x-button>
+        <x-divider direction="vertical"></x-divider>
+        <x-button size="sm" variant="ghost">删除</x-button>
+    </div>
+</section>
+<!-- progress 烟雾：定值/推进/不确定/色/尺寸 -->
+<section style="display:flex;flex-direction:column;gap:16px;padding:16px">
+    <x-progress value="35"></x-progress>
+    <x-progress id="pg-live" value="0" color="warning"></x-progress>
+    <x-progress indeterminate color="danger"></x-progress>
+    <x-progress value="70" color="success" size="16"></x-progress>
+</section>
+<!-- alert 烟雾：双轴/标题/富内容/可关闭 -->
+<section id="alerts" style="display:flex;flex-direction:column;gap:14px;padding:16px">
+    <x-alert color="info" title="提示">默认 soft 形态，正文走插槽。<x-button size="sm" variant="outline">了解更多</x-button></x-alert>
+    <x-alert color="success">纯文字成功提示</x-alert>
+    <x-alert variant="solid" color="danger" title="严重错误" closable>solid + 可关闭</x-alert>
+    <x-alert color="warning" closable>点 × 派发 x-close，本台直接移除</x-alert>
+</section>
+<!-- popover/dropdown 烟雾：fixed 面板落位/翻转、Esc 栈、焦点陷阱、点行即关 -->
+<section style="display:flex;align-items:center;gap:16px;padding:16px;flex-wrap:wrap">
+    <x-popover>
+        <x-button variant="outline">Popover（点开展）</x-button>
+        <div slot="content" style="display:flex;flex-direction:column;gap:8px;max-width:220px">
+            面板内可交互：Tab 锁在这里，Esc/外点后焦点归还
+            <input placeholder="随手输…">
+        </div>
+    </x-popover>
+    <x-popover trigger="hover" placement="right">
+        <x-button variant="soft" color="info">Hover·右侧</x-button>
+        <div slot="content">移入即开，移开 150ms 自动收</div>
+    </x-popover>
+    <x-dropdown id="drop">
+        <x-button variant="outline">Dropdown <x-icon name="chevron-down"></x-icon></x-button>
+        <x-dropdown-content>
+            <x-button size="sm">重命名</x-button>
+            <x-button size="sm">归档</x-button>
+            <x-button size="sm">删除</x-button>
+        </x-dropdown-content>
+    </x-dropdown>
+    <span id="drop-out" style="font-size:13px;color:var(--xie-color-muted)"></span>
+</section>
 <x-form>
     <x-form-item label="用户名" name="username" required help="请输入您的用户名">
         <x-input placeholder="请输入用户名"></x-input>
@@ -26,6 +94,23 @@
         event.preventDefault();
         console.log('表单提交', form.values);
         form.validate({"username":v=>v.length>=10 || "必须超过10"});
+    });
+    // 可关闭标签：宿主在 x-close 里决定移除（组件不自删）
+    document.getElementById('tags').addEventListener('x-close', (e) => e.target.remove());
+    // alert 同契约：x-close 即移除
+    document.getElementById('alerts').addEventListener('x-close', (e) => e.target.remove());
+    // progress 烟雾：周期推进（验证 property 直写 + width 过渡）
+    (() => {
+        const bar = document.getElementById('pg-live');
+        let v = 0;
+        setInterval(() => {
+            v = v >= 100 ? 0 : v + 8;
+            bar.value = v;
+        }, 700);
+    })();
+    // dropdown 选行回显：直接吃语义事件，detail.item 即被点的行
+    document.getElementById('drop').addEventListener('x-select', (e) => {
+        document.getElementById('drop-out').textContent = `选了「${e.detail.item.textContent.trim()}」`;
     });
 </script>
 </body>

@@ -1,0 +1,24 @@
+/* x-dropdown —— 下拉菜单：复用 x-popover 的面板基建（fixed 落位/Esc 栈/外部点关），
+   样式只把面板从"卡片"收口成"菜单"：内边距收紧、行默认纵向铺满。
+   与 popover 样式表同挂一个 shadow root，同特异度后者胜出。 */
+.panel {
+  padding: 4px;
+  min-width: 160px;
+  max-height: min(320px, 70vh);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+/* 菜单行默认纵向排列、逐行铺满：多个直接挂 slot="content" 的元素即为多行，
+   消费者无需再写 flex-column 包装层（行内部对齐/图标仍由行元素自己决定） */
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.panel::-webkit-scrollbar {
+  width: 8px;
+}
+.panel::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--xie-color-muted) 35%, transparent);
+  border-radius: 9999px;
+}

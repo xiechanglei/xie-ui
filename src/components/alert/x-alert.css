@@ -1,0 +1,102 @@
+/* x-alert —— 常驻提示块。color 选语义色、variant 选消费方式（soft 淡底/solid 实底），二者正交。
+   几何吃宿主局部变量（--_accent 系），随主题明暗自动联动。 */
+:host {
+  --_accent: var(--xie-color-info);
+  --_accent-fg: var(--xie-color-info-fg);
+  --_accent-soft: var(--xie-color-info-soft);
+
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.base {
+  --_bg: var(--_accent-soft);
+  --_fg: var(--_accent);
+  --_border: transparent;
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--xie-space-3);
+  box-sizing: border-box;
+  padding: var(--xie-space-3) var(--xie-space-4);
+  border: 1px solid var(--_border);
+  border-radius: var(--xie-radius-md);
+  background: var(--_bg);
+  color: var(--_fg);
+  font-size: var(--xie-font-size-md);
+  line-height: 1.5;
+}
+
+/* 颜色轴：覆盖 accent 三件套（与形态正交） */
+:host([color="default"]) .base { --_accent: var(--xie-color-fg); --_accent-fg: var(--xie-color-bg); --_accent-soft: var(--xie-color-surface); }
+:host([color="primary"]) .base { --_accent: var(--xie-color-primary); --_accent-fg: var(--xie-color-primary-fg); --_accent-soft: var(--xie-color-primary-soft); }
+:host([color="secondary"]) .base { --_accent: var(--xie-color-secondary); --_accent-fg: var(--xie-color-secondary-fg); --_accent-soft: var(--xie-color-secondary-soft); }
+:host([color="success"]) .base { --_accent: var(--xie-color-success); --_accent-fg: var(--xie-color-success-fg); --_accent-soft: var(--xie-color-success-soft); }
+:host([color="warning"]) .base { --_accent: var(--xie-color-warning); --_accent-fg: var(--xie-color-warning-fg); --_accent-soft: var(--xie-color-warning-soft); }
+:host([color="danger"]) .base { --_accent: var(--xie-color-danger); --_accent-fg: var(--xie-color-danger-fg); --_accent-soft: var(--xie-color-danger-soft); }
+:host([color="info"]) .base { --_accent: var(--xie-color-info); --_accent-fg: var(--xie-color-info-fg); --_accent-soft: var(--xie-color-info-soft); }
+
+/* 形态轴：soft=淡底强调字（缺省），solid=实底反色字 */
+:host([variant="soft"]) .base { --_bg: var(--_accent-soft); --_fg: var(--_accent); --_border: transparent; }
+:host([variant="solid"]) .base { --_bg: var(--_accent); --_fg: var(--_accent-fg); --_border: transparent; }
+
+/* soft 下正文用常规前景色，仅标题/图标吃强调色（淡底大段强调字难读）；solid 全程反色 */
+:host([variant="soft"]) .body { color: var(--xie-color-fg); }
+
+.icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  line-height: 0;
+  margin-top: 1px;
+}
+.icon[hidden] {
+  display: none;
+}
+
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--xie-space-1);
+}
+
+.title {
+  font-weight: 600;
+}
+.title[hidden] {
+  display: none;
+}
+
+.body {
+  /* 富内容容器：段落首尾 margin 收起，让 alert 自己掌控留白 */
+  > :first-child { margin-top: 0; }
+  > :last-child { margin-bottom: 0; }
+}
+
+.close {
+  all: unset;
+  display: inline-flex;
+  flex: 0 0 auto;
+  padding: 2px;
+  border-radius: var(--xie-radius-sm);
+  color: currentColor;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+.close:hover {
+  opacity: 1;
+  background: color-mix(in oklab, currentColor 18%, transparent);
+}
+.close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+.close[hidden] {
+  display: none;
+}

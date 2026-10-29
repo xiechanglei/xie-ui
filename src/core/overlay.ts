@@ -55,6 +55,38 @@ function onKey(event: KeyboardEvent): void {
 }
 
 /* -------------------------------------------------------------------------- */
+/*                              滚动重定位监听目标                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * 收集「能收到宿主相关滚动信号」的事件目标：window + 宿主所在铺平树（flattened tree）
+ * 祖先链上的每个 shadow root。
+ *
+ * 坑：scroll 事件不冒泡也 **不跨 shadow 边界**（composed:false），只挂 window capture 监听
+ * 接不到 shadow 内滚动容器的信号——典型如文档站：popover 在 x-container 的 light DOM（经 slot
+ * 布进 shadow 内的 .main），滚动发生在 x-container 的 shadow 树里，window 完全听不到，
+ * 浮层停在旧坐标「随页面滚动错乱」。捕获路径会经过事件所在树的每个节点（含 shadow root），
+ * 故给链上每个 shadow root 挂 capture 监听即可接住其内任意元素的滚动；文档/光 DOM 滚动仍由 window 接。
+ *
+ * 上溯走铺平树而非 parentNode：遇 assignedSlot（被分布进父树的光 DOM 元素）就跳进 slot 所在的
+ * shadow 树继续，才能从宿主一直走到 x-container 这类外层树的 shadow root。
+ */
+export function scrollTargetsFor(el: Element): EventTarget[] {
+  const targets: EventTarget[] = [window];
+  let n: Node | null = el;
+  while (n) {
+    if (n instanceof ShadowRoot) {
+      targets.push(n);
+      n = n.host;
+    } else {
+      const slot: HTMLSlotElement | null = (n as Element).assignedSlot ?? null;
+      n = slot ?? n.parentNode;
+    }
+  }
+  return targets;
+}
+
+/* -------------------------------------------------------------------------- */
 /*                                焦点陷阱                                       */
 /* -------------------------------------------------------------------------- */
 

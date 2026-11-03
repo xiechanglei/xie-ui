@@ -1,4 +1,6 @@
-/* x-tab —— 选项卡按钮：文字 + 激活下划线（::after scaleX，不量几何）。 */
+/* x-tab —— 选项卡按钮。缺省 underline：文字 + 激活下划线（::after scaleX，不量几何）。
+   variant/size/orientation 由父件 x-tabs 回写 attribute 消费（脱机摆放也可自写）；
+   pills=淡底/实底反色胶囊（圆角随主题旋钮），segmented=轨道内浮起块。 */
 :host {
   /* fill 模式由 x-tabs 下发 --_tab-flex 控制等分（缺省随内容宽） */
   display: inline-flex;
@@ -25,7 +27,8 @@
   color: var(--xie-color-muted);
   white-space: nowrap;
   cursor: pointer;
-  transition: color 0.15s ease;
+  border-radius: var(--xie-radius-md);
+  transition: color 0.15s ease, background-color 0.15s ease;
 }
 .base:hover {
   color: var(--xie-color-fg);
@@ -33,7 +36,6 @@
 .base:focus-visible {
   outline: 2px solid var(--xie-color-primary);
   outline-offset: -2px;
-  border-radius: var(--xie-radius-sm);
 }
 :host([disabled]) .base {
   color: var(--xie-color-border);
@@ -61,6 +63,59 @@
 }
 :host([active]) .base::after {
   transform: scaleX(1);
+}
+
+/* 尺寸轴：sm/lg 覆盖内边距与字号（md 即上方缺省） */
+:host([size="sm"]) .base {
+  padding: 6px 12px;
+  font-size: var(--xie-font-size-sm);
+}
+:host([size="lg"]) .base {
+  padding: 12px 20px;
+  font-size: var(--xie-font-size-lg);
+}
+
+/* pills：淡底/实底反色胶囊；圆角吃 --xie-radius-lg，跟随全局主题圆角旋钮（用户反馈：不锁死全圆）；
+   hover 主色淡底，active 实底反色白字，无下划线 */
+:host([variant="pills"]) .base {
+  border-radius: var(--xie-radius-lg);
+}
+:host([variant="pills"]) .base:hover {
+  background: color-mix(in oklab, var(--xie-color-primary) 10%, transparent);
+}
+:host([variant="pills"][active]) .base,
+:host([variant="pills"][active]) .base:hover {
+  background: var(--xie-color-primary);
+  color: var(--xie-color-primary-fg);
+}
+
+/* segmented：轨道内小块；active 浮起（底色抬到 bg + 轻阴影），无下划线 */
+:host([variant="segmented"][active]) .base,
+:host([variant="segmented"][active]) .base:hover {
+  background: var(--xie-color-bg);
+  color: var(--xie-color-fg);
+  box-shadow: var(--xie-shadow-1);
+}
+
+/* 非 underline 形态隐藏下划线指示条 */
+:host([variant="pills"]) .base::after,
+:host([variant="segmented"]) .base::after {
+  display: none;
+}
+
+/* 纵排：underline 指示条转为左缘竖线（scaleY 进场）；tab 由卡条列 stretch 撑满宽、内容居中 */
+:host([orientation="vertical"]) .base::after {
+  left: 0;
+  right: auto;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  height: auto;
+  border-radius: 0 2px 2px 0;
+  transform: scaleY(0);
+}
+:host([orientation="vertical"][active]) .base::after {
+  transform: scaleY(1);
 }
 
 @media (prefers-reduced-motion: reduce) {

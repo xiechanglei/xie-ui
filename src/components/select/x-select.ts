@@ -4,6 +4,9 @@
  * 触发件为 shadow 内 <button role="combobox">，弹层为 position:fixed 的自绘 listbox
  * （原生 select 的弹出面板由操作系统绘制、CSS 进不去，观感不可控，故整体自绘）：
  * 弹层吃全局令牌（表面色/圆角/阴影/语义色/暗色），随主题实时联动；空间不足自动向上翻转。
+ * 弹层<b>不</b>改吃 x-popover / core/anchor.ts（已评估不做，理由见 plan.md「已评估不做的事」）：本件是
+ * combobox pattern——焦点始终留在触发件、靠 aria-activedescendant 指高亮项，与 popover/dropdown 的
+ * dialog/menu pattern（焦点进面板 + Tab 陷阱）是两套规矩；且 listbox 需与触发件严格等宽。
  * 键盘完整支持：↑↓ 开合与移动、Home/End、Enter/Space 选中、Esc 关闭、输入式首字母不做（可反馈再加）。
  *
  * 选项来源二选一（可混用，数组优先）：

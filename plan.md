@@ -1,7 +1,7 @@
 # xie-ui 后续规划（plan）
 
-> 盘点时点：2026-10-28（最近更新 2026-10-29：P0-1/P0-2 完成、P1 已交 spinner/tag + popover/dropdown + progress/divider/alert + tabs/accordion 四批）。已完成 38 个组件（basic 9 / layout 4 / form 10 / nav 8 / feedback 9 + theme-panel + spinner），
-> M0–M3 基本落地，M4 仅 menu + tabs + accordion（table 未做），M5 仅文档站；包体积基线 **185.06 kB / gzip 38.94 kB**。
+> 盘点时点：2026-10-28（最近更新 2026-11-03：P0-1/P0-2 完成、P1 已交 spinner/tag + popover/dropdown + progress/divider/alert + tabs/accordion + breadcrumb 五批）。已完成 40 个组件（basic 9 / layout 4 / form 10 / nav 10 / feedback 9 + theme-panel + spinner），
+> M0–M3 基本落地，M4 已交 menu 三件套 + tabs 三件套 + accordion 两件 + breadcrumb 两件（table 未做），M5 仅文档站；包体积基线 **190.92 kB / gzip 40.16 kB**。
 > 本文是下一阶段的候选规划，按「先还债、再补全、后攻坚」排序，动哪个以当期讨论为准。
 
 ## 现状快照
@@ -12,7 +12,7 @@
 | M1 基础（input/textarea/checkbox/radio/badge/avatar） | 🔶 spinner ✅、tag ✅、progress ✅（P1 第三批）；缺 space |
 | M2 表单系统（form/select/switch/slider/upload + FCCE） | ✅ 完成（date-picker 未做、校验规则面窄） |
 | M3 反馈与浮层（dialog/toast/tooltip/drawer） | 🔶 alert ✅（P1 第三批）、popover/dropdown ✅（P1 第二批，首吃 P0-1 基建）；焦点管理 ✅（P0-1 已做）；divider ✅ |
-| M4 导航与数据展示（menu/tabs/accordion） | 🔶 menu 三件套 ✅、tabs 三件套 ✅、accordion 两件 ✅（P1 第四批）；缺 table |
+| M4 导航与数据展示（menu/tabs/accordion/breadcrumb/table） | 🔶 menu 三件套 ✅、tabs 三件套 ✅、accordion 两件 ✅（P1 第四批）、breadcrumb 两件 ✅（P1 第五批）；缺 table |
 | M5 工程化 | 🔶 仅文档站；无 CI / 自动化测试 / 发布流程 |
 
 ## P0 · 收尾性技术债（优先，拖越久返工越大）
@@ -56,7 +56,14 @@
 | `x-accordion` ✅ | nav/layout | 已交（P1 第四批）：x-accordion + x-accordion-item，折叠复用 x-menu-group 的 grid 0fr↔1fr；根协调单开互斥（multiple 可关）+ 派发 x-change，item 可独立使用；程序化改 expanded 不触发互斥/事件 |
 | `x-breadcrumb` ✅ | nav | 已交（P1 第五批）：x-breadcrumb + x-breadcrumb-item 两件套。根单源下沉 `separator`（slash/chevron/none，chevron 复用内部 chevron-right）+ 末项回写 `current`；`max-items` 收纳长路径（首项与末项恒在、中间折成「…」挂到第一个被折叠项、点它全展开并派发 `x-toggle`）；item 写了 `href` 即真链接，点击先派可取消 `x-select`（`preventDefault()` 即换前端路由） |
 | `x-pagination` | nav | 配合未来 table 使用 |
-| `x-popover` / `x-dropdown` ✅ | feedback | 已交（P1 第二批）：新增 `core/anchor.ts` 落位公用（fixed 面板四向/翻转/夹紧），popover 吃 P0-1 焦点陷阱 + Esc 栈，dropdown 继承 popover 只覆盖四旋钮；可反哺 select 弹层的通用化（待做） |
+| `x-popover` / `x-dropdown` ✅ | feedback | 已交（P1 第二批）：新增 `core/anchor.ts` 落位公用（fixed 面板四向/翻转/夹紧），popover 吃 P0-1 焦点陷阱 + Esc 栈，dropdown 继承 popover 只覆盖四旋钮；~~反哺 select 弹层~~ 已评估**不做**（见下方「已评估不做的事」） |
+
+## 已评估不做的事（留档防反复重提）
+
+| 事项 | 结论与理由 |
+| --- | --- |
+| **x-select 弹层迁移到 `core/anchor.ts` / 继承 x-popover** | **不做**（本轮经用户提出并重新评估后定案）。四条结构性理由：① **焦点模型不同**——select 是 combobox pattern（焦点始终留在触发件 + `aria-activedescendant` 指高亮项），popover/dropdown 是 dialog/menu pattern（焦点进面板 + `trapFocus`，关闭归还来源）；继承就得给父类开一个「不要陷阱、焦点留外面」的旋钮，等于把 P0-1 刚做的核心卖点变成可选，抽象当场失效。② **面板内容来源不同**——popover 面板是 `slot=content` 收宿主写的 light DOM，select 面板是自己按 `options`/`<option>` 双源构建的 `<li>` 列表（按下标维护 `data-active`/`data-selected`/`aria-selected`/`scrollIntoView`）；塞进 slot 反而让 listbox 逃出自身 shadow，样式与键盘导航都要跨边界回查。③ **落位语义有专属一档**——`placePanel` 只算 left/top、不管宽度（popover 侧只有 `minWidth`），select 要的是与触发件**严格等宽**（listbox 惯例），且翻转判据是「上下谁更宽裕」而非「对侧放得下就翻」，等宽面板也无需交叉轴夹紧；为省约 40 行去扩公共 API 违反「≥ 2 个真实调用方且语义一致才抽」的既有判据。④ **差异面只会更大**——select 本质是「带面板的表单控件」（FCCE + 校验 + FormData + 单/多选），dropdown 是纯展示浮层；后续要长搜索框/分组/多选 chip/级联树形，继承关系会让每次扩展都得同时改父类与子类。真到做「带搜索的下拉」时大概率是新组件（`x-autocomplete`/`x-combobox`），它与 select 共享的是「采集 + 过滤 + 高亮」这套 listbox 逻辑，而不是与 popover 共享落位。**代价核算**：重复仅 `__position` 18 行 + 外部点关/滚动挂卸约 20 行 ≈ 40 行，gzip < 0.1 kB。 |
+| **`loadMenuMode`（菜单由数据/API 生成）进库** | 不做进库（详见 P4）：路由/菜单生成器属应用层，与本库「简单化、不做框架」定位冲突；可抽成独立 `xie-ui-admin` 模板包或直接写在 docs 层。 |
 
 ## P2 · 攻坚件（先纸面设计、后开发——沿用 x-form「先讨论后写」的成功经验）
 
@@ -78,7 +85,7 @@
   每组件保 3–5 条核心交互断言，防回归。注意既有约束：effect 微任务语义（写后等一拍再读）、
   dist 缓存需 cache-buster。
 - **CI**：lint + tsc + build + e2e 一条龙。
-- **体积护栏**：size-limit 进 CI，gzip 预算设线（基线 32.55 kB），防无意识膨胀。
+- **体积护栏**：size-limit 进 CI，gzip 预算设线（基线 40.16 kB），防无意识膨胀。
 - **发布**：semver 流程，P0 + 部分 P1 完成后发第一个 beta，拿真实项目试吃。
 - **React wrapper**：`createElement`/`defineComponent` 一行封装（体积成本极低），Web Components 框架中立红利所在。
 - **VSCode Web Tags 自定义数据**（custom-data），提升消费者体验。

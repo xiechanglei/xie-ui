@@ -2,8 +2,16 @@
  * 锚定浮层的落位计算（库内部工具，不对外暴露）。
  *
  * 把「面板贴到触发件某一侧、空间不足翻转到对侧、交叉轴夹紧防溢出屏幕」这段纯几何逻辑
- * 收敛到一处，供 x-popover / x-dropdown 共用（x-select 弹层后续也可迁移到此，见 plan.md）。
+ * 收敛到一处，供 x-popover / x-dropdown 共用。
  * 面板用 position:fixed 脱离祖先 overflow 裁剪，坐标以视口为准，故所有计算基于 getBoundingClientRect。
+ *
+ * 注：<b>x-select 的弹层刻意不迁移到此</b>（已评估，见 plan.md「已评估不做的事」，勿再重提）：
+ *  1) 焦点模型不同——select 是 combobox pattern（焦点始终留在触发件，靠 aria-activedescendant 指高亮项），
+ *     popover/dropdown 是 dialog/menu pattern（焦点进面板 + Tab 陷阱），两者在 ARIA 里是两套规矩；
+ *  2) 内容来源不同——这里服务的是「slot 收宿主写的 light DOM」，select 面板是自己按选项源构建的 listbox；
+ *  3) 尺寸语义不同——select 要 width 与触发件<b>严格等宽</b>（listbox 惯例），本工具侧只有 minWidth，
+ *     且翻转判据是「对侧放得下就翻」而 select 是「上下谁更宽裕才翻」，等宽面板也无需交叉轴夹紧。
+ * 与其为省四十行为公共件开 matchWidth/翻转策略旋钮（语义并不一致），不如各自自持。
  */
 
 export type AnchorPlacement = 'top' | 'bottom' | 'left' | 'right';

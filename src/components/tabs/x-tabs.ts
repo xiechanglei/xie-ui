@@ -7,14 +7,20 @@
  * 选项卡自动挂 `slot="tab"` 进卡条（见 x-tab），面板走默认插槽——两者在 light DOM 里的书写顺序不限。
  *
  * 属性：
- *  - value  当前选中标签的关联键（反射）；缺省自动选第一张未禁用的 tab
- *  - fill   等分铺满（反射）：所有 tab 平分卡条宽度（MUI fullWidth），缺省随内容宽
+ *  - value        当前选中标签的关联键（反射）；缺省自动选第一张未禁用的 tab
+ *  - fill         等分铺满（反射）：所有 tab 平分卡条宽度（MUI fullWidth），缺省随内容宽
+ *  - variant      形态（反射）：underline 下划线（缺省）/ pills 药丸 / segmented 分段器（整组装进淡色轨道）
+ *  - size         尺寸（反射）：sm / md（缺省）/ lg，统一控制各 tab 的内边距与字号
+ *  - orientation  排列方向（反射）：horizontal（缺省）/ vertical；纵排时卡条成列居左、面板在右，tab 内容水平居中
+ *
+ *  variant / size / orientation 由本组件回写到每张 x-tab 的 attribute 上驱动其样式（不建议在 x-tab 单独设，
+ *  脱机摆放除外）；每张 tab 的默认插槽可放任意内容（x-icon / x-tag / x-badge 与文字混排，gap 自动给距）。
  *
  * 事件：
  *  - x-select  切换选中时派发（bubbles+composed），detail:{ value }
  *
  * 无障碍：tablist / tab / tabpanel 三角色齐备，roving tabindex（仅选中项 Tab 可达），
- * 方向键 ←→（纵排 ↑↓）/Home/End 在未禁用 tab 间漫游并即时选中。
+ * 方向键按 orientation 限定（横排 ←→、纵排 ↑↓）/Home/End 在未禁用 tab 间漫游并即时选中。
  * 定制：暴露 part="tablist" / "panels"。
  */
 
@@ -41,12 +47,18 @@ class XTabs extends XBaseElement {
   static properties: Record<string, PropertyOptions> = {
     value: { type: 'String', reflect: true, default: '' },
     fill: { type: 'Boolean', reflect: true, default: false },
+    variant: { type: 'String', reflect: true, default: 'underline' },
+    size: { type: 'String', reflect: true, default: 'md' },
+    orientation: { type: 'String', reflect: true, default: 'horizontal' },
   };
 
   static styles = [tabsStyles];
 
   declare value: string;
   declare fill: boolean;
+  declare variant: 'underline' | 'pills' | 'segmented';
+  declare size: 'sm' | 'md' | 'lg';
+  declare orientation: 'horizontal' | 'vertical';
 
   constructor() {
     super();
@@ -54,7 +66,7 @@ class XTabs extends XBaseElement {
   }
 
   protected render(): TemplateResult {
-    return html`<div class="tablist" part="tablist" role="tablist"><slot name="tab"></slot></div><div class="panels" part="panels"><slot></slot></div>`;
+    return html`<div class="tablist" part="tablist" role="tablist" aria-orientation=${this.derive(() => this.orientation)}><slot name="tab"></slot></div><div class="panels" part="panels"><slot></slot></div>`;
   }
 
   protected firstUpdated(): void {
@@ -121,15 +133,27 @@ class XTabs extends XBaseElement {
   private __sync(): void {
     for (const tab of this.__tabs()) {
       if (tab.shadowRoot) tab.active = tab.value === this.value;
+      // 形态/尺寸/方向以 attribute 下发给 x-tab（其 CSS 靠宿主属性选择器消费）；缺省值摘除保持 DOM 干净
+      this.__mirror(tab, 'variant', this.variant, 'underline');
+      this.__mirror(tab, 'size', this.size, 'md');
+      this.__mirror(tab, 'orientation', this.orientation, 'horizontal');
     }
     for (const panel of Array.from(this.querySelectorAll<PanelLike>('x-tab-panel'))) {
       if (panel.shadowRoot) panel.toggleAttribute('hidden', panel.value !== this.value);
     }
   }
 
-  /** 键盘漫游：←→/↑↓ 循环、Home/End 跳端点；落焦即选中（自动激活） */
+  private __mirror(tab: TabLike, name: string, value: string, fallback: string): void {
+    if (value === fallback) tab.removeAttribute(name);
+    else tab.setAttribute(name, value);
+  }
+
+  /** 键盘漫游：方向键按 orientation 限定（横排 ←→、纵排 ↑↓）循环、Home/End 跳端点；落焦即选中（自动激活） */
   private __onKeydown = (event: KeyboardEvent): void => {
-    const keys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+    const vertical = this.orientation === 'vertical';
+    const fwdKey = vertical ? 'ArrowDown' : 'ArrowRight';
+    const backKey = vertical ? 'ArrowUp' : 'ArrowLeft';
+    const keys = [fwdKey, backKey, 'Home', 'End'];
     if (!keys.includes(event.key)) return;
     const tabs = this.__tabs().filter((t) => !t.disabled);
     if (!tabs.length) return;
@@ -137,9 +161,8 @@ class XTabs extends XBaseElement {
     const current = tabs.findIndex((t) => t === (event.target as TabLike));
     if (current < 0) return;
     let next = current;
-    const fwd = event.key === 'ArrowRight' || event.key === 'ArrowDown';
-    if (fwd) next = (current + 1) % tabs.length;
-    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (current - 1 + tabs.length) % tabs.length;
+    if (event.key === fwdKey) next = (current + 1) % tabs.length;
+    else if (event.key === backKey) next = (current - 1 + tabs.length) % tabs.length;
     else if (event.key === 'Home') next = 0;
     else if (event.key === 'End') next = tabs.length - 1;
     event.preventDefault();

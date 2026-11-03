@@ -8,7 +8,7 @@
  * 属性：
  *  - value    关联键（反射）：与同名 x-tab-panel 的 value 配对
  *  - disabled 禁用（反射）：不可点、不参与键盘漫游
- *  - active   选中态（反射）：由 x-tabs 回写（独立使用也可自写），驱动高亮下划线 + aria-selected
+ *  - active   选中态（反射）：由 x-tabs 回写（独立使用也可自写），驱动高亮样式（下划线/胶囊/浮块随形态而变）+ aria-selected
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';

@@ -34,6 +34,14 @@
         <x-alert color="warning" title="部署即将开始">
             服务将在 5 分钟后重启，请保存好工作。
         </x-alert>
+        <x-tabs fill>
+            <x-tab value="a">
+                可用
+                <x-tag variant="ghost" color="success">Ghost Success</x-tag>
+            </x-tab>
+            <x-tab value="b" disabled>禁用</x-tab>
+            <x-tab value="c">也可用</x-tab>
+        </x-tabs>
     </x-box>
 </x-container>
 </body>

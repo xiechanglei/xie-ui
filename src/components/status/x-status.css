@@ -1,0 +1,90 @@
+/* x-status —— 状态灯。直径走 --_sz 档位变量（反射属性切换），颜色走 --_st-color
+   （缺省 currentColor 随上下文文字色/主题联动，与 spinner 同源范式）。 */
+:host {
+  --_sz: 8px;
+  --_st-color: currentColor;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  vertical-align: middle;
+  line-height: 0; /* 消除行高对点旁排版的撑高 */
+}
+/* 作者 display 会盖掉 UA 的 [hidden]{display:none}，必须显式补回 */
+:host([hidden]) {
+  display: none;
+}
+
+:host([size='xs']) {
+  --_sz: 4px;
+}
+:host([size='sm']) {
+  --_sz: 6px;
+}
+:host([size='lg']) {
+  --_sz: 12px;
+}
+
+.dot {
+  display: block;
+  box-sizing: border-box;
+  width: var(--_sz);
+  height: var(--_sz);
+  border-radius: 50%;
+  background: var(--_st-color);
+  position: relative;
+}
+
+/* 颜色轴：强调角色吃各自语义色；default 即基座 currentColor，无需规则（与 avatar/badge/spinner 同一范式） */
+:host([color='primary']) { --_st-color: var(--xie-color-primary); }
+:host([color='secondary']) { --_st-color: var(--xie-color-secondary); }
+:host([color='success']) { --_st-color: var(--xie-color-success); }
+:host([color='warning']) { --_st-color: var(--xie-color-warning); }
+:host([color='danger']) { --_st-color: var(--xie-color-danger); }
+:host([color='info']) { --_st-color: var(--xie-color-info); }
+
+/* 呼吸灯：透明度脉动，表示「活跃」 */
+:host([pulse]) .dot {
+  animation: x-st-pulse 1.4s ease-in-out infinite;
+}
+@keyframes x-st-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* 雷达波：伪元素同心圆向外扩散渐隐（ping），主点保持实心 */
+:host([halo]) .dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--_st-color);
+  animation: x-st-halo 1.2s ease-out infinite;
+}
+@keyframes x-st-halo {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  80%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* 降低动效偏好：停掉脉动/涟漪 —— 静态圆点本身已传达状态，不靠动画说话 */
+@media (prefers-reduced-motion: reduce) {
+  :host([pulse]) .dot {
+    animation: none;
+  }
+  :host([halo]) .dot::before {
+    animation: none;
+    opacity: 0;
+  }
+}

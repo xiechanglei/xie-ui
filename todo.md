@@ -17,7 +17,6 @@
 - Radial progress 组件 https://flyonui.com/docs/components/radial-progress/
 - skeleton 组件 https://flyonui.com/docs/components/skeleton/
 - stack 组件  https://flyonui.com/docs/components/stack/
-- status 组件  https://flyonui.com/docs/components/status/
 - swap 组件  https://flyonui.com/docs/components/swap/
 - timeline 组件 https://flyonui.com/docs/components/timeline/
 - stepper 组件 https://flyonui.com/docs/components/stepper/

@@ -23,25 +23,25 @@
             </x-menu-group>
         </x-menu>
     </div>
+
     <x-box>
-        <x-breadcrumb separator="chevron" max-items="3" label="订单路径">
-            <x-breadcrumb-item href="/">工作台</x-breadcrumb-item>
-            <x-breadcrumb-item href="/orders">订单管理</x-breadcrumb-item>
-            <x-breadcrumb-item href="/orders/9527">订单详情</x-breadcrumb-item>
-            <x-breadcrumb-item href="/refund">退款审批</x-breadcrumb-item>
-            <x-breadcrumb-item>审批记录</x-breadcrumb-item>
-        </x-breadcrumb>
-        <x-alert color="warning" title="部署即将开始">
-            服务将在 5 分钟后重启，请保存好工作。
-        </x-alert>
-        <x-tabs fill>
-            <x-tab value="a">
-                可用
-                <x-tag variant="ghost" color="success">Ghost Success</x-tag>
-            </x-tab>
-            <x-tab value="b" disabled>禁用</x-tab>
-            <x-tab value="c">也可用</x-tab>
-        </x-tabs>
+        <x-flex direction="column">
+            <x-tabs variant="pills">
+                <x-tab value="a">资料</x-tab>
+                <x-tab value="b">设置</x-tab>
+                <x-tab value="c">关于</x-tab>
+            </x-tabs>
+
+            <x-breadcrumb separator="chevron" max-items="3" label="订单路径">
+                <x-breadcrumb-item href="/">工作台</x-breadcrumb-item>
+                <x-breadcrumb-item href="/orders">订单管理</x-breadcrumb-item>
+                <x-breadcrumb-item href="/orders/9527">订单详情</x-breadcrumb-item>
+                <x-breadcrumb-item href="/refund">退款审批</x-breadcrumb-item>
+                <x-breadcrumb-item>审批记录</x-breadcrumb-item>
+            </x-breadcrumb>
+
+            <x-count-up trigger="visible" value="87654"></x-count-up>
+        </x-flex>
     </x-box>
 </x-container>
 </body>

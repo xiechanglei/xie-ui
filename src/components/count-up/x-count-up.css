@@ -1,0 +1,21 @@
+/* x-count-up —— 文本级内联组件：等宽数字（tabular-nums）保证滚动过程宽度不抖动。 */
+:host {
+  display: inline;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family);
+  font-variant-numeric: tabular-nums;
+}
+:host([hidden]) {
+  display: none;
+}
+
+.num {
+  display: inline;
+  white-space: nowrap;
+}
+.affix {
+  display: inline;
+}
+.digits {
+  display: inline;
+}

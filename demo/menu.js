@@ -25,6 +25,7 @@ export const MENU = [
       { id: 'badge', label: 'Badge 徽标', tag: 'x-badge', status: 'done' },
       { id: 'spinner', label: 'Spinner 加载中', tag: 'x-spinner', status: 'done' },
       { id: 'progress', label: 'Progress 进度条', tag: 'x-progress', status: 'done' },
+      { id: 'countup', label: 'CountUp 数字渐变', tag: 'x-count-up', status: 'done' },
       { id: 'tag', label: 'Tag 标签', tag: 'x-tag', status: 'done' },
     ],
   },

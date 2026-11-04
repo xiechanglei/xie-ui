@@ -15,6 +15,33 @@
   flex-direction: column;
   align-items: stretch;
 }
+/* 默认行皮肤（对齐 x-select 弹层的 .option：32px 行高 / 12px 横内边距 / radius-sm / 中性 fg / hover surface）：
+   普通元素当行即可零样式得菜单观；x-button 行走自有外观（:not 豁免防双重内边距）、hr 分隔透传；
+   ::slotted 是作者样式里最弱一档，light DOM 的行内/页面样式总能覆盖 */
+.content::slotted(:not(hr):not(x-button):not(x-dropdown-content)) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--xie-space-2);
+  min-height: 32px;
+  padding: 0 var(--xie-space-3);
+  border: 0;
+  border-radius: var(--xie-radius-sm);
+  background: transparent;
+  color: var(--xie-color-fg);
+  font: inherit;
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.content::slotted(:not(hr):not(x-button):not(x-dropdown-content):not(:disabled):not([data-disabled]):hover) {
+  background: var(--xie-color-surface);
+}
+.content::slotted(:is(:disabled, [data-disabled])) {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 .panel::-webkit-scrollbar {
   width: 8px;
 }

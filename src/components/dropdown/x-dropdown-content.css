@@ -1,7 +1,32 @@
 /* x-dropdown-content —— 下拉菜单行容器：纵向排列、逐行铺满。
-   行本身样式由行元素自定（对齐/图标/色），容器只管「一行一个、竖着排」。 */
+   行默认皮肤与 x-dropdown 面板侧 .content::slotted 同一档参数（32px 行高 / 12px 横内边距 /
+   radius-sm / 中性 fg / hover surface），保证归组与平铺两种写法观感一致；x-button 行与 hr 豁免。 */
 :host {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+}
+slot::slotted(:not(hr):not(x-button)) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--xie-space-2);
+  min-height: 32px;
+  padding: 0 var(--xie-space-3);
+  border: 0;
+  border-radius: var(--xie-radius-sm);
+  background: transparent;
+  color: var(--xie-color-fg);
+  font: inherit;
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+slot::slotted(:not(hr):not(x-button):not(:disabled):not([data-disabled]):hover) {
+  background: var(--xie-color-surface);
+}
+slot::slotted(:is(:disabled, [data-disabled])) {
+  opacity: 0.45;
+  cursor: not-allowed;
 }

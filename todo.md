@@ -10,7 +10,7 @@
 
 
 ## 新组件
-- Chat Bubble 聊天气泡组件  https://flyonui.com/docs/components/chat-bubble/ ✅ 已交付 x-chat-bubble（一条消息一气泡；side start/end 收发镜像；avatar/header(name+time)/footer 三段快捷或 slot 覆盖、空段自动不占位；variant×color 双轴；面朝头像侧上角收小替代物理尾巴）
+- Chat Bubble 聊天气泡组件  https://flyonui.com/docs/components/chat-bubble/ 实现的效果有一些区别
 -  Diff 组件 https://flyonui.com/docs/components/diff/
 - Radial progress 组件 https://flyonui.com/docs/components/radial-progress/
 - skeleton 组件 https://flyonui.com/docs/components/skeleton/

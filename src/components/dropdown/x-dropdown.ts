@@ -5,7 +5,8 @@
  * 点中面板内容即视为「选完一行」自动收起（closeOnChoose），aria-haspopup=menu。
  * 菜单行主范式用配套部件 <x-dropdown-content> 归组（它自动挂进面板、内部默认纵排铺满），
  * 轻量场景也可直接把多个元素挂 slot="content"（平铺写法同样默认纵排）；
- * 行内部对齐/图标由行元素自己决定，点行派发 `x-select` 事件；需要完整键盘漫游的侧栏菜单请用 x-menu。
+ * 普通元素当行零样式即得菜单默认皮肤（对齐 x-select 选项行：32px 行高/中性字色/hover 底色），
+ * 行内放 x-button 等自带外观的组件则豁免不干涉；点行派发 `x-select` 事件；需要完整键盘漫游的侧栏菜单请用 x-menu。
  *
  * 开合/Esc 栈/外部点关/焦点归还全部继承自 x-popover，此处零重复实现
  *（同 x-dialog-header 继承 x-drawer-header 的复用套路）。

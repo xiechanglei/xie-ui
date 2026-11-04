@@ -1,0 +1,369 @@
+/*
+ * xie-ui 文档站样式（Vue 版）。
+ * 页面画布（背景/文字/深浅色）由库的 tokens 全局接管，
+ * 这里只写文档站自身的布局与排版，并消费 --xie-* 语义变量做局部配色。
+ * 与旧 demo/docs.css 同源，供 DemoCard.vue / ApiTable.vue 的类名消费。
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* 外壳布局（header/sidebar/main/footer 四区、侧栏滚动与折叠）已下沉到 x-container 组件本身；
+   品牌区由 x-logo 承担。这里只写塞进侧栏插槽的内容排布。 */
+.docs-side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 0 8px;
+}
+.docs-side x-logo {
+  padding: 4px 16px 12px;
+}
+.docs-menu {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* 主内容区（router-view 落在此 article 内）：代码/示例偏宽，放宽中间列 */
+.docs-page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 40px 48px 80px;
+}
+
+.docs-page h1 {
+  font-size: 28px;
+  margin: 0 0 8px;
+}
+.docs-page .lead {
+  color: var(--xie-color-muted, #71717a);
+  font-size: 15px;
+  margin: 0 0 32px;
+}
+.docs-page h2 {
+  font-size: 20px;
+  margin: 40px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--xie-color-border, #e4e4e7);
+}
+.docs-page h3 {
+  font-size: 15px;
+  margin: 24px 0 8px;
+}
+.docs-page p {
+  line-height: 1.7;
+  font-size: 14px;
+}
+.docs-page code:not(pre code) {
+  background: color-mix(in srgb, var(--xie-color-fg, #000) 8%, transparent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font: 13px/1.5 ui-monospace, monospace;
+}
+
+/* 示例卡片 */
+.demo-card {
+  border: 1px solid var(--xie-color-border, #e4e4e7);
+  border-radius: 10px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.demo-card__preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 28px 20px;
+}
+/* 纵向演示台：需要竖排的示例（表单、含状态行的交互）用；仅影响演示布局，不进入展示源码 */
+.demo-card__preview.is-column {
+  flex-direction: column;
+  align-items: stretch;
+}
+/* 演示台内常用局部布局类（供 :source 以 class 引用，比内联样式整洁；仍属演示台而非组件 API）*/
+.demo-stage {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.demo-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+.demo-box {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--xie-radius-lg, 10px);
+  border: 1px solid var(--xie-color-border, #e4e4e7);
+  background: var(--xie-color-surface, #fff);
+  box-shadow: var(--xie-shadow-2, 0 4px 12px rgba(0, 0, 0, 0.12));
+  color: var(--xie-color-fg, #18181b);
+  max-width: 320px;
+}
+.demo-status {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--xie-color-muted, #71717a);
+}
+.demo-card__title {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--xie-color-muted, #71717a);
+  border-top: 1px dashed var(--xie-color-border, #e4e4e7);
+}
+.demo-card__code {
+  position: relative;
+  border-top: 1px solid var(--xie-color-border, #e4e4e7);
+  background: color-mix(in srgb, var(--xie-color-fg, #000) 4%, transparent);
+}
+.demo-card__code pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  font: 13px/1.6 ui-monospace, "Cascadia Code", monospace;
+}
+.demo-card__copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 12px;
+  padding: 3px 8px;
+  border: 1px solid var(--xie-color-border, #e4e4e7);
+  border-radius: 6px;
+  background: var(--xie-color-bg, #fff);
+  color: var(--xie-color-muted, #71717a);
+  cursor: pointer;
+}
+
+/* API 表格 */
+.api-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 12px 0 8px;
+}
+.api-table th,
+.api-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--xie-color-border, #e4e4e7);
+  vertical-align: top;
+}
+.api-table th {
+  color: var(--xie-color-muted, #71717a);
+  font-weight: 600;
+}
+.api-table td code {
+  font: 12px/1.5 ui-monospace, monospace;
+}
+
+/* 右上角固定主题配置按钮（齿轮）：点击唤出全局 x-theme-panel 抽屉；吃全局令牌随主题自动换肤 */
+.theme-toggle {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--xie-color-border, #e4e4e7);
+  background: var(--xie-color-surface, #fff);
+  color: var(--xie-color-fg, #18181b);
+  cursor: pointer;
+  box-shadow: var(--xie-shadow-1, 0 1px 2px rgba(0, 0, 0, 0.08));
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.theme-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--xie-shadow-2, 0 4px 12px rgba(0, 0, 0, 0.12));
+  border-color: var(--xie-color-primary, #2563eb);
+  color: var(--xie-color-primary, #2563eb);
+}
+.theme-toggle:active {
+  transform: translateY(0) scale(0.94);
+}
+.theme-toggle x-icon {
+  pointer-events: none;
+  transition: transform 0.35s ease;
+}
+.theme-toggle:hover x-icon {
+  transform: rotate(60deg);
+}
+/* 点击反馈：齿轮转一圈（JS 每次 click 重放 is-spinning） */
+.theme-toggle.is-spinning x-icon {
+  animation: theme-toggle-spin 0.5s ease;
+}
+@keyframes theme-toggle-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+/* 图标画廊（x-icon 文档页）：名称用 span 而非 code，避免吃文档站 inline-code 灰底 */
+.icon-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.icon-gallery__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 4px 10px;
+  border: 1px solid var(--xie-color-border, #e4e4e7);
+  border-radius: 8px;
+  color: var(--xie-color-fg, #18181b);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+.icon-gallery__cell:hover {
+  border-color: var(--xie-color-primary, #2563eb);
+  background: var(--xie-color-primary-soft, color-mix(in srgb, var(--xie-color-primary, #2563eb) 8%, transparent));
+}
+.icon-gallery__cell:active {
+  transform: scale(0.96);
+}
+.icon-gallery__name {
+  font: 11px/1.4 ui-monospace, monospace;
+  color: var(--xie-color-muted, #71717a);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.icon-gallery__cell:hover .icon-gallery__name {
+  color: var(--xie-color-primary, #2563eb);
+}
+
+/* ---- 代码高亮配色（highlight.js 只打 class，颜色在此自定义并随主题切换）----
+   不引 hljs 官方主题 CSS：那会给代码面板强加固定底色。这里保持面板透底（.demo-card__code 的 tint），
+   仅给 token 上色；浅色为基准，深色用 :root[data-xie-theme="dark"] 覆盖。 */
+.demo-card__code code.hljs {
+  display: block;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+.hljs-comment,
+.hljs-quote {
+  color: #6a737d;
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-doctag,
+.hljs-formula {
+  color: #d73a49;
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition {
+  color: #032f62;
+}
+.hljs-number,
+.hljs-literal,
+.hljs-type,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link,
+.hljs-meta {
+  color: #005cc5;
+}
+.hljs-built_in,
+.hljs-class .hljs-title,
+.hljs-title.class_ {
+  color: #e36209;
+}
+.hljs-function .hljs-title,
+.hljs-title.function_ {
+  color: #6f42c1;
+}
+/* HTML/XML：尖括号本体随文字色，仅标签名绿、属性紫、属性值蓝 */
+.hljs-name,
+.hljs-section {
+  color: #22863a;
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-params {
+  color: #6f42c1;
+}
+.hljs-operator,
+.hljs-punctuation {
+  color: #d73a49;
+}
+
+/* 深色覆盖（GitHub Dark 系） */
+:root[data-xie-theme="dark"] .hljs-comment,
+:root[data-xie-theme="dark"] .hljs-quote {
+  color: #8b949e;
+}
+:root[data-xie-theme="dark"] .hljs-keyword,
+:root[data-xie-theme="dark"] .hljs-selector-tag,
+:root[data-xie-theme="dark"] .hljs-doctag,
+:root[data-xie-theme="dark"] .hljs-formula,
+:root[data-xie-theme="dark"] .hljs-operator,
+:root[data-xie-theme="dark"] .hljs-punctuation {
+  color: #ff7b72;
+}
+:root[data-xie-theme="dark"] .hljs-string,
+:root[data-xie-theme="dark"] .hljs-regexp,
+:root[data-xie-theme="dark"] .hljs-addition {
+  color: #a5d6ff;
+}
+:root[data-xie-theme="dark"] .hljs-number,
+:root[data-xie-theme="dark"] .hljs-literal,
+:root[data-xie-theme="dark"] .hljs-type,
+:root[data-xie-theme="dark"] .hljs-symbol,
+:root[data-xie-theme="dark"] .hljs-bullet,
+:root[data-xie-theme="dark"] .hljs-link,
+:root[data-xie-theme="dark"] .hljs-meta,
+:root[data-xie-theme="dark"] .hljs-built_in {
+  color: #79c0ff;
+}
+:root[data-xie-theme="dark"] .hljs-function .hljs-title,
+:root[data-xie-theme="dark"] .hljs-title.function_,
+:root[data-xie-theme="dark"] .hljs-class .hljs-title,
+:root[data-xie-theme="dark"] .hljs-title.class_,
+:root[data-xie-theme="dark"] .hljs-attr,
+:root[data-xie-theme="dark"] .hljs-attribute,
+:root[data-xie-theme="dark"] .hljs-variable,
+:root[data-xie-theme="dark"] .hljs-template-variable,
+:root[data-xie-theme="dark"] .hljs-selector-id,
+:root[data-xie-theme="dark"] .hljs-selector-class,
+:root[data-xie-theme="dark"] .hljs-params {
+  color: #d2a8ff;
+}
+:root[data-xie-theme="dark"] .hljs-name,
+:root[data-xie-theme="dark"] .hljs-section {
+  color: #7ee787;
+}

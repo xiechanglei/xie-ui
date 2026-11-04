@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-demo-vue/
 *.log
 npm-debug.log*
 .DS_Store

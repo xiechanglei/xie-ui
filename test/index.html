@@ -46,6 +46,15 @@
                 <span slot="trigger"><x-icon name="settings"></x-icon><b>高级设置</b></span>
                 <div class="自己包的边框底色">构建产物默认输出到 dist/……</div>
             </x-collapse>
+
+            <x-button id="btn-evt" variant="solid">点我</x-button>
+            <span id="btn-evt-status">点击按钮查看事件</span>
+<script>
+    document.querySelector("#btn-evt").addEventListener("x-click", (e) => {
+        const d = e.detail;
+        document.querySelector("#btn-evt-status").textContent = "x-click → id=" + d.id + " value=" + d.value + " selected=" + d.selected;
+    });
+</script>
         </x-flex>
     </x-box>
 </x-container>

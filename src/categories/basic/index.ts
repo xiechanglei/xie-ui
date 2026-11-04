@@ -19,6 +19,7 @@ import '../../components/spinner/index.js';
 import '../../components/progress/index.js';
 import '../../components/count-up/index.js';
 import '../../components/tag/index.js';
+import '../../components/chat-bubble/index.js';
 import '../../components/logo/index.js';
 import '../../components/theme/index.js';
 
@@ -52,6 +53,12 @@ export type {
   TagColor,
   TagSize,
 } from '../../components/tag/x-tag.js';
+export type {
+  XChatBubble,
+  BubbleSide,
+  BubbleVariant,
+  BubbleColor,
+} from '../../components/chat-bubble/x-chat-bubble.js';
 export type { XLogo } from '../../components/logo/x-logo.js';
 export type {
   XThemePanel,

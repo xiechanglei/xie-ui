@@ -10,8 +10,7 @@
 
 
 ## 新组件
-- Collapse 折叠区域组件  https://flyonui.com/docs/components/collapse/ ✅ 已交付 x-collapse（独立折叠片段，与 accordion-item 分工；grid 0fr↔1fr；placement top/bottom「展开全文」形态；open/label/slot=trigger/x-change）
-- Chat Bubble 聊天气泡组件  https://flyonui.com/docs/components/chat-bubble/
+- Chat Bubble 聊天气泡组件  https://flyonui.com/docs/components/chat-bubble/ ✅ 已交付 x-chat-bubble（一条消息一气泡；side start/end 收发镜像；avatar/header(name+time)/footer 三段快捷或 slot 覆盖、空段自动不占位；variant×color 双轴；面朝头像侧上角收小替代物理尾巴）
 -  Diff 组件 https://flyonui.com/docs/components/diff/
 - Radial progress 组件 https://flyonui.com/docs/components/radial-progress/
 - skeleton 组件 https://flyonui.com/docs/components/skeleton/

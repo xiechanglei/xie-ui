@@ -28,6 +28,7 @@ export const MENU = [
       { id: 'progress', label: 'Progress 进度条', tag: 'x-progress', status: 'done' },
       { id: 'countup', label: 'CountUp 数字渐变', tag: 'x-count-up', status: 'done' },
       { id: 'tag', label: 'Tag 标签', tag: 'x-tag', status: 'done' },
+      { id: 'chat-bubble', label: 'Chat Bubble 聊天气泡', tag: 'x-chat-bubble', status: 'done' },
     ],
   },
   {

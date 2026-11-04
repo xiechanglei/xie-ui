@@ -1,0 +1,125 @@
+/* x-chat-bubble —— 一条聊天气泡。布局走 flex row（avatar + stack），side=end 直接 row-reverse 镜像；
+   双轴配色沿用 x-box 的「颜色轴设局部变量、形态轴消费」范式，全部作用在 .bubble 面上。
+   坑照旧：String 反射属性缺省真值不落 attribute，soft + default 的缺省态样式必须落在 .bubble 基座兜底。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family);
+
+  /* 颜色轴（默认 default = 中性面），随明暗主题翻转 */
+  --_accent: var(--xie-color-surface);
+  --_accent-fg: var(--xie-color-fg);
+  --_accent-soft: var(--xie-color-surface);
+  --_line: var(--xie-color-border);
+}
+:host([hidden]) {
+  display: none;
+}
+
+/* 行：内容宽（不拉满宿主），收/发同列时各自贴一侧；整体最宽吃 --_bubble-maxw（宿主可覆写） */
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--xie-space-2);
+  width: fit-content;
+  max-width: var(--_bubble-maxw, 80%);
+}
+:host([side='end']) .row {
+  flex-direction: row-reverse;
+  margin-inline-start: auto;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.avatar {
+  flex: 0 0 auto;
+}
+/* 空段不占位（假标记由组件按 slot 有内容/快捷属性回写） */
+:host(:not([has-avatar])) .avatar {
+  display: none;
+}
+:host(:not([has-header])) .header {
+  display: none;
+}
+:host(:not([has-footer])) .footer {
+  display: none;
+}
+
+/* header：发送者名 + 时间，贴气泡上沿的弱行；slot=header 覆盖时呈现自控 */
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--xie-space-2);
+  padding-inline: 2px;
+  font-size: var(--xie-font-size-sm);
+}
+.name {
+  font-weight: 500;
+  color: var(--xie-color-fg);
+}
+.time {
+  color: var(--xie-color-muted);
+}
+.name:empty,
+.time:empty {
+  display: none;
+}
+
+.footer {
+  padding-inline: 2px;
+  font-size: var(--xie-font-size-sm);
+  color: var(--xie-color-muted);
+}
+
+/* —— 气泡面：缺省态 = soft + default（基座兜底） —— */
+.bubble {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: var(--xie-radius-lg);
+  line-height: 1.5;
+  word-break: break-word;
+  background: var(--xie-color-surface);
+  color: var(--xie-color-fg);
+  /* 描边恒占 1px（不显描边的形态置 transparent），防 variant 切换跳动 */
+  border: 1px solid transparent;
+}
+/* 面朝头像侧的上角收小——方向感来自角而非物理尾巴（尾巴依赖页面底色，换主题即穿帮） */
+:host(:not([side='end'])) .bubble {
+  border-start-start-radius: var(--xie-radius-sm);
+}
+:host([side='end']) .bubble {
+  border-start-end-radius: var(--xie-radius-sm);
+}
+
+/* —— 颜色轴：6 个强调角色（--_line 跟随 accent，outline 描边即角色色） —— */
+:host([color='primary'])   { --_accent: var(--xie-color-primary);   --_accent-fg: var(--xie-color-primary-fg);   --_accent-soft: var(--xie-color-primary-soft);   --_line: var(--xie-color-primary); }
+:host([color='secondary']) { --_accent: var(--xie-color-secondary); --_accent-fg: var(--xie-color-secondary-fg); --_accent-soft: var(--xie-color-secondary-soft); --_line: var(--xie-color-secondary); }
+:host([color='success'])   { --_accent: var(--xie-color-success);   --_accent-fg: var(--xie-color-success-fg);   --_accent-soft: var(--xie-color-success-soft);   --_line: var(--xie-color-success); }
+:host([color='warning'])   { --_accent: var(--xie-color-warning);   --_accent-fg: var(--xie-color-warning-fg);   --_accent-soft: var(--xie-color-warning-soft);   --_line: var(--xie-color-warning); }
+:host([color='danger'])    { --_accent: var(--xie-color-danger);    --_accent-fg: var(--xie-color-danger-fg);    --_accent-soft: var(--xie-color-danger-soft);    --_line: var(--xie-color-danger); }
+:host([color='info'])      { --_accent: var(--xie-color-info);      --_accent-fg: var(--xie-color-info-fg);      --_accent-soft: var(--xie-color-info-soft);      --_line: var(--xie-color-info); }
+
+/* —— 形态轴：solid 实底吃角色反色；soft/outline 泡内可放任意子树，不强染文字色；ghost 全透明只剩排布 —— */
+:host([variant='solid']) .bubble {
+  background: var(--_accent);
+  color: var(--_accent-fg);
+}
+:host([variant='soft']) .bubble {
+  background: var(--_accent-soft);
+  color: var(--xie-color-fg);
+}
+:host([variant='outline']) .bubble {
+  background: transparent;
+  color: var(--xie-color-fg);
+  border-color: var(--_line);
+}
+:host([variant='ghost']) .bubble {
+  background: transparent;
+  color: var(--xie-color-fg);
+}

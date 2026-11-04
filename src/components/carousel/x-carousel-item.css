@@ -1,0 +1,14 @@
+/* x-carousel-item —— 占满一幅 + 吸附起点；盒本身不画外观（内容自理），裁切圆角由 x-carousel 根统一负责 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: start;
+  /* 快速甩动也逐站停靠：不给动量「一次跨多张」的机会，一次手势只翻一张 */
+  scroll-snap-stop: always;
+}
+.base {
+  height: 100%;
+  box-sizing: border-box;
+}

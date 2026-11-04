@@ -1,0 +1,103 @@
+/* x-carousel —— 原生 scroll-snap 滑轨。宿主裁切圆角随主题圆角旋钮（与 pills 同向：不锁死）；
+   箭头/指示器浮在 shadow 顶层绝对定位；两轴（arrows / indicator）全靠宿主属性选择器开关。 */
+:host {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--xie-radius-lg);
+}
+/* 作者 display 会盖掉 UA 的 [hidden]{display:none}，必须显式补回 */
+:host([hidden]) {
+  display: none;
+}
+
+.track {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  /* 滚动条藏掉：翻页语义由箭头/指示器承担，露轨会误导「可任意横向滚」 */
+  scrollbar-width: none;
+}
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+/* 左右钮：半透底圆钮吃主题底色，深/浅底都压得住；到端点（非 loop）置灰 */
+.nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: var(--xie-radius-full);
+  background: color-mix(in oklab, var(--xie-color-bg) 88%, transparent);
+  color: var(--xie-color-fg);
+  box-shadow: var(--xie-shadow-2);
+  cursor: pointer;
+}
+.nav.prev {
+  left: 12px;
+}
+.nav.next {
+  right: 12px;
+}
+.nav[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+:host([no-arrows]) .nav {
+  display: none;
+}
+
+/* 指示器：缺省小圆点，active 吃主色 */
+.indicators {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+.indicators button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: var(--xie-radius-full);
+  background: color-mix(in oklab, var(--xie-color-bg) 55%, transparent);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.indicators button.active {
+  background: var(--xie-color-primary);
+}
+/* 短条变体：24×4 条，active 仅换色不伸缩（伸缩会让整排位移，视觉更闹） */
+:host([indicator='line']) .indicators button {
+  width: 24px;
+  height: 4px;
+  border-radius: 2px;
+}
+:host([indicator='none']) .indicators {
+  display: none;
+}
+
+/* 降低动效偏好：指示器换色过渡也一并关掉 */
+@media (prefers-reduced-motion: reduce) {
+  .indicators button {
+    transition: none;
+  }
+}

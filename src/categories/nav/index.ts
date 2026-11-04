@@ -11,6 +11,7 @@ import '../../components/menu/index.js';
 import '../../components/tabs/index.js';
 import '../../components/accordion/index.js';
 import '../../components/breadcrumb/index.js';
+import '../../components/carousel/index.js';
 
 export type { XMenu } from '../../components/menu/x-menu.js';
 export type { XMenuGroup } from '../../components/menu/x-menu-group.js';
@@ -22,3 +23,5 @@ export type { XAccordion } from '../../components/accordion/x-accordion.js';
 export type { XAccordionItem } from '../../components/accordion/x-accordion-item.js';
 export type { XBreadcrumb } from '../../components/breadcrumb/x-breadcrumb.js';
 export type { XBreadcrumbItem } from '../../components/breadcrumb/x-breadcrumb-item.js';
+export type { XCarousel, CarouselIndicator } from '../../components/carousel/x-carousel.js';
+export type { XCarouselItem } from '../../components/carousel/x-carousel-item.js';

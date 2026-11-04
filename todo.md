@@ -10,8 +10,7 @@
 
 
 ## 新组件
-- Carousel 轮播图组件  https://flyonui.com/docs/components/carousel/ ✅ 已交付 x-carousel + x-carousel-item（原生 scroll-snap；loop 无限滚动（克隆哨兵）/interval/arrows/indicator dot|line|none；snap-stop 逐站停靠；next/prev/goTo + x-change）
-- Collapse 折叠区域组件  https://flyonui.com/docs/components/collapse/
+- Collapse 折叠区域组件  https://flyonui.com/docs/components/collapse/ ✅ 已交付 x-collapse（独立折叠片段，与 accordion-item 分工；grid 0fr↔1fr；placement top/bottom「展开全文」形态；open/label/slot=trigger/x-change）
 - Chat Bubble 聊天气泡组件  https://flyonui.com/docs/components/chat-bubble/
 -  Diff 组件 https://flyonui.com/docs/components/diff/
 - Radial progress 组件 https://flyonui.com/docs/components/radial-progress/

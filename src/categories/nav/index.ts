@@ -10,6 +10,7 @@ import '../../tokens/index.js';
 import '../../components/menu/index.js';
 import '../../components/tabs/index.js';
 import '../../components/accordion/index.js';
+import '../../components/collapse/index.js';
 import '../../components/breadcrumb/index.js';
 import '../../components/carousel/index.js';
 
@@ -21,6 +22,7 @@ export type { XTab } from '../../components/tabs/x-tab.js';
 export type { XTabPanel } from '../../components/tabs/x-tab-panel.js';
 export type { XAccordion } from '../../components/accordion/x-accordion.js';
 export type { XAccordionItem } from '../../components/accordion/x-accordion-item.js';
+export type { XCollapse, CollapsePlacement } from '../../components/collapse/x-collapse.js';
 export type { XBreadcrumb } from '../../components/breadcrumb/x-breadcrumb.js';
 export type { XBreadcrumbItem } from '../../components/breadcrumb/x-breadcrumb-item.js';
 export type { XCarousel, CarouselIndicator } from '../../components/carousel/x-carousel.js';

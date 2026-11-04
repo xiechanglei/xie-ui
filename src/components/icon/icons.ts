@@ -18,7 +18,7 @@ export const ICONS: Record<string, string> = {
   'user': '<circle cx="12" cy="8" r="4" /><path d="M4 20a8 8 0 0 1 16 0" />',
   // 关闭（×）
   'close': '<path d="M6 6l12 12M18 6L6 18" />',
-  // 下尖角（下拉选择器展开指示器等）
+  // 下尖角（下拉选择器展开指示、折叠区触发钮缺省态——展开后旋转 180° 朝上）
   'chevron-down': '<path d="M6 9l6 6 6-6" />',
   // 对勾（下拉选中项指示）
   'check': '<path d="M5 12l5 5L20 7" />',

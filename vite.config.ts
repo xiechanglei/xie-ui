@@ -33,6 +33,11 @@ function fullEsMinify(): Plugin {
 // import '@xie-work/xie-ui' 即注入令牌并注册所有组件，core/tokens/组件全部内联进一个文件，零额外请求。
 export default defineConfig({
   plugins: [dts({ include: ['src'], entryRoot: 'src', outDir: 'dist' }), fullEsMinify()],
+  server: {
+    // 文档站直接消费 dist/index.js：vite dev 默认不 watch outDir，重构建后仍端旧模块缓存，
+    // 需显式把 dist 纳入监听（改动即失效模块图并全页刷新），否则每次 build 后都得重启 dev 才见新码
+    watch: { ignored: ['**/node_modules/**'] },
+  },
   build: {
     target: 'es2022',
     outDir: 'dist',

@@ -1,0 +1,102 @@
+/* x-collapse —— 触发钮 + 可折叠内容片段。容器不表态：无框无底，外观交消费方（可套 x-box）。
+   折叠动画复用 x-accordion-item 的 grid 0fr↔1fr（高度自适应），常驻留白放裁切区更内一层。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+}
+/* 触发钮缀尾形态：内容在上、钮在底部（「展开全文」）；只翻视觉序，DOM/朗读序不变 */
+:host([placement='bottom']) .box {
+  flex-direction: column-reverse;
+}
+
+/* 触发钮：轻呈现的「文本 + 尖角」行内钮——默认像链接而非实心按钮，外观经 part=trigger 自理 */
+.trigger {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--xie-space-2);
+  align-self: flex-start;
+  padding: 4px 0;
+  font-family: inherit;
+  font-size: var(--xie-font-size-md);
+  font-weight: 500;
+  color: var(--xie-color-primary);
+  cursor: pointer;
+}
+.trigger:hover {
+  text-decoration: underline;
+}
+.trigger:focus-visible {
+  outline: 2px solid var(--xie-color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+:host([disabled]) .trigger {
+  color: var(--xie-color-muted);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* 钮文本弹性区：只负责占位，不干涉 slot=trigger 内容自身的布局 */
+.t-main {
+  min-width: 0;
+}
+
+/* 指示尖角：收起朝下，展开旋转 180° 朝上 */
+.chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+.chevron x-icon {
+  width: 14px;
+  height: 14px;
+}
+:host([open]) .chevron {
+  transform: rotate(180deg);
+}
+
+/* 内容折叠动画：grid 轨道 0fr↔1fr，内层 overflow 裁切 + visibility 延迟收尾摘出 tab 序。
+   三层结构（content 轨道 / content-inner 裁切 / content-body 留白）沿用 x-accordion-item 的坑位
+   结论：常驻留白若放在轨道项上，纵向 padding 计入 min-content 抬高 0fr 下限，收起回不了零。 */
+.content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+:host([open]) .content {
+  grid-template-rows: 1fr;
+}
+.content-inner {
+  overflow: hidden;
+  min-height: 0;
+  visibility: hidden;
+  transition: visibility 0s 0.25s;
+}
+:host([open]) .content-inner {
+  visibility: visible;
+  transition: visibility 0s;
+}
+.content-body {
+  font-size: var(--xie-font-size-md);
+  line-height: 1.6;
+  color: var(--xie-color-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content,
+  .chevron {
+    transition: none;
+  }
+}

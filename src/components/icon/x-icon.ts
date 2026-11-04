@@ -2,7 +2,7 @@
  * x-icon —— 框架内置图标组件（基础分类）。
  *
  * 渲染本 UI 库其它组件实际用到的 SVG 图标（集中登记于内部 icons.ts 注册表，不派生更多图标以保持体积精简）。
- * 通过 `name` 选择图标；`size` 设定尺寸（CSS 长度，默认 1em 随字号）；`label` 提供无障碍名，
+ * 通过 `name` 选择图标；`size` 设定尺寸（任意 CSS 长度或纯数字按 px，缺省 1em 随字号）；`label` 提供无障碍名，
  * 留空则视为装饰性图标（aria-hidden）。图标描边统一 `stroke="currentColor"`，颜色随文本色/主题联动。
  */
 
@@ -57,11 +57,18 @@ class XIcon extends XBaseElement {
 
   /** 同步 size → 尺寸变量，并把注册表内容注入 <svg>（模板引擎不插 HTML，故用 innerHTML） */
   private __paint(): void {
-    if (this.size) this.style.setProperty('--_icon-size', this.size);
+    const size = numOrUnit(this.size, 'px');
+    if (size) this.style.setProperty('--_icon-size', size);
     else this.style.removeProperty('--_icon-size');
     const svg = this.shadowRoot?.querySelector('svg');
     if (svg) svg.innerHTML = getIcon(this.name);
   }
+}
+
+/** 纯数字补单位（'16'→'16px'）；已带单位/令牌则原样透传；空值返回空串（spinner/progress 同款） */
+function numOrUnit(v: string, unit: string): string {
+  if (!v) return '';
+  return /^\d*\.?\d+$/.test(v) ? v + unit : v;
 }
 
 declare global {

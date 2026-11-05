@@ -43,10 +43,22 @@ const GROUPED_SOURCE = `<div style="padding: 48px 0 8px">
 </div>`;
 
 const PLACES_SOURCE = `<div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 32px 0">
-  <x-dropdown placement="top"><x-button variant="soft">top</x-button><x-dropdown-content><button>上面</button><button>的面板</button></x-dropdown-content></x-dropdown>
-  <x-dropdown placement="bottom"><x-button variant="soft">bottom（默认）</x-button><x-dropdown-content><button>下面</button><button>的面板</button></x-dropdown-content></x-dropdown>
-  <x-dropdown placement="left"><x-button variant="soft">left</x-button><x-dropdown-content><button>左边</button><button>的面板</button></x-dropdown-content></x-dropdown>
-  <x-dropdown placement="right"><x-button variant="soft">right</x-button><x-dropdown-content><button>右边</button><button>的面板</button></x-dropdown-content></x-dropdown>
+  <x-dropdown placement="top">
+    <x-button variant="soft">top</x-button>
+    <x-dropdown-content><button>上面</button><button>的面板</button></x-dropdown-content>
+  </x-dropdown>
+  <x-dropdown placement="bottom">
+    <x-button variant="soft">bottom（默认）</x-button>
+    <x-dropdown-content><button>下面</button><button>的面板</button></x-dropdown-content>
+  </x-dropdown>
+  <x-dropdown placement="left">
+    <x-button variant="soft">left</x-button>
+    <x-dropdown-content><button>左边</button><button>的面板</button></x-dropdown-content>
+  </x-dropdown>
+  <x-dropdown placement="right">
+    <x-button variant="soft">right</x-button>
+    <x-dropdown-content><button>右边</button><button>的面板</button></x-dropdown-content>
+  </x-dropdown>
 </div>`;
 
 const HOVER_SOURCE = `<div style="display: flex; gap: 4px; padding: 8px; border: 1px solid var(--xie-color-border); border-radius: var(--xie-radius-md)">

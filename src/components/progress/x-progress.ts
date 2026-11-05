@@ -9,7 +9,10 @@
  *  - indeterminate  强制不确定（反射）：true 时忽略 value 的填充、只跑扫动动画
  *  - color          语义色（反射，全库统一 7 角色）：primary(默认) | secondary | success | warning | danger | info | default(中性)
  *  - size           高度（不反射，写局部变量）：任意 CSS 长度或纯数字（按 px）；缺省 8px
+ *  - duration       值变化补间时长 ms（不反射）：缺省 250，0 = 直接落定；驱动填充条 width 过渡
  *  - label          无障碍名，缺省「进度」；不确定模式自动改播「加载中」
+ *
+ * 动态过程：value 变化时填充条宽度默认 250ms ease 补间伸展（与 x-radial-progress 同族语义）。
  *
  * 无障碍：填充条 role="progressbar" + aria-valuenow/min/max（不确定模式省 valuenow）；
  * `prefers-reduced-motion: reduce` 下扫动停为静态半条，不用动效传达状态。
@@ -30,6 +33,7 @@ class XProgress extends XBaseElement {
     indeterminate: { type: 'Boolean', reflect: true, default: false },
     color: { type: 'String', reflect: true, default: 'primary' },
     size: { type: 'String', default: '' },
+    duration: { type: 'Number', default: 250 },
     label: { type: 'String', default: '进度' },
   };
 
@@ -39,6 +43,7 @@ class XProgress extends XBaseElement {
   declare indeterminate: boolean;
   declare color: ProgressColor;
   declare size: string;
+  declare duration: number;
   declare label: string;
 
   constructor() {
@@ -80,11 +85,14 @@ class XProgress extends XBaseElement {
     this.__paint();
   }
 
-  /** size 写成本地变量：空串交回 CSS 缺省（缺省只在一处定义，不双写） */
+  /** size/duration 写成本地变量：缺省值不落变量，交回 CSS 缺省（缺省只在一处定义，不双写） */
   private __paint(): void {
     const v = numOrUnit(this.size, 'px');
     if (v) this.style.setProperty('--_pg-height', v);
     else this.style.removeProperty('--_pg-height');
+    const dur = Number.isFinite(this.duration) ? this.duration : 250;
+    if (dur !== 250) this.style.setProperty('--_pg-dur', dur + 'ms');
+    else this.style.removeProperty('--_pg-dur');
   }
 }
 

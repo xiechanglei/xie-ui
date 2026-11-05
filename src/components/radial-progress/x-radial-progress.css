@@ -1,0 +1,83 @@
+/* x-radial-progress —— 圆环进度。几何全吃宿主局部变量（--_rp-*），颜色走全局语义令牌。
+   画法：conic-gradient 扇形 + radial-gradient mask 抠洞——不依赖 SVG 周长计算，
+   任意 size/thickness 组合零数学（thickness 缺省 = size/10，与 flyonui/daisyUI 同法）。 */
+:host {
+  --_rp-color: var(--xie-color-primary);
+  --_rp-track: color-mix(in oklab, var(--_rp-color) 18%, transparent);
+  --_rp-size: 64px;
+  --_rp-thick: calc(var(--_rp-size) / 10);
+
+  display: inline-block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family);
+  vertical-align: middle;
+}
+:host([hidden]) {
+  display: none;
+}
+
+/* 外壳：定尺寸、给 .ring/.center 提供落位参照 */
+.base {
+  position: relative;
+  width: var(--_rp-size);
+  height: var(--_rp-size);
+}
+
+/* 环：整圆扇形 conic，mask 抠出 thickness 宽的环带；起点 12 点方向（from -90deg 归零）。
+   抗锯齿：mask/conic 硬停点 alpha 二值跳变不享几何 AA，内壁圆（小半径大曲率）会现阶梯毛刺——
+   停点错开 1px（mask）/ 0.6%（conic 弧头）留过渡带，让渐变插值自己当抗锯齿用。 */
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  --_rp-hole: calc(100% - var(--_rp-thick));
+  background: conic-gradient(from -90deg, var(--_rp-color) calc(var(--_rp-pct, 0) * 1%), var(--_rp-track) calc(var(--_rp-pct, 0) * 1% + 0.6%));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(var(--_rp-hole) - 0.5px), #000 calc(var(--_rp-hole) + 0.5px));
+  mask: radial-gradient(farthest-side, transparent calc(var(--_rp-hole) - 0.5px), #000 calc(var(--_rp-hole) + 0.5px));
+}
+
+/* 颜色轴：与 progress/spinner 同一套 7 角色（default = 中性前景） */
+:host([color="default"])   { --_rp-color: var(--xie-color-fg); }
+:host([color="primary"])   { --_rp-color: var(--xie-color-primary); }
+:host([color="secondary"]) { --_rp-color: var(--xie-color-secondary); }
+:host([color="success"])   { --_rp-color: var(--xie-color-success); }
+:host([color="warning"])   { --_rp-color: var(--xie-color-warning); }
+:host([color="danger"])    { --_rp-color: var(--xie-color-danger); }
+:host([color="info"])      { --_rp-color: var(--xie-color-info); }
+
+/* 不确定模式：固定 25% 弧段整环转（与 spinner 的匀速转分工——这里语义仍是「进度未知」）；两端同样羽化 */
+.ring.indeterminate {
+  background: conic-gradient(from -90deg, var(--_rp-color) 25%, var(--_rp-track) 25.6%, var(--_rp-track) 99.4%, var(--_rp-color) 100%);
+  animation: x-rp-spin 1s linear infinite;
+}
+@keyframes x-rp-spin {
+  to { transform: rotate(1turn); }
+}
+
+/* 中心：自动百分比文本与默认插槽二选一（有内容即覆盖）；字号随环缩放 */
+.center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--_rp-size) / 4.5);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--xie-color-fg);
+}
+.center ::slotted(*) {
+  margin: 0;
+}
+/* 插槽有内容（宿主标记由组件回写）→ 自动百分比退场 */
+:host([has-content]) .auto {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring.indeterminate {
+    animation: none;
+    background: conic-gradient(from -90deg, var(--_rp-color) 50%, var(--_rp-track) 50.6%, var(--_rp-track) 99.4%, var(--_rp-color) 100%);
+  }
+}

@@ -1,0 +1,187 @@
+/* x-timeline-item —— 单件即「节点列 + 内容列」。线段由节点列 ::before/::after 自绘
+   （flyonui 靠用户手插 <hr>，我们封装成自动连线：首尾淡出由容器下发 data-tl-first/last 标记）。
+   几何全吃宿主局部变量（--_tl-*），颜色走全局语义令牌。 */
+:host {
+  --_tl-color: var(--xie-color-primary);
+  --_tl-line: color-mix(in oklab, var(--xie-color-border) 55%, transparent); /* 缺省线色比边框再淡一档，不抢节点注意力 */
+  --_tl-line-below: color-mix(in oklab, var(--xie-color-border) 55%, transparent); /* 下半段=「下一项之前」的线色，独立链不被本项 line-color 污染 */
+  --_tl-nh: 12px; /* 线段避让半径 = 节点半高 + 3px 空隙：线不贴死节点，留口呼吸感（flyonui 同款观感） */
+
+  display: block;
+  font-family: var(--xie-font-family);
+  color: var(--xie-color-fg);
+}
+:host([hidden]) {
+  display: none;
+}
+
+/* 布局住在 .base 上（shadow 里 node-col/content 的直接父级）：两列 = 节点列 + 内容列 */
+.base {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  column-gap: 12px;
+}
+
+/* 颜色轴：全库统一 7 角色（default = 中性前景） */
+/* 点色（dot-color）：本项自有属性（下方规则）> 容器 dot-color 兜底（data-tl-dot，仅在项未写时下发，
+   两组规则不会同时命中，书写顺序无关）> 缺省 primary；全库 7 角色（default = 中性前景） */
+:host([data-tl-dot="default"])  { --_tl-color: var(--xie-color-fg); }
+:host([data-tl-dot="primary"])  { --_tl-color: var(--xie-color-primary); }
+:host([data-tl-dot="secondary"]) { --_tl-color: var(--xie-color-secondary); }
+:host([data-tl-dot="success"])  { --_tl-color: var(--xie-color-success); }
+:host([data-tl-dot="warning"])  { --_tl-color: var(--xie-color-warning); }
+:host([data-tl-dot="danger"])   { --_tl-color: var(--xie-color-danger); }
+:host([data-tl-dot="info"])     { --_tl-color: var(--xie-color-info); }
+:host([dot-color="default"])    { --_tl-color: var(--xie-color-fg); }
+:host([dot-color="primary"])    { --_tl-color: var(--xie-color-primary); }
+:host([dot-color="secondary"])  { --_tl-color: var(--xie-color-secondary); }
+:host([dot-color="success"])    { --_tl-color: var(--xie-color-success); }
+:host([dot-color="warning"])    { --_tl-color: var(--xie-color-warning); }
+:host([dot-color="danger"])     { --_tl-color: var(--xie-color-danger); }
+:host([dot-color="info"])       { --_tl-color: var(--xie-color-info); }
+
+/* 线色（line-color）：本项 line-color > 容器兜底（data-tl-line，仅在项未写时下发）> 缺省淡边框色；
+   line-color 语义 = 「本节点之前」那段线的颜色（::before）；::after 是「下一项之前」的线，
+   由容器按下一项优先序算出后下发 data-tl-next-line 吃 --_tl-line-below */
+:host([data-tl-line="default"])  { --_tl-line: var(--xie-color-fg); }
+:host([data-tl-line="primary"])  { --_tl-line: var(--xie-color-primary); }
+:host([data-tl-line="secondary"]) { --_tl-line: var(--xie-color-secondary); }
+:host([data-tl-line="success"])  { --_tl-line: var(--xie-color-success); }
+:host([data-tl-line="warning"])  { --_tl-line: var(--xie-color-warning); }
+:host([data-tl-line="danger"])   { --_tl-line: var(--xie-color-danger); }
+:host([data-tl-line="info"])     { --_tl-line: var(--xie-color-info); }
+:host([line-color="default"])    { --_tl-line: var(--xie-color-fg); }
+:host([line-color="primary"])    { --_tl-line: var(--xie-color-primary); }
+:host([line-color="secondary"])  { --_tl-line: var(--xie-color-secondary); }
+:host([line-color="success"])    { --_tl-line: var(--xie-color-success); }
+:host([line-color="warning"])    { --_tl-line: var(--xie-color-warning); }
+:host([line-color="danger"])     { --_tl-line: var(--xie-color-danger); }
+:host([line-color="info"])       { --_tl-line: var(--xie-color-info); }
+:host([data-tl-next-line="default"])  { --_tl-line-below: var(--xie-color-fg); }
+:host([data-tl-next-line="primary"])  { --_tl-line-below: var(--xie-color-primary); }
+:host([data-tl-next-line="secondary"]) { --_tl-line-below: var(--xie-color-secondary); }
+:host([data-tl-next-line="success"])  { --_tl-line-below: var(--xie-color-success); }
+:host([data-tl-next-line="warning"])  { --_tl-line-below: var(--xie-color-warning); }
+:host([data-tl-next-line="danger"])   { --_tl-line-below: var(--xie-color-danger); }
+:host([data-tl-next-line="info"])     { --_tl-line-below: var(--xie-color-info); }
+
+/* ── 垂直（缺省）两列：节点列通栏画线，内容列右侧 ── */
+.node-col {
+  position: relative;
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* 线段上下半段：从列两端画到节点避让半径外；首项无上半段、末项无下半段（容器下发标记） */
+.node-col::before,
+.node-col::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+}
+.node-col::before { top: 0; bottom: calc(50% + var(--_tl-nh)); background: var(--_tl-line); }
+.node-col::after { top: calc(50% + var(--_tl-nh)); bottom: 0; background: var(--_tl-line-below); }
+:host([data-tl-first]) .node-col::before,
+:host([data-tl-last]) .node-col::after {
+  display: none;
+}
+
+/* 节点三态：光晕+点（缺省）/ 光晕+图标（[icon]）/ 插槽覆盖（[has-icon-content] 光晕退场） */
+.node {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--_tl-color) 20%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--_tl-color);
+}
+.ic { display: none; color: var(--_tl-color); }
+/* icon 档与点档整体尺寸一致（光晕同 18px，图标 12px 对齐核心占比），只换 glyph 不换体量 */
+:host([icon]) .dot { display: none; }
+:host([icon]) .ic { display: inline-flex; }
+slot[name="icon"] { display: none; }
+:host([has-icon-content]) .node { display: none; }
+:host([has-icon-content]) slot[name="icon"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  padding-block: 10px;
+}
+.time {
+  font-size: var(--xie-font-size-sm);
+  color: var(--xie-color-muted);
+  margin-bottom: 2px;
+}
+
+/* ── 交替时容器对全体项下发 data-tl-alt：统一三列骨架保证中轴同一 x（两列混排会错位断线）── */
+:host([data-tl-alt]) .base {
+  grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+}
+:host([data-tl-alt]) .node-col { grid-column: 2; }
+:host([data-tl-alt]) .content { grid-column: 3; }
+
+/* ── 交替（中轴线三列）：写了 side 即启用——容器 alternate 轮流指派，单独写也能强制某侧 ── */
+:host([side="start"]) .base,
+:host([side="end"]) .base {
+  grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+}
+:host([side="start"]) .node-col,
+:host([side="end"]) .node-col { grid-column: 2; }
+:host([side="start"]) .content { grid-column: 1; text-align: end; }
+:host([side="end"]) .content { grid-column: 3; }
+
+/* ── 水平（容器下发 data-tl-orient）：节点列横躺在上、内容在下；规则置于 side 之后压回单列 ── */
+:host([data-tl-orient="horizontal"]) .base {
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 0;
+}
+:host([data-tl-orient="horizontal"]) .node-col {
+  grid-column: 1;
+  grid-row: 1;
+  flex-direction: row;
+  width: 100%;
+}
+:host([data-tl-orient="horizontal"]) .node-col::before {
+  top: 50%;
+  bottom: auto;
+  left: 0;
+  right: calc(50% + var(--_tl-nh));
+  width: auto;
+  height: 2px;
+  margin-left: 0;
+  margin-top: -1px;
+}
+:host([data-tl-orient="horizontal"]) .node-col::after {
+  top: 50%;
+  bottom: auto;
+  left: calc(50% + var(--_tl-nh));
+  right: 0;
+  width: auto;
+  height: 2px;
+  margin-left: 0;
+  margin-top: -1px;
+}
+:host([data-tl-orient="horizontal"]) .content {
+  grid-column: 1;
+  grid-row: 2;
+  text-align: center;
+  padding: 8px 10px 0;
+}

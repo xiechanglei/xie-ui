@@ -1,0 +1,26 @@
+/* x-timeline —— 只管列表流向：纵向 column / 横向 row+溢出滚动。
+   项的几何（节点列/线段/内容列）全在 x-timeline-item 里画。 */
+:host {
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--xie-font-family);
+}
+:host([hidden]) {
+  display: none;
+}
+
+.base {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 横向：等分列 + 溢出滚动（里程碑式时间线的经典工况） */
+:host([orientation="horizontal"]) .base {
+  flex-direction: row;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+:host([orientation="horizontal"]) ::slotted(x-timeline-item) {
+  flex: 1 0 auto;
+  min-width: 110px;
+}

@@ -25,7 +25,6 @@
     "build": "vite build",
     "type-check": "tsc --noEmit -p tsconfig.json",
     "test": "vite --open /test/",
-    "docs": "yarn build && vite --open /demo/",
     "demo:vue": "vite --config demo-vue/vite.config.ts --open",
     "build:demo:vue": "vite build --config demo-vue/vite.config.ts",
     "type-check:demo:vue": "vue-tsc --noEmit -p demo-vue/tsconfig.json",

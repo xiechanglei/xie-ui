@@ -8,11 +8,10 @@
 
 优化：
 
+- 
 
 ## 新组件
-- Chat Bubble 聊天气泡组件  https://flyonui.com/docs/components/chat-bubble/ 实现的效果有一些区别
 -  Diff 组件 https://flyonui.com/docs/components/diff/
-- Radial progress 组件 https://flyonui.com/docs/components/radial-progress/
 - skeleton 组件 https://flyonui.com/docs/components/skeleton/
 - stack 组件  https://flyonui.com/docs/components/stack/
 - swap 组件  https://flyonui.com/docs/components/swap/

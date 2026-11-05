@@ -23,10 +23,11 @@ const setupProgressRun = (root: HTMLElement) => {
 
 // API 表数据（严格对齐 src/components/progress/x-progress.ts）
 const PROGRESS_PROPS_ROWS = [
-  ['value', '完成度（反射，0–100）；未设置 = 不确定模式', 'number', '—'],
+  ['value', '完成度（反射，0–100）；未设置 = 不确定模式；变化时默认 250ms 宽度补间', 'number', '—'],
   ['indeterminate', '强制不确定（反射），忽略 value', 'boolean', 'false'],
   ['color', '语义色（反射）', "'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'default'", "'primary'"],
   ['size', '轨道高度（写局部变量，纯数字按 px）', 'string', "'8px'"],
+  ['duration', '值变化补间时长 ms；0 = 直接落定', 'number', '250'],
   ['label', '无障碍名（不确定模式自动改播「加载中」）', 'string', "'进度'"],
 ];
 const PROGRESS_PARTS_ROWS = [
@@ -48,7 +49,7 @@ const PROGRESS_PARTS_ROWS = [
 
     <Demo
       title="定值 value"
-      desc="0–100，越界自动夹紧；变更带 width 过渡"
+      desc="0–100，越界自动夹紧；变更带 width 补间（时长由 duration 调，缺省 250ms）"
       :column="true"
       :source='`
 <x-progress value="25"></x-progress>
@@ -117,7 +118,7 @@ document.querySelector("#pg-run").addEventListener("click", () => {
     />
 
     <h2>设计要点</h2>
-    <p>填充条宽度靠<b>细粒度 style 绑定</b>直写：value 变更只动这一条属性，不重渲结构。<code>role="progressbar"</code> + <code>aria-valuenow/min/max</code> 挂在填充条上，不确定模式自动省略 valuenow 并改播「加载中」。<code>prefers-reduced-motion: reduce</code> 下扫动停为半透明静态满条。单一非 7 角色颜色覆写 <code>--_pg-color</code> 即可。</p>
+    <p>填充条宽度靠<b>细粒度 style 绑定</b>直写：value 变更只动这一条属性，不重渲结构；伸展过程由 CSS <code>transition: width var(--_pg-dur, 250ms)</code> 补间（duration 属性写 <code>--_pg-dur</code>，0 即无过渡）。<code>role="progressbar"</code> + <code>aria-valuenow/min/max</code> 挂在填充条上，不确定模式自动省略 valuenow 并改播「加载中」。<code>prefers-reduced-motion: reduce</code> 下扫动停为半透明静态满条、补间关闭。单一非 7 角色颜色覆写 <code>--_pg-color</code> 即可。</p>
 
     <h2>API</h2>
     <ApiTable title="属性 Attributes" :columns="['属性', '说明', '类型', '默认值']" :rows="PROGRESS_PROPS_ROWS" />

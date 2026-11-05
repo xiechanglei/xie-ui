@@ -11,6 +11,9 @@
   --_accent-fg: var(--xie-color-fg);
   --_accent-soft: var(--xie-color-surface);
   --_line: var(--xie-color-border);
+
+  /* 泡面填充单源：形态轴只写这个变量，.bubble 背景消费 */
+  --_fill: var(--xie-color-surface);
 }
 :host([hidden]) {
   display: none;
@@ -70,13 +73,22 @@
   display: none;
 }
 
+/* footer：状态行（快捷文本 / read 已读态 / slot 自定义）；横排让文本与勾对齐，slot 自定义内容同样落位 */
 .footer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding-inline: 2px;
   font-size: var(--xie-font-size-sm);
   color: var(--xie-color-muted);
 }
+/* 已读勾：固定 success 色（不随气泡 color 轴——状态语义独立于气泡外观） */
+.read-check {
+  flex: 0 0 auto;
+  color: var(--xie-color-success);
+}
 
-/* —— 气泡面：缺省态 = soft + default（基座兜底） —— */
+/* 方向感：面朝头像侧的上角收小 */
 .bubble {
   box-sizing: border-box;
   min-width: 0;
@@ -84,12 +96,13 @@
   border-radius: var(--xie-radius-lg);
   line-height: 1.5;
   word-break: break-word;
-  background: var(--xie-color-surface);
+  background: var(--_fill);
   color: var(--xie-color-fg);
   /* 描边恒占 1px（不显描边的形态置 transparent），防 variant 切换跳动 */
   border: 1px solid transparent;
 }
-/* 面朝头像侧的上角收小——方向感来自角而非物理尾巴（尾巴依赖页面底色，换主题即穿帮） */
+/* 面朝头像侧的上角收小——方向感来自角圆差，任意底色下都成立；
+   物理尾巴方案（页面底色遮罩/mask 刻形/同色藏半/clip-path 三角）曾多轮尝试，最终按用户决定整体移除，见 design.md */
 :host(:not([side='end'])) .bubble {
   border-start-start-radius: var(--xie-radius-sm);
 }
@@ -105,21 +118,20 @@
 :host([color='danger'])    { --_accent: var(--xie-color-danger);    --_accent-fg: var(--xie-color-danger-fg);    --_accent-soft: var(--xie-color-danger-soft);    --_line: var(--xie-color-danger); }
 :host([color='info'])      { --_accent: var(--xie-color-info);      --_accent-fg: var(--xie-color-info-fg);      --_accent-soft: var(--xie-color-info-soft);      --_line: var(--xie-color-info); }
 
-/* —— 形态轴：solid 实底吃角色反色；soft/outline 泡内可放任意子树，不强染文字色；ghost 全透明只剩排布 —— */
+/* —— 形态轴：solid 实底吃角色反色；soft/outline 泡内可放任意子树，不强染文字色；ghost 全透明只剩排布。
+   填充全部经 --_fill 单源 —— */
+:host([variant='solid']) { --_fill: var(--_accent); }
+:host([variant='soft'])   { --_fill: var(--_accent-soft); }
+:host([variant='outline']) { --_fill: transparent; }
+:host([variant='ghost'])   { --_fill: transparent; }
+
 :host([variant='solid']) .bubble {
-  background: var(--_accent);
   color: var(--_accent-fg);
 }
-:host([variant='soft']) .bubble {
-  background: var(--_accent-soft);
-  color: var(--xie-color-fg);
-}
 :host([variant='outline']) .bubble {
-  background: transparent;
   color: var(--xie-color-fg);
   border-color: var(--_line);
 }
 :host([variant='ghost']) .bubble {
-  background: transparent;
   color: var(--xie-color-fg);
 }

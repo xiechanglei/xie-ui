@@ -12,6 +12,7 @@ const CB_PROPS_ROWS = [
   ['name', 'header 发送者名（不反射）：快捷路径，被 slot="header" 整体覆盖', 'string', "''"],
   ['time', 'header 时间戳（不反射）：跟名字右侧弱色；只有 time 无 name 也成立', 'string', "''"],
   ['footer', '状态行文本（不反射）：如 Seen/Delivered；被 slot="footer" 整体覆盖', 'string', "''"],
+  ['read', '已读态（Boolean 反射）：状态行自动「已读 + ✓」（内置 check 图标、success 色）；与 footer 文本可叠加（footer 作标签、勾照带），slot="footer" 整体覆盖', 'boolean', 'false'],
 ];
 const CB_SLOTS_ROWS = [
   ['default', '气泡正文（富内容自由组合）'],
@@ -26,7 +27,7 @@ const CB_CUSTOM_ROWS = [
 <template>
   <div>
     <h1>Chat Bubble 聊天气泡</h1>
-    <p class="lead"><code>&lt;x-chat-bubble&gt;</code> 一条消息一个气泡：<code>side</code> 决定收/发贴边方向，avatar / header（名称+时间）/ footer（送达状态）三段全部可缺席，外观沿用库内 <code>variant</code> × <code>color</code> 双轴。图片、图集、文件附件这类富内容不是 API 维度——往气泡正文里自由组合原子件即可。</p>
+    <p class="lead"><code>&lt;x-chat-bubble&gt;</code> 一条消息一个气泡：<code>side</code> 决定收/发贴边方向，avatar / header（名称+时间）/ footer（送达状态，<code>read</code> 一键已读态）三段全部可缺席，外观沿用库内 <code>variant</code> × <code>color</code> 双轴。图片、图集、文件附件这类富内容不是 API 维度——往气泡正文里自由组合原子件即可。</p>
 
     <h2>引入</h2>
     <p>入口只做注册，引入后可直接在模板里书写 <code>x-chat-bubble</code> 标签（Vue 侧配置见「介绍」页）。</p>
@@ -48,15 +49,15 @@ const CB_CUSTOM_ROWS = [
 
     <Demo
       title="头像 + 名称 + 时间 + 状态"
-      desc="name/time 快捷拼 header、footer 快捷放状态行；avatar 只给 slot——x-avatar 一行即摆"
+      desc="name/time 快捷拼 header、footer 快捷放状态行、read 一键已读态（自动「已读 ✓」）；avatar 只给 slot——x-avatar 一行即摆"
       :column="true"
       :source='`
-<x-chat-bubble side="end" variant="solid" color="primary" name="阿强" time="12:45" footer="已读">马拉松完赛了！</x-chat-bubble>
-<x-chat-bubble name="Kenobi" time="12:46">
+<x-chat-bubble side="end" variant="solid" color="primary" name="阿强" time="12:45" footer="已送达">马拉松完赛了！</x-chat-bubble>
+<x-chat-bubble name="Kenobi" time="12:46" read>
   <x-avatar slot="avatar" name="肯" color="secondary" size="38px"></x-avatar>
-  <span slot="footer" style="display: inline-flex; align-items: center; gap: 4px">已读 <x-icon name="check" size="12" style="color: var(--xie-color-success)"></x-icon></span>
   下次一起跑个 10 公里
 </x-chat-bubble>
+<x-chat-bubble side="end" variant="solid" color="primary" footer="Seen" read>收到，辛苦啦</x-chat-bubble>
 `'
     />
 
@@ -102,6 +103,6 @@ const CB_CUSTOM_ROWS = [
     <ApiTable title="Part / 变量" :columns="['定制', '说明']" :rows="CB_CUSTOM_ROWS" />
 
     <h2>说明</h2>
-    <p>方向感设计：面朝头像侧的上角收小圆角（start 收左上、end 收右上），借气泡观感但不做物理尾巴——尾巴配色依赖页面底色，主题一换就穿帮，而角圆差在任意底色下都成立。行宽为内容宽且封顶 <code>--_bubble-maxw</code>，长文自动折行不撑破。头像与行首对齐，多行气泡头像不跟着漂。</p>
+    <p>方向感设计：靠面朝头像侧的上角收小圆角（start 收左上、end 收右上），角圆差在任意底色下都成立，不依赖物理尾巴（页面底色遮罩式尾巴换主题即穿帮；实体尾巴方案多轮尝试后已按用户决定整体移除，见 design.md）。行宽为内容宽且封顶 <code>--_bubble-maxw</code>，长文自动折行不撑破。头像与行首对齐，多行气泡头像不跟着漂。</p>
   </div>
 </template>

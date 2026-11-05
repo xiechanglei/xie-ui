@@ -17,9 +17,11 @@ import '../../components/badge/index.js';
 import '../../components/status/index.js';
 import '../../components/spinner/index.js';
 import '../../components/progress/index.js';
+import '../../components/radial-progress/index.js';
 import '../../components/count-up/index.js';
 import '../../components/tag/index.js';
 import '../../components/chat-bubble/index.js';
+import '../../components/timeline/index.js';
 import '../../components/logo/index.js';
 import '../../components/theme/index.js';
 
@@ -42,6 +44,7 @@ export type {
 export type { XSpinner, SpinnerColor } from '../../components/spinner/x-spinner.js';
 export type { XStatus, StatusColor, StatusSize } from '../../components/status/x-status.js';
 export type { XProgress, ProgressColor } from '../../components/progress/x-progress.js';
+export type { XRadialProgress, RadialProgressColor } from '../../components/radial-progress/x-radial-progress.js';
 export type {
   XCountUp,
   CountUpEasing,
@@ -59,6 +62,12 @@ export type {
   BubbleVariant,
   BubbleColor,
 } from '../../components/chat-bubble/x-chat-bubble.js';
+export type { XTimeline } from '../../components/timeline/x-timeline.js';
+export type {
+  XTimelineItem,
+  TimelineItemColor,
+  TimelineItemSide,
+} from '../../components/timeline/x-timeline-item.js';
 export type { XLogo } from '../../components/logo/x-logo.js';
 export type {
   XThemePanel,

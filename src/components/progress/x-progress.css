@@ -23,7 +23,8 @@
   width: 0;
   border-radius: inherit;
   background: var(--_pg-color);
-  transition: width 0.25s ease;
+  /* 值变化的动态过程：宽度补间，时长由 duration 属性经 --_pg-dur 调（缺省只在此处定义一次） */
+  transition: width var(--_pg-dur, 250ms) ease;
 }
 
 /* 颜色轴：与 tag/spinner 同一套 7 角色（default = 中性前景） */

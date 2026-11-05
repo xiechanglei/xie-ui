@@ -152,11 +152,14 @@ class XPopover extends XBaseElement {
 
   /* -------------------------------- 落位 -------------------------------- */
 
-  /** fixed 面板贴触发件对应侧；主轴空间不足翻转、交叉轴按 panelAlign 对齐后夹紧 */
+  /** fixed 面板贴触发件对应侧；主轴空间不足翻转、交叉轴按 panelAlign 对齐后夹紧。
+   *  注意顺序：minWidth 必须先于测量写入——面板的 CSS min-width（如 dropdown 的 160px）可能大于
+   *  跟手后的终宽，先量后写会让首开拿错误宽度算坐标（left 落位偏半个面板宽，再开才正常） */
   private __position(): void {
     const panel = this.__panel();
     if (!panel) return;
     const r = this.getBoundingClientRect();
+    if (this.fitTriggerWidth) panel.style.minWidth = `${Math.round(r.width)}px`;
     const placed = placePanel(
       { left: r.left, top: r.top, width: r.width, height: r.height },
       { width: panel.offsetWidth, height: panel.offsetHeight },
@@ -164,7 +167,6 @@ class XPopover extends XBaseElement {
       ANCHOR_GAP,
       this.panelAlign,
     );
-    if (this.fitTriggerWidth) panel.style.minWidth = `${Math.round(r.width)}px`;
     panel.style.left = `${placed.left}px`;
     panel.style.top = `${placed.top}px`;
   }

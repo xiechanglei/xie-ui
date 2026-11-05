@@ -9,16 +9,18 @@ import ApiTable from '../components/ApiTable.vue';
 const TL_PROPS_ROWS = [
   ['orientation', '流向（反射）：vertical(默认) | horizontal；水平时下发 data-tl-orient 给各项', 'string', "'vertical'"],
   ['alternate', '左右交替（反射布尔）：开启后容器对各项轮流指派 side=start/end，全体统一三列中轴布局', 'boolean', 'false'],
-  ['line', '线段色（反射，扇出给各项）：border(缺省，淡边框色) | color（每段线由下端节点定色，即下一项的 color）| 直接写色名 primary/success…（整线统一）', 'string', "'border'"],
+  ['dot-color', '全局节点色（反射，扇出 data-tl-dot）：7 角色色名；仅对未自写 dot-color 的项生效', 'string', "''"],
+  ['line-color', '全局线色（反射，扇出 data-tl-line / data-tl-next-line）：7 角色色名；项自写 line-color 可覆盖；都未写时缺省淡边框色', 'string', "''"],
   ['label', '列表无障碍名（aria-label）', 'string', "'时间线'"],
 ];
 const TL_MEMBERS_ROWS = [
-  ['扇出标记', '对各项下发 data-tl-first / data-tl-last / data-tl-orient / data-tl-alt / data-tl-line / data-tl-next-color 与 side（幂等全量、slotchange 收敛）'],
+  ['扇出标记', '对各项下发 data-tl-first / data-tl-last / data-tl-orient / data-tl-alt / data-tl-dot / data-tl-line / data-tl-next-line 与 side（幂等全量、slotchange 收敛）'],
   ['part', 'base'],
 ];
 // API · x-timeline-item
 const ITEM_PROPS_ROWS = [
-  ['color', '节点语义色（反射，全库统一 7 角色）：primary(默认) / secondary / success / warning / danger / info / default(中性)', 'string', "'primary'"],
+  ['dot-color', '节点色（反射，全库统一 7 角色）：primary(缺省) / secondary / success / warning / danger / info / default(中性)；不写时吃容器 dot-color', 'string', "''"],
+  ['line-color', '本节点「之前」那段线的颜色（反射，7 角色）：不写时吃容器 line-color，都没有则淡边框色', 'string', "''"],
   ['icon', '节点图标（反射，吃内部登记名）：不写 = 小圆点；写了只换 glyph，节点体量与点档一致', 'string', "''"],
   ['time', '时间标签（内容上方 muted 小字，缺省不渲染行）', 'string', "''"],
   ['side', '内容侧（反射）：start | end；alternate 时由容器轮流指派，单独写也可强制某侧（自动切三列中轴布局）', 'string', "''"],
@@ -26,7 +28,7 @@ const ITEM_PROPS_ROWS = [
 const ITEM_MEMBERS_ROWS = [
   ['插槽', 'default = 内容体（标题/正文/头像随便组合）；name="icon" = 覆盖节点本体（放 x-avatar 等，presence 即隐光晕）'],
   ['part', 'base / node / content / time'],
-  ['定制变量', '--_tl-color（节点色，通常由 color 属性驱动）/ --_tl-line（线段色）'],
+  ['定制变量', '--_tl-color（节点色，由 dot-color 驱动）/ --_tl-line（本节点之前段线色，由 line-color 驱动）/ --_tl-line-below（下半段=下一项之前，由容器按下一项优先下发）'],
 ];
 </script>
 
@@ -55,9 +57,9 @@ const ITEM_MEMBERS_ROWS = [
 
     <Demo
       title="图标节点"
-      desc="icon 吃内部登记名，节点体量与点档一致只换图标；写 line=color 让每段线由下端节点定色（也可直接写 line=primary 这类色名整线统一）；也可用 slot=icon 放头像等任意内容覆盖节点"
+      desc="icon 吃内部登记名，节点体量与点档一致只换图标；也可用 slot=icon 放头像等任意内容覆盖节点"
       :source='`
-<x-timeline line="color">
+<x-timeline>
   <x-timeline-item icon="check" time="已验收">部署上线</x-timeline-item>
   <x-timeline-item icon="upload" time="进行中">上传资产</x-timeline-item>
   <x-timeline-item icon="settings">配置流水线</x-timeline-item>
@@ -66,15 +68,27 @@ const ITEM_MEMBERS_ROWS = [
     />
 
     <Demo
-      title="语义色"
-      desc="color 走全库统一 7 角色，驱动节点光晕与实心点颜色"
+      title="语义色 dot-color"
+      desc="dot-color 走全库统一 7 角色，驱动节点光晕与实心点颜色；容器写 dot-color 做全局配置，项自写可覆盖"
       :source='`
-<x-timeline>
-  <x-timeline-item color="success" time="完成">支付成功</x-timeline-item>
-  <x-timeline-item color="warning" time="注意">配额接近上限</x-timeline-item>
-  <x-timeline-item color="danger" time="失败">构建中断</x-timeline-item>
-  <x-timeline-item color="info" time="提示">新版本可用</x-timeline-item>
-  <x-timeline-item color="default" time="中性">归档旧日志</x-timeline-item>
+<x-timeline dot-color="info">
+  <x-timeline-item dot-color="success" time="完成">支付成功（项覆盖）</x-timeline-item>
+  <x-timeline-item time="提示">新版本可用（容器兜底）</x-timeline-item>
+  <x-timeline-item dot-color="danger" time="失败">构建中断</x-timeline-item>
+  <x-timeline-item dot-color="default" time="中性">归档旧日志</x-timeline-item>
+</x-timeline>
+`'
+    />
+
+    <Demo
+      title="线色 line-color"
+      desc="line-color 表示本节点「之前」那段线的颜色：容器写全局线色，项自写覆盖；下一项的 line-color 会同时接管上一项的下半段，同段线两端始终同色"
+      :source='`
+<x-timeline line-color="primary">
+  <x-timeline-item time="1984">Macintosh</x-timeline-item>
+  <x-timeline-item line-color="success" time="1998">iMac（之前段绿）</x-timeline-item>
+  <x-timeline-item time="2001">iPod（之前段容器 primary）</x-timeline-item>
+  <x-timeline-item line-color="danger" time="2007">iPhone（之前段红）</x-timeline-item>
 </x-timeline>
 `'
     />
@@ -101,10 +115,10 @@ const ITEM_MEMBERS_ROWS = [
   <x-timeline-item time="2 个月前">
     <div style="display: flex; flex-direction: column; gap: 2px"><b>上传了 doc.pdf</b><span style="color: var(--xie-color-muted)">记录关键项目细节并产出文档</span></div>
   </x-timeline-item>
-  <x-timeline-item time="1 个月前" color="success">
+  <x-timeline-item time="1 个月前" dot-color="success">
     <div style="display: flex; flex-direction: column; gap: 2px"><b>项目立项</b><span style="color: var(--xie-color-muted)">6 名成员进入项目</span></div>
   </x-timeline-item>
-  <x-timeline-item time="2 周前" color="info">
+  <x-timeline-item time="2 周前" dot-color="info">
     <div style="display: flex; flex-direction: column; gap: 2px"><b>中期评审</b><span style="color: var(--xie-color-muted)">进度 60%，风险可控</span></div>
   </x-timeline-item>
 </x-timeline>

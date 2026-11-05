@@ -65,7 +65,7 @@ export type {
 export type { XTimeline } from '../../components/timeline/x-timeline.js';
 export type {
   XTimelineItem,
-  TimelineItemColor,
+  TimelineColorRole,
   TimelineItemSide,
 } from '../../components/timeline/x-timeline-item.js';
 export type { XLogo } from '../../components/logo/x-logo.js';

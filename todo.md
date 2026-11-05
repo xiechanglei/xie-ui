@@ -15,7 +15,6 @@
 - skeleton 组件 https://flyonui.com/docs/components/skeleton/
 - stack 组件  https://flyonui.com/docs/components/stack/
 - swap 组件  https://flyonui.com/docs/components/swap/
-- timeline 组件 https://flyonui.com/docs/components/timeline/
 - stepper 组件 https://flyonui.com/docs/components/stepper/
 - treeview 组件 https://flyonui.com/docs/components/treeview/ 
 - context-menu 右键菜单组件 https://flyonui.com/docs/overlays/context-menu/

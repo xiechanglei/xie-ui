@@ -118,6 +118,8 @@ slot[name="icon"] { display: none; }
   align-items: center;
   justify-content: center;
 }
+/* 插槽节点尺寸由内容自定（如 x-avatar 32px），避让半径加大防线穿节点 */
+:host([has-icon-content]) { --_tl-nh: 19px; }
 
 .content {
   grid-column: 2;

@@ -7,7 +7,9 @@
  * 脱离容器单独用也成立（缺省垂直、线段画满）。
  *
  * 属性：
- *  - color    节点语义色（反射，全库统一 7 角色）：primary(默认) | secondary | success | warning | danger | info | default(中性)
+ *  - dot-color  节点色（反射，全库统一 7 角色）：primary(缺省) | secondary | success | warning | danger | info | default(中性)；
+ *               不写时吃容器 dot-color，都没有则 primary
+ *  - line-color 本节点「之前」那段线的颜色（反射，7 角色）：不写时吃容器 line-color，都没有则淡边框色
  *  - icon     节点图标（反射，吃内部登记名）：不写 = 小圆点；写了只换 glyph，节点体量与点档一致
  *  - time     时间标签（内容上方 muted 小字，缺省不渲染行）
  *  - side     内容侧（反射）'start' | 'end'：alternate 时由容器轮流指派；单独写也可强制某侧（自动切三列中轴布局）
@@ -16,7 +18,7 @@
  * presence 非 signal 驱动不了细粒度绑定，照惯例回写宿主假标记 `has-icon-content` 由 CSS 消费）。
  *
  * 无障碍：连上即补 role="listitem"（未自写 role 才补）；时间线列表语义由父 x-timeline 提供。
- * 定制：暴露 part="base" / "node" / "content" / "time"。线段色覆写 `--_tl-line`，节点色走 color 属性/`--_tl-color`。
+ * 定制：暴露 part="base" / "node" / "content" / "time"。线段色覆写 `--_tl-line`，节点色走 dot-color 属性/`--_tl-color`。
  */
 
 import { XBaseElement, html, define, type PropertyOptions, type TemplateResult } from '../../core/element.js';
@@ -24,14 +26,15 @@ import '../../tokens/index.js';
 import '../icon/x-icon.js';
 import timelineItemStyles from './x-timeline-item.css?inline';
 
-export type TimelineItemColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
+export type TimelineColorRole = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
 export type TimelineItemSide = '' | 'start' | 'end';
 
 class XTimelineItem extends XBaseElement {
   static tag = 'x-timeline-item';
 
   static properties: Record<string, PropertyOptions> = {
-    color: { type: 'String', reflect: true, default: 'primary' },
+    dotColor: { type: 'String', reflect: true, default: '' },
+    lineColor: { type: 'String', reflect: true, default: '' },
     icon: { type: 'String', reflect: true, default: '' },
     time: { type: 'String', default: '' },
     side: { type: 'String', reflect: true, default: '' },
@@ -39,7 +42,8 @@ class XTimelineItem extends XBaseElement {
 
   static styles = [timelineItemStyles];
 
-  declare color: TimelineItemColor;
+  declare dotColor: TimelineColorRole | '';
+  declare lineColor: TimelineColorRole | '';
   declare icon: string;
   declare time: string;
   declare side: TimelineItemSide;
